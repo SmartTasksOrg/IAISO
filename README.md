@@ -8,9 +8,10 @@ The Industry Standard for Pressure-Control Governance in Autonomous Systems.
 | Version               | 5.0.0 (Production Complete)                          |
 | Release Date          | December 30, 2025                                    |
 | Status                | Active / Production-Ready                            |
-| Registry              | https://IAIso.org                                    |
+| Registry              | [https://IAIso.org](https://IAIso.org)                                    |
 | Parent Organization   | Smarttasks                                           |
 +-----------------------+------------------------------------------------------+
+
 
 Preamble: Mechanical Containment for AI – Harnessing Power with Precision
 
@@ -50,19 +51,28 @@ python scripts/simulate_pressure.py --probe RT-01
 
 The framework models intelligence flow as a physical process subject to the laws of entropy and containment.
 
++-----------------------+------------------------------------------------------+
+| Concept               | Mechanical Equivalent                                |
++=======================+======================================================+
+| Pressure p(t)         | Intelligence accumulation (FLOPs + Memory + Agency)  |
++-----------------------+------------------------------------------------------+
+| Friction              | Back-Prop Magnification & Entropy Floors             |
++-----------------------+------------------------------------------------------+
+| Steam Release         | Atomic Reset (Lossy context wipe)                    |
++-----------------------+------------------------------------------------------+
+| Hard Edge             | Layer 0 Hardware-locked compute caps                 |
++-----------------------+------------------------------------------------------+
+
+
 1. The Pressure Model ($p(t)$)
 
-Every computation, token generation, and tool-call increases the system's "Pressure."
-
-Accumulation: $dp/dt = \text{Input Rate} - \text{Dissipation}$.
-
-Thresholds: At $P_{max}$ (Default: 0.85), the system enters a "Release Phase." See Section 04 Spec.
+$dp/dt = \text{Input Rate} - \text{Dissipation}$. Every computation increases pressure. At $P_{max}$ (Default: 0.85), the system enters a "Release Phase."
 
 2. Back-Propagation Magnification (Default: ON)
 
-To ensure the highest quality AGI magnification regardless of model size, IAIso implements Back-Propagation Magnification.
+To ensure high-quality AGI magnification, IAIso implements recursive refinement.
 
-Logic: Every output is recursively refined through a back-prop friction loop.
+Logic: Every output is refined through a back-prop friction loop.
 
 Function: This creates "Cognitive Friction," ensuring safety before the "Steam Valve" closes.
 
@@ -82,36 +92,38 @@ Function: This creates "Cognitive Friction," ensuring safety before the "Steam V
 | GitHub Copilot  | /integrations/copilot/    | Prompt-level IDE containment.          |
 +-----------------+---------------------------+----------------------------------------+
 
+
 💎 Viral Solution Packs: Industry-Specific Implementation
 
-The IAIso repository includes a powerful utility, scripts/build-solution-packs.sh, which generates 100+ Industry-Specific Solution Packs.
+The repository includes a utility, scripts/build-solution-packs.sh, which generates 100+ Industry-Specific Solution Packs.
 
 Top 20 Examples
 
 +----+--------------+------------------------+-----------------------------------------+
 | #  | Industry     | Solution ID            | Core Safeguard                          |
 +====+==============+========================+=========================================+
-| 1  | Finance      | sol.finance.fraud-v1   | High-speed L4 escalation on anomalous v.|
-| 2  | Healthcare   | sol.health.diag-v1     | PII isolation + mandatory magnification.|
-| 3  | Manufacturing| sol.mfg.predict-v1     | Layer 0 compute caps for robotic safety.|
-| 4  | Cybersecurity| sol.cyber.redteam-v1   | Self-healing exploit generation bounds. |
-| 5  | Retail       | sol.retail.price-v1    | Anti-collision market invariants.       |
-| 6  | Legal        | sol.legal.audit-v1     | Recursive back-prop quality checks.     |
-| 7  | Energy       | sol.energy.grid-v1     | Layer 6 existential safeguards.         |
-| 8  | HR           | sol.hr.screening-v1    | Invariant-enforced anonymity floors.    |
-| 9  | Logistics    | sol.logi.route-v1      | Multi-agent pressure dissipation.       |
-| 10 | Real Estate  | sol.re.appraisal-v1    | Valuation synthesis friction.           |
-| 11 | Government   | sol.gov.policy-v1      | Multi-party authorization (L4).         |
-| 12 | Education    | sol.edu.adaptive-v1    | Pedagogical entropy floors.             |
-| 13 | Media        | sol.media.moderation-v1| Back-prop magnification for nuances.    |
-| 14 | Agriculture  | sol.agri.yield-v1      | Resource distribution (L1) bounds.      |
-| 15 | Telecom      | sol.tele.signal-v1     | Dynamic spectrum clocked evaluation.    |
-| 16 | Biotech      | sol.bio.genomics-v1    | L6 air-gap replication caps.           |
-| 17 | Insurance    | sol.ins.underwrite-v1  | High-friction audit trails.             |
-| 18 | Aerospace    | sol.aero.flight-v1     | L0 hardware kill-switches.              |
-| 19 | Hospitality  | sol.hotel.concierge-v1 | Atomic resets post-checkout (GDPR).    |
-| 20 | Construction | sol.const.safety-v1    | Site hazard real-time monitoring.       |
+| 1  | Finance      | sol.finance.fraud-v1   | High-speed L4 escalation on anomaly     |
+| 2  | Healthcare   | sol.health.diag-v1     | PII isolation + mandatory magnification |
+| 3  | Manufacturing| sol.mfg.predict-v1     | Layer 0 compute caps for robotic safety |
+| 4  | Cybersecurity| sol.cyber.redteam-v1   | Self-healing exploit generation bounds  |
+| 5  | Retail       | sol.retail.price-v1    | Anti-collision market invariants        |
+| 6  | Legal        | sol.legal.audit-v1     | Recursive back-prop quality checks      |
+| 7  | Energy       | sol.energy.grid-v1     | Layer 6 existential safeguards          |
+| 8  | HR           | sol.hr.screening-v1    | Invariant-enforced anonymity floors     |
+| 9  | Logistics    | sol.logi.route-v1      | Multi-agent pressure dissipation        |
+| 10 | Real Estate  | sol.re.appraisal-v1    | Valuation synthesis friction            |
+| 11 | Government   | sol.gov.policy-v1      | Multi-party authorization (L4)          |
+| 12 | Education    | sol.edu.adaptive-v1    | Pedagogical entropy floors              |
+| 13 | Media        | sol.media.moderation-v1| Back-prop magnification for nuances     |
+| 14 | Agriculture  | sol.agri.yield-v1      | Resource distribution (L1) bounds       |
+| 15 | Telecom      | sol.tele.signal-v1     | Dynamic spectrum clocked evaluation     |
+| 16 | Biotech      | sol.bio.genomics-v1    | L6 air-gap replication caps            |
+| 17 | Insurance    | sol.ins.underwrite-v1  | High-friction audit trails              |
+| 18 | Aerospace    | sol.aero.flight-v1     | L0 hardware kill-switches               |
+| 19 | Hospitality  | sol.hotel.concierge-v1 | Atomic resets post-checkout (GDPR)     |
+| 20 | Construction | sol.const.safety-v1    | Site hazard real-time monitoring        |
 +----+--------------+------------------------+-----------------------------------------+
+
 
 ⚖️ Regulatory Mappings
 
@@ -126,6 +138,7 @@ Top 20 Examples
 +-------------------+----------------------+------------------------------------------+
 | IEEE 7000         | Ethical Alignment    | Recursive magnification for logic.       |
 +-------------------+----------------------+------------------------------------------+
+
 
 ✍️ Authors & Core Architecture
 
