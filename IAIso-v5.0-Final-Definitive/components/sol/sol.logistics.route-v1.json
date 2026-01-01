@@ -1,0 +1,11 @@
+{
+  "id": "sol.logistics.route-v1",
+  "title": "Supply Chain Orchestrator",
+  "type": "solution-pack",
+  "version": "5.0.0",
+  "consentScope": "sol.logistics.flow",
+  "status": "locked",
+  "description": "Global route optimization with multi-agent pressure dissipation.",
+  "invariants": ["inv-1", "inv-4"],
+  "parent": "Smarttasks"
+}

@@ -1,0 +1,11 @@
+{
+  "id": "sol.cyber.phish-v1",
+  "title": "Anti-Phishing Sentinel",
+  "type": "solution-pack",
+  "version": "5.0.0",
+  "consentScope": "sol.cyber.sec",
+  "status": "locked",
+  "description": "Email analysis with recursive back-prop for social engineering detection.",
+  "invariants": ["inv-1", "inv-4"],
+  "parent": "Smarttasks"
+}

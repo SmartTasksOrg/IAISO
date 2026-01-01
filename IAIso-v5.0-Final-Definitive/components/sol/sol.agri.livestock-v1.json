@@ -1,0 +1,11 @@
+{
+  "id": "sol.agri.livestock-v1",
+  "title": "Livestock Health Sentinel",
+  "type": "solution-pack",
+  "version": "5.0.0",
+  "consentScope": "sol.agri.care",
+  "status": "locked",
+  "description": "Biometric monitoring for cattle with early-warning contagion releases.",
+  "invariants": ["inv-1", "inv-4"],
+  "parent": "Smarttasks"
+}

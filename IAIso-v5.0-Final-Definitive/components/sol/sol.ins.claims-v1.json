@@ -1,0 +1,11 @@
+{
+  "id": "sol.ins.claims-v1",
+  "title": "Automated Claims Processor",
+  "type": "solution-pack",
+  "version": "5.0.0",
+  "consentScope": "sol.ins.ops",
+  "status": "locked",
+  "description": "Triage of small claims with high-friction checks for fraudulent patterns.",
+  "invariants": ["inv-1", "inv-4"],
+  "parent": "Smarttasks"
+}

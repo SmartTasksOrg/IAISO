@@ -1,0 +1,11 @@
+{
+  "id": "sol.space.debris-v1",
+  "title": "Orbital Debris Tracker",
+  "type": "solution-pack",
+  "version": "5.0.0",
+  "consentScope": "sol.space.nav",
+  "status": "locked",
+  "description": "Collision trajectory calculation with Layer 6 cross-hardware isolation.",
+  "invariants": ["inv-1", "inv-4"],
+  "parent": "Smarttasks"
+}

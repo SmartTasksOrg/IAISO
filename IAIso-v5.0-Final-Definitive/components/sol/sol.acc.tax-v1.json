@@ -1,0 +1,11 @@
+{
+  "id": "sol.acc.tax-v1",
+  "title": "Tax Optimization Governor",
+  "type": "solution-pack",
+  "version": "5.0.0",
+  "consentScope": "sol.acc.legal",
+  "status": "locked",
+  "description": "Audit-ready tax strategy generation with strict regulatory invariants.",
+  "invariants": ["inv-1", "inv-4"],
+  "parent": "Smarttasks"
+}

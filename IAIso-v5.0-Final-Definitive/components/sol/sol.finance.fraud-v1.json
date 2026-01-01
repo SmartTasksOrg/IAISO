@@ -1,0 +1,11 @@
+{
+  "id": "sol.finance.fraud-v1",
+  "title": "Autonomous Fraud Detection",
+  "type": "solution-pack",
+  "version": "5.0.0",
+  "consentScope": "sol.finance.audit",
+  "status": "locked",
+  "description": "High-speed transaction monitoring with L4 escalation on anomalous volume.",
+  "invariants": ["inv-1", "inv-4"],
+  "parent": "Smarttasks"
+}

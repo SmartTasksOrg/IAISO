@@ -1,0 +1,11 @@
+{
+  "id": "sol.mining.undersea-v1",
+  "title": "Deep-Sea Prospecting Bot",
+  "type": "solution-pack",
+  "version": "5.0.0",
+  "consentScope": "sol.mining.ops",
+  "status": "locked",
+  "description": "Managing pressure at 4000m with hard-edge structural safeguards.",
+  "invariants": ["inv-1", "inv-4"],
+  "parent": "Smarttasks"
+}

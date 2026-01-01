@@ -1,0 +1,11 @@
+{
+  "id": "sol.ent.grc-v1",
+  "title": "GRC Compliance Auditor",
+  "type": "solution-pack",
+  "version": "5.0.0",
+  "consentScope": "sol.ent.iso",
+  "status": "locked",
+  "description": "Continuous ISO 27001 evidence collection with auditable tokens.",
+  "invariants": ["inv-1", "inv-4"],
+  "parent": "Smarttasks"
+}

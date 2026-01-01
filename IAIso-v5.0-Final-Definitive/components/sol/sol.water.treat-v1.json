@@ -1,0 +1,11 @@
+{
+  "id": "sol.water.treat-v1",
+  "title": "Desalination Plant Governor",
+  "type": "solution-pack",
+  "version": "5.0.0",
+  "consentScope": "sol.water.kritis",
+  "status": "locked",
+  "description": "Chemical balance monitoring with hard caps on filtration pressure.",
+  "invariants": ["inv-1", "inv-4"],
+  "parent": "Smarttasks"
+}

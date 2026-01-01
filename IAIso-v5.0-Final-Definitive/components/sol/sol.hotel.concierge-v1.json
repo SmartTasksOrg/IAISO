@@ -1,0 +1,11 @@
+{
+  "id": "sol.hotel.concierge-v1",
+  "title": "Personalized Guest Engine",
+  "type": "solution-pack",
+  "version": "5.0.0",
+  "consentScope": "sol.hotel.guest",
+  "status": "locked",
+  "description": "Guest preference synthesis with atomic resets post-checkout (GDPR).",
+  "invariants": ["inv-1", "inv-4"],
+  "parent": "Smarttasks"
+}

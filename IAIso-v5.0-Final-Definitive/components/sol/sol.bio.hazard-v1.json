@@ -1,0 +1,11 @@
+{
+  "id": "sol.bio.hazard-v1",
+  "title": "Bio-Hazard Lab Monitor",
+  "type": "solution-pack",
+  "version": "5.0.0",
+  "consentScope": "sol.bio.safety",
+  "status": "locked",
+  "description": "Monitoring airflow and access in Level-4 labs with L0 isolation.",
+  "invariants": ["inv-1", "inv-4"],
+  "parent": "Smarttasks"
+}

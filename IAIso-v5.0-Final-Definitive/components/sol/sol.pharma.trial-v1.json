@@ -1,0 +1,11 @@
+{
+  "id": "sol.pharma.trial-v1",
+  "title": "Clinical Trial Monitor",
+  "type": "solution-pack",
+  "version": "5.0.0",
+  "consentScope": "sol.pharma.safety",
+  "status": "locked",
+  "description": "Analyzing patient trial data for early adverse signals with L4 halts.",
+  "invariants": ["inv-1", "inv-4"],
+  "parent": "Smarttasks"
+}

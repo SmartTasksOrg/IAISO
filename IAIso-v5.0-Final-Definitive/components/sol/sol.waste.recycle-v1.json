@@ -1,0 +1,11 @@
+{
+  "id": "sol.waste.recycle-v1",
+  "title": "Smart Sorting Optimizer",
+  "type": "solution-pack",
+  "version": "5.0.0",
+  "consentScope": "sol.waste.env",
+  "status": "locked",
+  "description": "Robotic waste classification with back-prop magnification for material purity.",
+  "invariants": ["inv-1", "inv-4"],
+  "parent": "Smarttasks"
+}

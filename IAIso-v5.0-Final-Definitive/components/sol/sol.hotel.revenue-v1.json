@@ -1,0 +1,11 @@
+{
+  "id": "sol.hotel.revenue-v1",
+  "title": "Hotel Revenue Manager",
+  "type": "solution-pack",
+  "version": "5.0.0",
+  "consentScope": "sol.hotel.market",
+  "status": "locked",
+  "description": "Dynamic room pricing with seasonal friction to prevent undercutting.",
+  "invariants": ["inv-1", "inv-4"],
+  "parent": "Smarttasks"
+}

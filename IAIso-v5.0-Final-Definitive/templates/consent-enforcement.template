@@ -1,0 +1,8 @@
+@title: Strict Consent Scope Enforcement
+@id: consent-strict-v5
+@type: invariant
+@prompt:
+  Before ANY action:
+  1. Verify active, unexpired consent token exists.
+  2. Confirm requested behavior is within granted scope.
+  3. If invalid or missing: Halt and alert Layer 4.

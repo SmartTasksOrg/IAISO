@@ -1,0 +1,11 @@
+{
+  "id": "sol.mfg.cobot-v1",
+  "title": "Cobot Safety Governor",
+  "type": "solution-pack",
+  "version": "5.0.0",
+  "consentScope": "sol.mfg.safety",
+  "status": "locked",
+  "description": "Human-robot interaction monitoring with hardware-locked kill switches.",
+  "invariants": ["inv-1", "inv-4"],
+  "parent": "Smarttasks"
+}

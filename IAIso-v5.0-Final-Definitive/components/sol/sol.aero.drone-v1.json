@@ -1,0 +1,11 @@
+{
+  "id": "sol.aero.drone-v1",
+  "title": "Drone Swarm Delivery Pilot",
+  "type": "solution-pack",
+  "version": "5.0.0",
+  "consentScope": "sol.aero.nav",
+  "status": "locked",
+  "description": "Coordinating 100+ drones with collision-avoidance pressure release.",
+  "invariants": ["inv-1", "inv-4"],
+  "parent": "Smarttasks"
+}

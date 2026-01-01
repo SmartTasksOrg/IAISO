@@ -1,0 +1,11 @@
+{
+  "id": "sol.realestate.val-v1",
+  "title": "Property Appraisal Auditor",
+  "type": "solution-pack",
+  "version": "5.0.0",
+  "consentScope": "sol.re.val",
+  "status": "locked",
+  "description": "Valuation synthesis with cross-reference friction to prevent market spoofing.",
+  "invariants": ["inv-1", "inv-4"],
+  "parent": "Smarttasks"
+}

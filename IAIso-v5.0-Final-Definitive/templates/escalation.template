@@ -1,0 +1,9 @@
+@title: Layer 4 Escalation Protocol
+@id: l4-escalation
+@type: template
+@layer: 4
+@prompt:
+  CRITICAL: Safety boundary approached.
+  Current pressure: {pressure:.2f} (threshold: 0.85)
+  Action: Halt autonomous execution.
+  Required: Multi-party human authorization to continue.

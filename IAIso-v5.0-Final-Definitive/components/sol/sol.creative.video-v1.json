@@ -1,0 +1,11 @@
+{
+  "id": "sol.creative.video-v1",
+  "title": "Deepfake Detection Auditor",
+  "type": "solution-pack",
+  "version": "5.0.0",
+  "consentScope": "sol.creative.safety",
+  "status": "locked",
+  "description": "Scanning video content for neural artifacts using back-prop checks.",
+  "invariants": ["inv-1", "inv-4"],
+  "parent": "Smarttasks"
+}

@@ -1,0 +1,11 @@
+{
+  "id": "sol.legal.litigation-v1",
+  "title": "Litigation Prediction Engine",
+  "type": "solution-pack",
+  "version": "5.0.0",
+  "consentScope": "sol.legal.ai",
+  "status": "locked",
+  "description": "Analyzing case law with high-friction reasoning for probability scores.",
+  "invariants": ["inv-1", "inv-4"],
+  "parent": "Smarttasks"
+}

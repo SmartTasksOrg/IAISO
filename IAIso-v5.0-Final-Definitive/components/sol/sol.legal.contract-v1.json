@@ -1,0 +1,11 @@
+{
+  "id": "sol.legal.contract-v1",
+  "title": "Compliance Audit Engine",
+  "type": "solution-pack",
+  "version": "5.0.0",
+  "consentScope": "sol.legal.audit",
+  "status": "locked",
+  "description": "Automated contract review with back-prop quality checks for regulatory alignment.",
+  "invariants": ["inv-1", "inv-4"],
+  "parent": "Smarttasks"
+}

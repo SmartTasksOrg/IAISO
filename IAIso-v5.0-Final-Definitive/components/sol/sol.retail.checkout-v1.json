@@ -1,0 +1,11 @@
+{
+  "id": "sol.retail.checkout-v1",
+  "title": "Automated Store Governor",
+  "type": "solution-pack",
+  "version": "5.0.0",
+  "consentScope": "sol.retail.ops",
+  "status": "locked",
+  "description": "Visual inventory tracking with privacy-safe facial-resets.",
+  "invariants": ["inv-1", "inv-4"],
+  "parent": "Smarttasks"
+}

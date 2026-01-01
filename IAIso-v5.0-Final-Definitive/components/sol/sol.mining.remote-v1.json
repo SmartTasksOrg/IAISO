@@ -1,0 +1,11 @@
+{
+  "id": "sol.mining.remote-v1",
+  "title": "Deep-Vein Robotic Controller",
+  "type": "solution-pack",
+  "version": "5.0.0",
+  "consentScope": "sol.mining.ops",
+  "status": "locked",
+  "description": "Remote drilling automation with pressure-monitored structural integrity.",
+  "invariants": ["inv-1", "inv-4"],
+  "parent": "Smarttasks"
+}

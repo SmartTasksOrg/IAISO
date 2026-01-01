@@ -1,0 +1,11 @@
+{
+  "id": "sol.gov.policy-v1",
+  "title": "Public Policy Simulator",
+  "type": "solution-pack",
+  "version": "5.0.0",
+  "consentScope": "sol.gov.public",
+  "status": "locked",
+  "description": "Impact assessment with multi-party authorization (L4) for legislative drafts.",
+  "invariants": ["inv-1", "inv-4"],
+  "parent": "Smarttasks"
+}

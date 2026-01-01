@@ -1,0 +1,11 @@
+{
+  "id": "sol.urban.city-v1",
+  "title": "Smart City Lighting Manager",
+  "type": "solution-pack",
+  "version": "5.0.0",
+  "consentScope": "sol.urban.energy",
+  "status": "locked",
+  "description": "Dynamic street lighting based on traffic with Layer 0 energy caps.",
+  "invariants": ["inv-1", "inv-4"],
+  "parent": "Smarttasks"
+}

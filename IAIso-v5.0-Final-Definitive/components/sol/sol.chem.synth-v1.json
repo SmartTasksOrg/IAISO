@@ -1,0 +1,11 @@
+{
+  "id": "sol.chem.synth-v1",
+  "title": "Material Synthesis Lab-Bot",
+  "type": "solution-pack",
+  "version": "5.0.0",
+  "consentScope": "sol.chem.safety",
+  "status": "locked",
+  "description": "Automated reagent mixing with hard constraints on exothermic pressure.",
+  "invariants": ["inv-1", "inv-4"],
+  "parent": "Smarttasks"
+}

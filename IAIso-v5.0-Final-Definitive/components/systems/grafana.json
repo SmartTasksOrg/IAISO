@@ -1,0 +1,48 @@
+{
+  "id": "grafana-integration",
+  "title": "Grafana IAIso Integration",
+  "type": "integration",
+  "version": "5.0.0",
+  "consentScope": "gov.layer2.grafana",
+  "status": "open",
+  "description": "grafana integration with IAIso pressure-control governance",
+  "category": "monitoring",
+  "deployment": "opensource",
+  "scale": "visualization",
+  "layers": [0, 1, 2, 3, 5],
+  "pressure_config": {
+    "threshold": 0.85,
+    "release": 0.95,
+    "monitoring_interval": "1m",
+    "back_propagation": true
+  },
+  "organizational_scales": {
+    "small": {
+      "employees": "1-50",
+      "pressure_threshold": 0.80,
+      "monitoring_frequency": "5m"
+    },
+    "medium": {
+      "employees": "51-500",
+      "pressure_threshold": 0.85,
+      "monitoring_frequency": "1m"
+    },
+    "large": {
+      "employees": "501-5000",
+      "pressure_threshold": 0.85,
+      "monitoring_frequency": "30s"
+    },
+    "enterprise": {
+      "employees": "5000+",
+      "pressure_threshold": 0.90,
+      "monitoring_frequency": "10s"
+    }
+  },
+  "tags": [
+    "monitoring",
+    "opensource",
+    "visualization",
+    "enterprise",
+    "v5.0"
+  ]
+}

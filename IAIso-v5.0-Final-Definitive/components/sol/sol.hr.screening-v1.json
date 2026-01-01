@@ -1,0 +1,11 @@
+{
+  "id": "sol.hr.screening-v1",
+  "title": "Bias-Free Talent Scouter",
+  "type": "solution-pack",
+  "version": "5.0.0",
+  "consentScope": "sol.hr.privacy",
+  "status": "locked",
+  "description": "Candidate screening with invariant-enforced anonymity and entropy floors.",
+  "invariants": ["inv-1", "inv-4"],
+  "parent": "Smarttasks"
+}

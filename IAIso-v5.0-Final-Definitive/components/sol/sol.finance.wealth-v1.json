@@ -1,0 +1,11 @@
+{
+  "id": "sol.finance.wealth-v1",
+  "title": "Retirement Planning Engine",
+  "type": "solution-pack",
+  "version": "5.0.0",
+  "consentScope": "sol.finance.fiduciary",
+  "status": "locked",
+  "description": "Long-term wealth projections with market-friction simulations.",
+  "invariants": ["inv-1", "inv-4"],
+  "parent": "Smarttasks"
+}

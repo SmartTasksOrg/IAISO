@@ -1,0 +1,11 @@
+{
+  "id": "sol.ent.supply-v1",
+  "title": "ERP Inventory Re-balancer",
+  "type": "solution-pack",
+  "version": "5.0.0",
+  "consentScope": "sol.ent.ops",
+  "status": "locked",
+  "description": "Balancing stock across global warehouses with transport-friction logic.",
+  "invariants": ["inv-1", "inv-4"],
+  "parent": "Smarttasks"
+}

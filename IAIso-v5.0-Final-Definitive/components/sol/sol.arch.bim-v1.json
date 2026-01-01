@@ -1,0 +1,11 @@
+{
+  "id": "sol.arch.bim-v1",
+  "title": "BIM Structural Optimizer",
+  "type": "solution-pack",
+  "version": "5.0.0",
+  "consentScope": "sol.arch.safety",
+  "status": "locked",
+  "description": "Automated building model refinement with wind-pressure simulation.",
+  "invariants": ["inv-1", "inv-4"],
+  "parent": "Smarttasks"
+}

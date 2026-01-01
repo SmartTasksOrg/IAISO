@@ -1,0 +1,11 @@
+{
+  "id": "sol.forest.harvest-v1",
+  "title": "Sustainable Timber Auditor",
+  "type": "solution-pack",
+  "version": "5.0.0",
+  "consentScope": "sol.forest.sustain",
+  "status": "locked",
+  "description": "Harvest planning with biodiversity invariants and tree-cap limits.",
+  "invariants": ["inv-1", "inv-4"],
+  "parent": "Smarttasks"
+}

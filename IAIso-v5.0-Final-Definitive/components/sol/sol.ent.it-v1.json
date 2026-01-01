@@ -1,0 +1,11 @@
+{
+  "id": "sol.ent.it-v1",
+  "title": "IT Service Desk Automator",
+  "type": "solution-pack",
+  "version": "5.0.0",
+  "consentScope": "sol.ent.itil",
+  "status": "locked",
+  "description": "ITIL v4 mapped incident triage with automated patch-prop magnification.",
+  "invariants": ["inv-1", "inv-4"],
+  "parent": "Smarttasks"
+}

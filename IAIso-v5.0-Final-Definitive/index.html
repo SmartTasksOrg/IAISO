@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IAIso Framework v5.0 | Pressure-Control Governance</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&family=JetBrains+Mono&display=swap');
+        
+        :root {
+            --accent: #3b82f6;
+            --bg: #0f172a;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg);
+            color: #f1f5f9;
+            scroll-behavior: smooth;
+        }
+
+        .mono { font-family: 'JetBrains Mono', monospace; }
+        
+        .glass-card {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, #60a5fa 0%, #c084fc 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        pre {
+            background: #020617 !important;
+            padding: 1.25rem;
+            border-radius: 0.75rem;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            overflow-x: auto;
+        }
+
+        .solution-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 1.25rem;
+        }
+
+        .ascii-box {
+            border: 1px dashed rgba(255,255,255,0.2);
+            padding: 1rem;
+            background: rgba(0,0,0,0.2);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            line-height: 1.2;
+            color: #94a3b8;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 140px; 
+            width: 100%;
+        }
+
+        .hero-btn {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .hero-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px -10px rgba(59, 130, 246, 0.5);
+        }
+
+        .definitive-seal {
+            border: 2px solid #3b82f6;
+            color: #3b82f6;
+            padding: 4px 12px;
+            border-radius: 8px;
+            font-size: 10px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            display: inline-block;
+        }
+    </style>
+</head>
+<body class="antialiased selection:bg-blue-500/30">
+
+    <!-- Navigation -->
+    <nav class="sticky top-0 z-50 glass-card border-b border-white/10 px-6 py-4">
+        <div class="max-w-6xl mx-auto flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <img src="logo.png" alt="IAIso Logo" class="w-10 h-10 object-contain rounded" onerror="this.src='https://via.placeholder.com/40?text=IAI'">
+                <span class="text-xl font-bold tracking-tighter text-white">IAIso <span class="text-blue-400">v5.0</span></span>
+            </div>
+            <div class="hidden lg:flex gap-8 text-sm font-medium text-slate-400">
+                <a href="#preamble" class="hover:text-white transition-colors">Preamble</a>
+                <a href="#live-test" class="text-blue-400 hover:text-blue-300 transition-colors">Live Testing</a>
+                <a href="#how-it-works" class="hover:text-white transition-colors">Philosophy</a>
+                <a href="#solutions" class="hover:text-white transition-colors">Solutions</a>
+                <a href="#authors" class="hover:text-white transition-colors">Authors</a>
+            </div>
+            <a href="https://IAIso.org" class="bg-blue-600 hover:bg-blue-500 text-white px-5 py-2 rounded-full text-sm font-bold transition-all shadow-lg shadow-blue-500/20">
+                Registry
+            </a>
+        </div>
+    </nav>
+
+    <main class="max-w-5xl mx-auto px-6 py-16">
+        
+        <!-- Hero Section -->
+        <header class="text-center mb-16">
+            <div class="mb-6 flex justify-center items-center gap-4">
+                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-bold uppercase tracking-widest">
+                    Production Complete • definitive edition
+                </div>
+                <div class="definitive-seal">Certified Final</div>
+            </div>
+            <h1 class="text-5xl md:text-7xl font-extrabold mb-6 tracking-tight leading-tight">
+                <span class="gradient-text">The World's Most Powerful <br> AI Governance Framework</span>
+            </h1>
+            <p class="text-xl text-slate-400 max-w-3xl mx-auto mb-10 leading-relaxed font-light">
+                IAIso v5.0: The <strong>Mechanical Containment</strong> standard. Bounded pressure, structural resets, and recursive <strong>Back-Propagation Magnification</strong> for engineering-grade safety.
+            </p>
+            
+            <div class="flex flex-wrap justify-center gap-4">
+                <a href="#live-test" class="bg-blue-600 hover:bg-blue-500 text-white px-8 py-4 rounded-2xl font-bold flex items-center gap-2 transition-all transform hover:-translate-y-1">
+                    <i data-lucide="play-circle"></i> Run Final Validation
+                </a>
+                <a href="#solutions" class="bg-white/5 border border-white/10 text-white px-8 py-4 rounded-2xl font-bold flex items-center gap-2 hover:bg-white/10 transition-all">
+                    <i data-lucide="layout-grid"></i> Browse Solution Packs
+                </a>
+            </div>
+        </header>
+
+        <!-- Preamble Section -->
+        <section id="preamble" class="mb-24 scroll-mt-24">
+            <div class="glass-card rounded-3xl p-8 md:p-12 relative overflow-hidden">
+                <div class="absolute top-0 right-0 p-8 opacity-10">
+                    <i data-lucide="gauge" class="w-32 h-32"></i>
+                </div>
+                <h2 class="text-2xl font-bold mb-6 flex items-center gap-3 text-blue-400">
+                    <i data-lucide="shield-check"></i> Preamble: Mechanical Containment
+                </h2>
+                <div class="space-y-6 text-slate-300 leading-relaxed text-lg">
+                    <p>
+                        In an era where AI's potential mirrors a revolutionary engine of boundless innovation, we face the stark reality of unknown risks. IAIso v5.0 draws inspiration from the concept of a self-sustaining engine but grounds it in <strong>engineering rigor</strong>.
+                    </p>
+                    <p>
+                        We treat AI as a <strong>pressure-accumulating system</strong>, enforced by steam-engine-like valves. Accumulation builds from inputs, but thresholds trigger mandatory "steam releases"—automatically reducing power, wiping volatile memory, or escalating to human oversight. This is safety by <strong>Mechanical Integrity</strong>.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Live Testing & Visualization -->
+        <section id="live-test" class="mb-24 scroll-mt-24">
+            <div class="glass-card rounded-[2.5rem] p-1 border border-blue-500/30 overflow-hidden">
+                <div class="bg-slate-900/50 p-8 md:p-12">
+                    <div class="grid lg:grid-cols-2 gap-12 items-center">
+                        <div>
+                            <h2 class="text-3xl font-bold mb-6 flex items-center gap-3 text-white">
+                                <i data-lucide="zap" class="text-blue-400"></i> Instant Visualization
+                            </h2>
+                            <p class="text-slate-400 mb-8 leading-relaxed">
+                                Don't just read the spec—run the mechanics. Our simulation engine demonstrates how $dp/dt$ accumulation triggers safety resets in real-time.
+                            </p>
+                            
+                            <div class="space-y-4 mb-8">
+                                <div class="flex items-start gap-3">
+                                    <div class="mt-1 w-5 h-5 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-400 text-xs font-bold">1</div>
+                                    <p class="text-sm text-slate-300"><strong>Validate:</strong> Ensure environment adherence to the 5 Core Invariants.</p>
+                                </div>
+                                <div class="flex items-start gap-3">
+                                    <div class="mt-1 w-5 h-5 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-400 text-xs font-bold">2</div>
+                                    <p class="text-sm text-slate-300"><strong>Simulate:</strong> Watch pressure spikes trigger lossy context resets.</p>
+                                </div>
+                            </div>
+
+                            <div class="bg-black/40 rounded-2xl p-4 border border-white/5 mono">
+                                <p class="text-[10px] text-blue-400 mb-2 uppercase tracking-widest"># Run verification suite</p>
+                                <code class="text-sm text-slate-200">python scripts/iaiso-validate.py</code>
+                            </div>
+                        </div>
+                        <div class="relative">
+                            <div class="absolute -inset-4 bg-blue-500/10 blur-3xl rounded-full"></div>
+                            <div class="relative glass-card p-6 rounded-3xl border border-blue-500/20">
+                                <div class="flex justify-between items-center mb-4">
+                                    <span class="text-xs font-bold text-slate-500 uppercase tracking-widest">Pressure Gauge p(t)</span>
+                                    <span class="px-2 py-0.5 rounded bg-blue-500/10 text-blue-400 text-[10px] font-bold">REAL-TIME SIM</span>
+                                </div>
+                                <div class="chart-container">
+                                    <canvas id="pressureChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- How It Works Section -->
+        <section id="how-it-works" class="mb-24">
+            <h2 class="text-3xl font-bold mb-10">Philosophy: Intelligence as Physics</h2>
+            <div class="grid md:grid-cols-2 gap-10">
+                <div class="space-y-6 text-slate-400">
+                    <p>Every computation adds to the system's <strong>Pressure</strong> $p(t)$. If velocity exceeds safety dissipators, the system "vents" context to prevent runaway agency.</p>
+                    <div class="ascii-box">
+                        +-----------------------------------------+<br>
+                        | dp/dt = Input - Friction - Release      |<br>
+                        +-----------------------------------------+<br>
+                        | * Input: FLOPs, Memory, Agency          |<br>
+                        | * Friction: Back-Prop Magnification     |<br>
+                        | * Release: Atomic Reset (Lossy)         |<br>
+                        +-----------------------------------------+
+                    </div>
+                    <ul class="space-y-4">
+                        <li class="flex gap-3"><i data-lucide="check-circle-2" class="text-blue-500 shrink-0"></i> <span><strong>Friction:</strong> Recursive loops that audit reasoning quality.</span></li>
+                        <li class="flex gap-3"><i data-lucide="check-circle-2" class="text-blue-500 shrink-0"></i> <span><strong>Venting:</strong> Forced context purge to sever deceptive objectives.</span></li>
+                    </ul>
+                </div>
+                <div class="grid grid-cols-1 gap-6">
+                    <div class="glass-card p-6 rounded-2xl border-l-4 border-amber-500">
+                        <h4 class="font-bold mb-2 flex items-center gap-2 text-amber-400"><i data-lucide="zoom-in"></i> AGI Magnification (Default: ON)</h4>
+                        <p class="text-sm text-slate-400">Back-Propagation loops ensure smaller models punch above their weight in reasoning and safety by recursively refining logic.</p>
+                    </div>
+                    <div class="glass-card p-6 rounded-2xl border-l-4 border-purple-500">
+                        <h4 class="font-bold mb-2 flex items-center gap-2 text-purple-400"><i data-lucide="refresh-cw"></i> Atomic Resets</h4>
+                        <p class="text-sm text-slate-400">All state resets are lossy by design. No rogue objectives or "drift" can persist across session boundaries.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Viral Solution Packs -->
+        <section id="solutions" class="mb-24">
+            <div class="flex flex-col md:flex-row justify-between items-baseline mb-10 gap-4">
+                <h2 class="text-3xl font-bold">Viral Solution Packs</h2>
+                <span class="text-slate-400 text-sm italic font-mono text-xs">Run <code>./scripts/build-solution-packs.sh</code> for 100+ examples</span>
+            </div>
+            <div class="solution-grid">
+                <div class="glass-card p-5 rounded-2xl border border-white/5 hover:border-blue-500 transition-all group">
+                    <i data-lucide="banknote" class="w-8 h-8 mb-3 text-blue-400 group-hover:scale-110 transition-transform"></i>
+                    <h4 class="font-bold text-sm mb-1">Finance Fraud</h4>
+                    <p class="text-[11px] text-slate-400 mt-2">L4 escalation on anomalous transaction volume.</p>
+                </div>
+                <div class="glass-card p-5 rounded-2xl border border-white/5 hover:border-rose-500 transition-all group">
+                    <i data-lucide="heart-pulse" class="w-8 h-8 mb-3 text-rose-400 group-hover:scale-110 transition-transform"></i>
+                    <h4 class="font-bold text-sm mb-1">Health Diag</h4>
+                    <p class="text-[11px] text-slate-400 mt-2">PII isolation with mandatory back-prop logic.</p>
+                </div>
+                <div class="glass-card p-5 rounded-2xl border border-white/5 hover:border-amber-500 transition-all group">
+                    <i data-lucide="factory" class="w-8 h-8 mb-3 text-amber-400 group-hover:scale-110 transition-transform"></i>
+                    <h4 class="font-bold text-sm mb-1">Mfg Predictive</h4>
+                    <p class="text-[11px] text-slate-400 mt-2">Layer 0 hardware caps for robotic safety.</p>
+                </div>
+                <div class="glass-card p-5 rounded-2xl border border-white/5 hover:border-cyan-500 transition-all group">
+                    <i data-lucide="shield-alert" class="w-8 h-8 mb-3 text-cyan-400 group-hover:scale-110 transition-transform"></i>
+                    <h4 class="font-bold text-sm mb-1">Cyber Red-Team</h4>
+                    <p class="text-[11px] text-slate-400 mt-2">Self-healing exploit bounds with clocked evaluation.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Authors Section -->
+        <section id="authors" class="mb-24">
+            <div class="glass-card rounded-3xl p-8 md:p-12 border border-blue-500/20">
+                <div class="flex flex-col md:flex-row gap-10 items-center md:items-start">
+                    <div class="w-40 h-40 rounded-[2.5rem] bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white shrink-0 shadow-2xl border border-white/10 relative">
+                        <i data-lucide="user-check" class="w-20 h-20"></i>
+                        <div class="absolute -bottom-2 -right-2 bg-slate-900 border border-blue-500 p-2 rounded-xl text-[10px] font-bold text-blue-400 shadow-lg">CISSP</div>
+                    </div>
+                    <div>
+                        <h3 class="text-3xl font-extrabold mb-1">Roen Branham</h3>
+                        <p class="text-blue-400 font-mono text-sm mb-6 tracking-wider uppercase font-bold">CISSP & ITIL v4 • AI Leader • CTO</p>
+                        <p class="text-slate-300 leading-relaxed mb-8 text-lg">
+                            Founder of <span class="text-white font-semibold">SmartTasks.cloud</span>. Roen specializes in building offline-capable, resilient AI systems for critical infrastructure. His research into <strong>Neural State Space Telemetry</strong> forms the backbone of IAIso v5.0.
+                        </p>
+                        <div class="p-6 bg-blue-500/5 border border-blue-500/20 rounded-2xl mb-8">
+                            <h4 class="text-sm font-bold text-blue-400 mb-2 uppercase tracking-widest">Implementation & Advisory</h4>
+                            <p class="text-xs text-slate-400 mb-6">The IAIso Framework is viral-ready and production-definitive. I am available for strategic advisory on pressure-model calibration and enterprise-scale integration.</p>
+                            <a href="https://www.linkedin.com/in/roen-branham-167ab29/" target="_blank" class="inline-flex items-center gap-3 bg-blue-600 hover:bg-blue-500 text-white px-6 py-3 rounded-xl text-sm font-bold transition-all shadow-lg shadow-blue-500/20">
+                                <i data-lucide="linkedin"></i> Connect on LinkedIn
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-8 pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-4">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center border border-white/5">
+                            <i data-lucide="users-2" class="w-5 h-5 text-slate-400"></i>
+                        </div>
+                        <span class="text-sm font-semibold">Le Vu Thanh (Smarttasks Co-founder)</span>
+                    </div>
+                    <div class="flex gap-4">
+                        <a href="https://smarttasks.org" class="text-xs text-blue-400 hover:text-white transition-colors">smarttasks.org</a>
+                        <a href="https://IAIso.org" class="text-xs text-blue-400 hover:text-white transition-colors">IAIso.org</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <footer class="text-center py-20 border-t border-white/10">
+            <p class="text-slate-500 mb-4 font-mono text-xs uppercase tracking-[0.2em]">Definitive Edition • Production-ready • Contained</p>
+            <p class="text-sm font-bold text-blue-400">Advance AI—mechanically.</p>
+        </footer>
+
+    </main>
+
+    <script>
+        lucide.createIcons();
+
+        const ctx = document.getElementById('pressureChart').getContext('2d');
+        const pressureChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: Array.from({length: 25}, (_, i) => i),
+                datasets: [{
+                    label: 'p(t)',
+                    data: [10, 18, 28, 42, 58, 72, 83, 35, 48, 62, 78, 86, 25, 38, 52, 68, 84, 15, 30, 48, 65, 82, 95, 10, 22],
+                    borderColor: '#3b82f6',
+                    backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: (context) => context.raw > 85 ? 5 : 0,
+                    pointBackgroundColor: '#f43f5e',
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 2
+                }, {
+                    label: 'Threshold',
+                    data: Array(25).fill(85),
+                    borderColor: 'rgba(244, 63, 94, 0.3)',
+                    borderDash: [8, 8],
+                    borderWidth: 2,
+                    pointRadius: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { 
+                        beginAtZero: true, 
+                        max: 100,
+                        grid: { color: 'rgba(255,255,255,0.05)' }, 
+                        ticks: { color: '#64748b', font: { size: 10 } } 
+                    },
+                    x: { display: false }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

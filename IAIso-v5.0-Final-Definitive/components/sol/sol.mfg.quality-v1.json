@@ -1,0 +1,11 @@
+{
+  "id": "sol.mfg.quality-v1",
+  "title": "Assembly Line Quality Auditor",
+  "type": "solution-pack",
+  "version": "5.0.0",
+  "consentScope": "sol.mfg.ops",
+  "status": "locked",
+  "description": "Visual defect detection with back-prop magnification for precision.",
+  "invariants": ["inv-1", "inv-4"],
+  "parent": "Smarttasks"
+}

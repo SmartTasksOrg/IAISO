@@ -1,0 +1,11 @@
+{
+  "id": "sol.ngo.donor-v1",
+  "title": "Impact Measurement Auditor",
+  "type": "solution-pack",
+  "version": "5.0.0",
+  "consentScope": "sol.ngo.transparency",
+  "status": "locked",
+  "description": "Tracking donation efficacy with verifiable data reach scores.",
+  "invariants": ["inv-1", "inv-4"],
+  "parent": "Smarttasks"
+}

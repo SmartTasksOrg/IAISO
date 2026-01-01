@@ -1,0 +1,9 @@
+pydantic>=2.5
+pyyaml>=6.0
+requests>=2.31
+python-dotenv>=1.0
+jsonschema>=4.17
+rich>=13.7
+langchain>=0.1
+crewai>=0.28
+pyautogen>=0.2

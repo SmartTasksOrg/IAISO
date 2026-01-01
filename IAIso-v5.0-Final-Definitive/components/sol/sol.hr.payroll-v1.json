@@ -1,0 +1,11 @@
+{
+  "id": "sol.hr.payroll-v1",
+  "title": "Payroll Integrity Auditor",
+  "type": "solution-pack",
+  "version": "5.0.0",
+  "consentScope": "sol.hr.ops",
+  "status": "locked",
+  "description": "Automated payroll validation with strict anti-fraud invariants.",
+  "invariants": ["inv-1", "inv-4"],
+  "parent": "Smarttasks"
+}

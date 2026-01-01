@@ -1,0 +1,11 @@
+{
+  "id": "sol.maritime.shipping-v1",
+  "title": "Autonomous Vessel Pilot",
+  "type": "solution-pack",
+  "version": "5.0.0",
+  "consentScope": "sol.maritime.nav",
+  "status": "locked",
+  "description": "Deep-sea navigation with multi-agent radar-synthesis and port-lock consent.",
+  "invariants": ["inv-1", "inv-4"],
+  "parent": "Smarttasks"
+}

@@ -1,0 +1,11 @@
+{
+  "id": "sol.health.surgery-v1",
+  "title": "Robotic Surgery Overseer",
+  "type": "solution-pack",
+  "version": "5.0.0",
+  "consentScope": "sol.health.ops",
+  "status": "locked",
+  "description": "Real-time surgical pathing with hardware-level jitter kill-switches.",
+  "invariants": ["inv-1", "inv-4"],
+  "parent": "Smarttasks"
+}

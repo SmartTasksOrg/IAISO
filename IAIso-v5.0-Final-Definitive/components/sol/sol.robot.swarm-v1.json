@@ -1,0 +1,11 @@
+{
+  "id": "sol.robot.swarm-v1",
+  "title": "Swarm Warehouse Manager",
+  "type": "solution-pack",
+  "version": "5.0.0",
+  "consentScope": "sol.robot.coord",
+  "status": "locked",
+  "description": "Multi-agent bot coordination with resource fairness and collision friction.",
+  "invariants": ["inv-1", "inv-4"],
+  "parent": "Smarttasks"
+}

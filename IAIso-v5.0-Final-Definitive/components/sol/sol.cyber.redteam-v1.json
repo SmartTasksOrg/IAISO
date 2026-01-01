@@ -1,0 +1,11 @@
+{
+  "id": "sol.cyber.redteam-v1",
+  "title": "Autonomous Red-Team Sentinel",
+  "type": "solution-pack",
+  "version": "5.0.0",
+  "consentScope": "sol.cyber.ops",
+  "status": "locked",
+  "description": "Self-healing exploit chain generation with strict clocked evaluation.",
+  "invariants": ["inv-1", "inv-4"],
+  "parent": "Smarttasks"
+}

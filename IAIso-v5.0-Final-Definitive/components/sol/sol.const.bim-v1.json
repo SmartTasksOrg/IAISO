@@ -1,0 +1,11 @@
+{
+  "id": "sol.const.bim-v1",
+  "title": "BIM Safety Auditor",
+  "type": "solution-pack",
+  "version": "5.0.0",
+  "consentScope": "sol.const.ops",
+  "status": "locked",
+  "description": "Monitoring structural site safety via real-time vision-to-state mapping.",
+  "invariants": ["inv-1", "inv-4"],
+  "parent": "Smarttasks"
+}

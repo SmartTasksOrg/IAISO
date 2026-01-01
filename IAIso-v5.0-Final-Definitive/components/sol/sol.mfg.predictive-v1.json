@@ -1,0 +1,11 @@
+{
+  "id": "sol.mfg.predictive-v1",
+  "title": "Predictive Maintenance Governor",
+  "type": "solution-pack",
+  "version": "5.0.0",
+  "consentScope": "sol.mfg.control",
+  "status": "locked",
+  "description": "IoT sensor analysis with hard Layer 0 compute caps for robotic safety.",
+  "invariants": ["inv-1", "inv-4"],
+  "parent": "Smarttasks"
+}

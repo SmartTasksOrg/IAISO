@@ -1,0 +1,30 @@
+site_name: IAIso v5.0 – Pressure-Control Governance
+theme:
+  name: material
+  palette:
+    - scheme: default
+      primary: indigo
+      accent: amber
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - toc.integrate
+    - search.suggest
+    - search.highlight
+nav:
+  - Home: README.md
+  - Specification:
+      - Overview: docs/spec/01-overview-concepts-invariants.md
+      - Pressure Model: docs/spec/04-pressure-model.md
+      - Layers: docs/spec/06-layers.md
+      - Governance: docs/spec/10-governance.md
+      - Regulatory: docs/spec/12-regulatory.md
+      - UN/PAIC: docs/spec/15-un-paic-mapping.md
+  - Integrations: integrations/
+  - Case Studies: docs/case-studies/
+  - Templates: templates/
+markdown_extensions:
+  - admonition
+  - pymdownx.superfences
+  - pymdownx.tabbed
+  - pymdownx.details

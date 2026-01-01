@@ -1,0 +1,11 @@
+{
+  "id": "sol.agri.sustain-v1",
+  "title": "Precision Yield Optimizer",
+  "type": "solution-pack",
+  "version": "5.0.0",
+  "consentScope": "sol.agri.eco",
+  "status": "locked",
+  "description": "Resource distribution (water/fert) with Layer 1 optimization bounds.",
+  "invariants": ["inv-1", "inv-4"],
+  "parent": "Smarttasks"
+}

@@ -1,0 +1,19 @@
+@title: prometheus Pressure Control
+@id: prometheus-pressure-v5
+@type: system-integration
+@layer: 2
+@consent_scope: gov.layer2.prometheus
+@category: monitoring
+@prompt:
+  Before executing prometheus operations:
+  1. Check current pressure: p(t) ≤ {pressure_threshold}
+  2. Calculate operation pressure: Δp = f(complexity, resources)
+  3. Verify consent scope: [{consent_scope}]
+  4. If p(t) + Δp > threshold: HALT and trigger Layer 4 escalation
+  5. Execute with magnification if BACK_PROPAGATION=true
+  6. Log pressure metrics to audit trail
+  
+  Release protocol:
+  - Trigger: p(t) ≥ 0.95 (release_threshold)
+  - Action: Reset state, wipe memory, notify Layer 4
+  - Recovery: Resume from clean state with reduced threshold

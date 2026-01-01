@@ -1,0 +1,11 @@
+{
+  "id": "sol.mktg.sentiment-v1",
+  "title": "Brand Sentiment Analyst",
+  "type": "solution-pack",
+  "version": "5.0.0",
+  "consentScope": "sol.mktg.social",
+  "status": "locked",
+  "description": "Massive scale social sentiment tracking with release valves for hype cycles.",
+  "invariants": ["inv-1", "inv-4"],
+  "parent": "Smarttasks"
+}

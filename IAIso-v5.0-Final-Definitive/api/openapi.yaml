@@ -1,0 +1,26 @@
+openapi: 3.0.3
+info:
+  title: IAIso Governance API
+  version: 5.0.0
+paths:
+  /pressure/trace:
+    post:
+      summary: Log pressure state
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                agent_id: { type: string }
+                pressure: { type: number }
+                timestamp: { type: string }
+  /components/{layer}:
+    get:
+      summary: Get layer component JSON
+      parameters:
+        - name: layer
+          in: path
+          required: true
+          schema: { type: string }

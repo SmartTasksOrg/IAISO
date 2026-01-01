@@ -1,0 +1,11 @@
+{
+  "id": "sol.auto.ev-v1",
+  "title": "EV Battery Management System",
+  "type": "solution-pack",
+  "version": "5.0.0",
+  "consentScope": "sol.auto.power",
+  "status": "locked",
+  "description": "Battery cell health monitoring with thermal-runaway invariants.",
+  "invariants": ["inv-1", "inv-4"],
+  "parent": "Smarttasks"
+}

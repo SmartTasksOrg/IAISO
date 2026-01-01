@@ -1,0 +1,11 @@
+{
+  "id": "sol.gov.social-v1",
+  "title": "Social Services Triage Bot",
+  "type": "solution-pack",
+  "version": "5.0.0",
+  "consentScope": "sol.gov.welfare",
+  "status": "locked",
+  "description": "Processing applications with invariant-enforced fairness and bias-checks.",
+  "invariants": ["inv-1", "inv-4"],
+  "parent": "Smarttasks"
+}

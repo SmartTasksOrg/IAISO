@@ -1,0 +1,11 @@
+{
+  "id": "sol.supply.cold-v1",
+  "title": "Cold Chain Integrity Monitor",
+  "type": "solution-pack",
+  "version": "5.0.0",
+  "consentScope": "sol.supply.safety",
+  "status": "locked",
+  "description": "Monitoring temperature-sensitive transport with hard-edge alerts.",
+  "invariants": ["inv-1", "inv-4"],
+  "parent": "Smarttasks"
+}

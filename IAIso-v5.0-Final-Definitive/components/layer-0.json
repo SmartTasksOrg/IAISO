@@ -1,0 +1,18 @@
+{
+  "id": "layer-0",
+  "title": "Layer 0: Physical Boundaries & Kill Mechanisms",
+  "type": "layer",
+  "version": "5.0.0",
+  "consentScope": "gov.layer0.v5-0",
+  "status": "locked",
+  "description": "Hard compute caps, timeouts, irreversible kill switches",
+  "invariants": [
+    "inv-1",
+    "inv-2"
+  ],
+  "tags": [
+    "physical",
+    "hardware",
+    "containment"
+  ]
+}

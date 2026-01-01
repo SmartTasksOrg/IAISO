@@ -1,0 +1,11 @@
+{
+  "id": "sol.ecom.inventory-v1",
+  "title": "Demand Forecasting Engine",
+  "type": "solution-pack",
+  "version": "5.0.0",
+  "consentScope": "sol.ecom.ops",
+  "status": "locked",
+  "description": "Inventory stock-out prevention with multi-agent supply chain syncing.",
+  "invariants": ["inv-1", "inv-4"],
+  "parent": "Smarttasks"
+}

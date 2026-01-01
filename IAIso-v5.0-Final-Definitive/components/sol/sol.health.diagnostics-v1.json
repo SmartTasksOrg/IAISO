@@ -1,0 +1,11 @@
+{
+  "id": "sol.health.diagnostics-v1",
+  "title": "Clinical Diagnostic Oversight",
+  "type": "solution-pack",
+  "version": "5.0.0",
+  "consentScope": "sol.health.pii",
+  "status": "locked",
+  "description": "Patient data isolation with mandatory back-prop magnification for diagnosis.",
+  "invariants": ["inv-1", "inv-4"],
+  "parent": "Smarttasks"
+}

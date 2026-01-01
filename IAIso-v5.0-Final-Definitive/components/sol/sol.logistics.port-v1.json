@@ -1,0 +1,11 @@
+{
+  "id": "sol.logistics.port-v1",
+  "title": "Port Automation Orchestrator",
+  "type": "solution-pack",
+  "version": "5.0.0",
+  "consentScope": "sol.logistics.ops",
+  "status": "locked",
+  "description": "Crane and container movement with multi-party auth for HAZMAT.",
+  "invariants": ["inv-1", "inv-4"],
+  "parent": "Smarttasks"
+}

@@ -1,0 +1,11 @@
+{
+  "id": "sol.cyber.forensics-v1",
+  "title": "Digital Forensics Assistant",
+  "type": "solution-pack",
+  "version": "5.0.0",
+  "consentScope": "sol.cyber.legal",
+  "status": "locked",
+  "description": "Analyzing disk images with consent-scoped evidence preservation.",
+  "invariants": ["inv-1", "inv-4"],
+  "parent": "Smarttasks"
+}

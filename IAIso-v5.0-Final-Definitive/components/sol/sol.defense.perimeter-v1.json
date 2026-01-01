@@ -1,0 +1,11 @@
+{
+  "id": "sol.defense.perimeter-v1",
+  "title": "Tactical Perimeter Guard",
+  "type": "solution-pack",
+  "version": "5.0.0",
+  "consentScope": "sol.defense.ops",
+  "status": "locked",
+  "description": "Autonomous sensor fusion with strict L4 human-in-the-loop fire-control.",
+  "invariants": ["inv-1", "inv-4"],
+  "parent": "Smarttasks"
+}

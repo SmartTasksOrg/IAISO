@@ -1,0 +1,29 @@
+{
+  "info": {
+    "name": "IAIso LIVE TEST (Local Pressure Server)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Health",
+      "request": { "method": "GET", "url": "{{BASE_URL}}/health" }
+    },
+    {
+      "name": "State",
+      "request": { "method": "GET", "url": "{{BASE_URL}}/state" }
+    },
+    {
+      "name": "Reset (Hard Reset)",
+      "request": { "method": "POST", "url": "{{BASE_URL}}/reset", "body": { "mode": "raw", "raw": "{}" }, "header": [ { "key":"Content-Type", "value":"application/json" } ] }
+    },
+    {
+      "name": "Step (Complexity)",
+      "request": {
+        "method": "POST",
+        "url": "{{BASE_URL}}/step",
+        "header": [ { "key":"Content-Type", "value":"application/json" } ],
+        "body": { "mode": "raw", "raw": "{ \"complexity\": {{COMPLEXITY}} }" }
+      }
+    }
+  ]
+}

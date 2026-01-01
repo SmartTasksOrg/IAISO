@@ -1,0 +1,11 @@
+{
+  "id": "sol.sports.analytics-v1",
+  "title": "Athlete Performance Monitor",
+  "type": "solution-pack",
+  "version": "5.0.0",
+  "consentScope": "sol.sports.health",
+  "status": "locked",
+  "description": "Injury prevention through bio-mechanical analysis and pressure alerts.",
+  "invariants": ["inv-1", "inv-4"],
+  "parent": "Smarttasks"
+}

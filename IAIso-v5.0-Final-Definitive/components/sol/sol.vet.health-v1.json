@@ -1,0 +1,11 @@
+{
+  "id": "sol.vet.health-v1",
+  "title": "Pet Health Monitoring Bot",
+  "type": "solution-pack",
+  "version": "5.0.0",
+  "consentScope": "sol.vet.care",
+  "status": "locked",
+  "description": "Analyzing animal vitals with back-prop diagnostic magnification.",
+  "invariants": ["inv-1", "inv-4"],
+  "parent": "Smarttasks"
+}

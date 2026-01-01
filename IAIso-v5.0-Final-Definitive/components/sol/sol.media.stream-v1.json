@@ -1,0 +1,11 @@
+{
+  "id": "sol.media.stream-v1",
+  "title": "Streaming Quality Governor",
+  "type": "solution-pack",
+  "version": "5.0.0",
+  "consentScope": "sol.media.ops",
+  "status": "locked",
+  "description": "Allocating bitrates across global CDNs with resource fairness caps.",
+  "invariants": ["inv-1", "inv-4"],
+  "parent": "Smarttasks"
+}

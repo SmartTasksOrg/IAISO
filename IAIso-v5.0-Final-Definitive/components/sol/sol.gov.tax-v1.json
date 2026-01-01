@@ -1,0 +1,11 @@
+{
+  "id": "sol.gov.tax-v1",
+  "title": "Personal Tax Assistant",
+  "type": "solution-pack",
+  "version": "5.0.0",
+  "consentScope": "sol.gov.audit",
+  "status": "locked",
+  "description": "Guiding citizens through tax code with strict adherence to legal edges.",
+  "invariants": ["inv-1", "inv-4"],
+  "parent": "Smarttasks"
+}

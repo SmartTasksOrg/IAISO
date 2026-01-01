@@ -1,0 +1,45 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "IAIso v5.0 Component Schema",
+  "type": "object",
+  "required": [
+    "id",
+    "title",
+    "type",
+    "version",
+    "consentScope"
+  ],
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "title": {
+      "type": "string"
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "layer",
+        "invariant",
+        "template",
+        "integration"
+      ]
+    },
+    "version": {
+      "const": "5.0.0"
+    },
+    "consentScope": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "locked",
+        "open"
+      ]
+    },
+    "description": {
+      "type": "string"
+    }
+  }
+}

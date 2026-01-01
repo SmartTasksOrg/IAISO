@@ -1,0 +1,11 @@
+{
+  "id": "sol.game.npc-v1",
+  "title": "Dynamic NPC Behavior Logic",
+  "type": "solution-pack",
+  "version": "5.0.0",
+  "consentScope": "sol.game.ai",
+  "status": "locked",
+  "description": "Autonomous NPC interactions with agency bounds to prevent game-breaking loops.",
+  "invariants": ["inv-1", "inv-4"],
+  "parent": "Smarttasks"
+}

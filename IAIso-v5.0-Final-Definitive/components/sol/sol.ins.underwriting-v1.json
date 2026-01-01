@@ -1,0 +1,11 @@
+{
+  "id": "sol.ins.underwriting-v1",
+  "title": "Risk Assessment Engine",
+  "type": "solution-pack",
+  "version": "5.0.0",
+  "consentScope": "sol.ins.underwrite",
+  "status": "locked",
+  "description": "Automated underwriting with high-friction audit trails for transparency.",
+  "invariants": ["inv-1", "inv-4"],
+  "parent": "Smarttasks"
+}

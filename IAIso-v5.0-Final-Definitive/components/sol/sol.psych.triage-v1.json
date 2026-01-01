@@ -1,0 +1,11 @@
+{
+  "id": "sol.psych.triage-v1",
+  "title": "Mental Health Screening Bot",
+  "type": "solution-pack",
+  "version": "5.0.0",
+  "consentScope": "sol.psych.safety",
+  "status": "locked",
+  "description": "Triage assessment with Layer 4 escalation for high-risk indicators.",
+  "invariants": ["inv-1", "inv-4"],
+  "parent": "Smarttasks"
+}

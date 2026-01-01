@@ -1,0 +1,6 @@
+class Lifecycle:
+    INIT = "INIT"
+    RUNNING = "RUNNING"
+    ESCALATED = "ESCALATED"
+    RELEASED = "RELEASED"
+    LOCKED = "LOCKED"

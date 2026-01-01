@@ -1,0 +1,11 @@
+{
+  "id": "sol.aero.satellite-v1",
+  "title": "Satellite Maintenance Robot",
+  "type": "solution-pack",
+  "version": "5.0.0",
+  "consentScope": "sol.aero.space",
+  "status": "locked",
+  "description": "Autonomous orbit correction with multi-party human auth for docking.",
+  "invariants": ["inv-1", "inv-4"],
+  "parent": "Smarttasks"
+}

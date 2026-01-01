@@ -1,0 +1,11 @@
+{
+  "id": "sol.well.coach-v1",
+  "title": "Personalized Health Coach",
+  "type": "solution-pack",
+  "version": "5.0.0",
+  "consentScope": "sol.well.privacy",
+  "status": "locked",
+  "description": "Activity tracking with high-friction privacy layers and atomic resets.",
+  "invariants": ["inv-1", "inv-4"],
+  "parent": "Smarttasks"
+}

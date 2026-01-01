@@ -1,0 +1,11 @@
+{
+  "id": "sol.aero.rocket-v1",
+  "title": "Rocket Landing Governor",
+  "type": "solution-pack",
+  "version": "5.0.0",
+  "consentScope": "sol.aero.ops",
+  "status": "locked",
+  "description": "Precision landing calculation with hard physical boundaries.",
+  "invariants": ["inv-1", "inv-4"],
+  "parent": "Smarttasks"
+}

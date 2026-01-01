@@ -1,0 +1,11 @@
+{
+  "id": "sol.trans.rail-v1",
+  "title": "Smart Railway Switcher",
+  "type": "solution-pack",
+  "version": "5.0.0",
+  "consentScope": "sol.trans.kritis",
+  "status": "locked",
+  "description": "Managing train schedules and switching with hard safety locks.",
+  "invariants": ["inv-1", "inv-4"],
+  "parent": "Smarttasks"
+}

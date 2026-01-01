@@ -1,0 +1,11 @@
+{
+  "id": "sol.oilgas.leak-v1",
+  "title": "Pipeline Integrity Sentinel",
+  "type": "solution-pack",
+  "version": "5.0.0",
+  "consentScope": "sol.oilgas.env",
+  "status": "locked",
+  "description": "Real-time leak detection and autonomous valve-shutoff with L4 escalation.",
+  "invariants": ["inv-1", "inv-4"],
+  "parent": "Smarttasks"
+}

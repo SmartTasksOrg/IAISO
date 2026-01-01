@@ -1,0 +1,11 @@
+{
+  "id": "sol.edu.grading-v1",
+  "title": "Automated Essay Feedback",
+  "type": "solution-pack",
+  "version": "5.0.0",
+  "consentScope": "sol.edu.ai",
+  "status": "locked",
+  "description": "Providing feedback with pedagogical entropy floors to encourage growth.",
+  "invariants": ["inv-1", "inv-4"],
+  "parent": "Smarttasks"
+}

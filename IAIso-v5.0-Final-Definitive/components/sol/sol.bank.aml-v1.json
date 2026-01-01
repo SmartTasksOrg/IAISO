@@ -1,0 +1,11 @@
+{
+  "id": "sol.bank.aml-v1",
+  "title": "Anti-Money Laundering Sentinel",
+  "type": "solution-pack",
+  "version": "5.0.0",
+  "consentScope": "sol.bank.audit",
+  "status": "locked",
+  "description": "Transaction pattern analysis with recursive back-prop for obfuscation detection.",
+  "invariants": ["inv-1", "inv-4"],
+  "parent": "Smarttasks"
+}

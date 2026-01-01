@@ -1,0 +1,11 @@
+{
+  "id": "sol.finance.crypto-v1",
+  "title": "DeFi Liquidity Optimizer",
+  "type": "solution-pack",
+  "version": "5.0.0",
+  "consentScope": "sol.finance.safety",
+  "status": "locked",
+  "description": "Managing pool balances with anti-slippage invariants and L0 caps.",
+  "invariants": ["inv-1", "inv-4"],
+  "parent": "Smarttasks"
+}

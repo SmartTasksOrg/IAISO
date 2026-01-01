@@ -1,0 +1,11 @@
+{
+  "id": "sol.auto.valet-v1",
+  "title": "Autonomous Valet Orchestrator",
+  "type": "solution-pack",
+  "version": "5.0.0",
+  "consentScope": "sol.auto.safety",
+  "status": "locked",
+  "description": "Precision parking and fleet movement with collision-avoidance invariants.",
+  "invariants": ["inv-1", "inv-4"],
+  "parent": "Smarttasks"
+}

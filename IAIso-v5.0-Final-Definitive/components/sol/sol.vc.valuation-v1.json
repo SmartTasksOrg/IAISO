@@ -1,0 +1,11 @@
+{
+  "id": "sol.vc.valuation-v1",
+  "title": "Startup Viability Auditor",
+  "type": "solution-pack",
+  "version": "5.0.0",
+  "consentScope": "sol.vc.market",
+  "status": "locked",
+  "description": "Market trend synthesis and financial health verification with friction loops.",
+  "invariants": ["inv-1", "inv-4"],
+  "parent": "Smarttasks"
+}
