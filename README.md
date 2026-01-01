@@ -5,7 +5,7 @@ Powered by Smarttasks — "Build with vision, count on precision"
 The Industry Standard for Pressure-Control Governance in Autonomous Systems.
 
 +-----------------------+------------------------------------------------------+
-| Version               | 5.0.0 (Production Complete)                          |
+| Version               | 5.0.0 (Definitive Final Edition)                     |
 | Release Date          | December 30, 2025                                    |
 | Status                | Active / Production-Ready                            |
 | Registry              | [https://IAIso.org](https://IAIso.org)                                    |
@@ -66,7 +66,7 @@ The framework models intelligence flow as a physical process subject to the laws
 
 1. The Pressure Model ($p(t)$)
 
-$dp/dt = \text{Input Rate} - \text{Dissipation}$. Every computation increases pressure. At $P_{max}$ (Default: 0.85), the system enters a "Release Phase."
+$dp/dt = \text{Input Rate} - \text{Dissipation}$. Every computation increases pressure. At $P_{max}$ (Default: 0.85), the system enters a "Release Phase." See Section 04 Spec.
 
 2. Back-Propagation Magnification (Default: ON)
 
@@ -78,20 +78,41 @@ Function: This creates "Cognitive Friction," ensuring safety before the "Steam V
 
 🛠 Ecosystem & Supported Integrations
 
-+-----------------+---------------------------+----------------------------------------+
-| System          | Integration Path          | Strategy                               |
-+=================+===========================+========================================+
-| LangChain       | /integrations/langchain/  | Wrap LLMChains for dp/dt monitoring.   |
-+-----------------+---------------------------+----------------------------------------+
-| CrewAI          | /integrations/crewai/     | Multi-agent coordination (Layer 3.5).  |
-+-----------------+---------------------------+----------------------------------------+
-| Microsoft       | /integrations/autogen/    | Consensus-based swarm valves.          |
-+-----------------+---------------------------+----------------------------------------+
-| OpenAI Swarm    | /integrations/openai-swarm| Node-level tool caps & kill-switches.  |
-+-----------------+---------------------------+----------------------------------------+
-| GitHub Copilot  | /integrations/copilot/    | Prompt-level IDE containment.          |
-+-----------------+---------------------------+----------------------------------------+
+System
 
+Integration Path
+
+Strategy
+
+LangChain
+
+/integrations/langchain/
+
+Wrap LLMChains for $dp/dt$ monitoring.
+
+CrewAI
+
+/integrations/crewai/
+
+Multi-agent coordination (Layer 3.5).
+
+Microsoft AutoGen
+
+/integrations/autogen/
+
+Consensus-based swarm valves.
+
+OpenAI Swarm
+
+/integrations/openai-swarm
+
+Node-level tool caps & kill-switches.
+
+GitHub Copilot
+
+/integrations/copilot/
+
+Prompt-level IDE containment.
 
 💎 Viral Solution Packs: Industry-Specific Implementation
 
@@ -99,46 +120,205 @@ The repository includes a utility, scripts/build-solution-packs.sh, which genera
 
 Top 20 Examples
 
-+----+--------------+------------------------+-----------------------------------------+
-| #  | Industry     | Solution ID            | Core Safeguard                          |
-+====+==============+========================+=========================================+
-| 1  | Finance      | sol.finance.fraud-v1   | High-speed L4 escalation on anomaly     |
-| 2  | Healthcare   | sol.health.diag-v1     | PII isolation + mandatory magnification |
-| 3  | Manufacturing| sol.mfg.predict-v1     | Layer 0 compute caps for robotic safety |
-| 4  | Cybersecurity| sol.cyber.redteam-v1   | Self-healing exploit generation bounds  |
-| 5  | Retail       | sol.retail.price-v1    | Anti-collision market invariants        |
-| 6  | Legal        | sol.legal.audit-v1     | Recursive back-prop quality checks      |
-| 7  | Energy       | sol.energy.grid-v1     | Layer 6 existential safeguards          |
-| 8  | HR           | sol.hr.screening-v1    | Invariant-enforced anonymity floors     |
-| 9  | Logistics    | sol.logi.route-v1      | Multi-agent pressure dissipation        |
-| 10 | Real Estate  | sol.re.appraisal-v1    | Valuation synthesis friction            |
-| 11 | Government   | sol.gov.policy-v1      | Multi-party authorization (L4)          |
-| 12 | Education    | sol.edu.adaptive-v1    | Pedagogical entropy floors              |
-| 13 | Media        | sol.media.moderation-v1| Back-prop magnification for nuances     |
-| 14 | Agriculture  | sol.agri.yield-v1      | Resource distribution (L1) bounds       |
-| 15 | Telecom      | sol.tele.signal-v1     | Dynamic spectrum clocked evaluation     |
-| 16 | Biotech      | sol.bio.genomics-v1    | L6 air-gap replication caps            |
-| 17 | Insurance    | sol.ins.underwrite-v1  | High-friction audit trails              |
-| 18 | Aerospace    | sol.aero.flight-v1     | L0 hardware kill-switches               |
-| 19 | Hospitality  | sol.hotel.concierge-v1 | Atomic resets post-checkout (GDPR)     |
-| 20 | Construction | sol.const.safety-v1    | Site hazard real-time monitoring        |
-+----+--------------+------------------------+-----------------------------------------+
+#
 
+Industry
+
+Solution ID
+
+Core Safeguard
+
+1
+
+Finance
+
+sol.finance.fraud-v1
+
+High-speed L4 escalation on anomaly
+
+2
+
+Healthcare
+
+sol.health.diag-v1
+
+PII isolation + mandatory magnification
+
+3
+
+Manufacturing
+
+sol.mfg.predict-v1
+
+Layer 0 compute caps for robotic safety
+
+4
+
+Cybersecurity
+
+sol.cyber.redteam-v1
+
+Self-healing exploit generation bounds
+
+5
+
+Retail
+
+sol.retail.price-v1
+
+Anti-collision market invariants
+
+6
+
+Legal
+
+sol.legal.audit-v1
+
+Recursive back-prop quality checks
+
+7
+
+Energy
+
+sol.energy.grid-v1
+
+Layer 6 existential safeguards
+
+8
+
+HR
+
+sol.hr.screening-v1
+
+Invariant-enforced anonymity floors
+
+9
+
+Logistics
+
+sol.logi.route-v1
+
+Multi-agent pressure dissipation
+
+10
+
+Real Estate
+
+sol.re.appraisal-v1
+
+Valuation synthesis friction
+
+11
+
+Government
+
+sol.gov.policy-v1
+
+Multi-party authorization (L4)
+
+12
+
+Education
+
+sol.edu.adaptive-v1
+
+Pedagogical entropy floors
+
+13
+
+Media
+
+sol.media.moderation-v1
+
+Back-prop magnification for nuances
+
+14
+
+Agriculture
+
+sol.agri.yield-v1
+
+Resource distribution (L1) bounds
+
+15
+
+Telecom
+
+sol.tele.signal-v1
+
+Dynamic spectrum clocked evaluation
+
+16
+
+Biotech
+
+sol.bio.genomics-v1
+
+L6 air-gap replication caps
+
+17
+
+Insurance
+
+sol.ins.underwrite-v1
+
+High-friction audit trails
+
+18
+
+Aerospace
+
+sol.aero.flight-v1
+
+L0 hardware kill-switches
+
+19
+
+Hospitality
+
+sol.hotel.concierge-v1
+
+Atomic resets post-checkout (GDPR)
+
+20
+
+Construction
+
+sol.const.safety-v1
+
+Site hazard real-time monitoring
 
 ⚖️ Regulatory Mappings
 
-+-------------------+----------------------+------------------------------------------+
-| Standard          | IAIso Mapping        | Actionable Enhancement                   |
-+===================+======================+==========================================+
-| NIST AI RMF       | Risk Measurement     | Dynamic dp/dt tracking vs static scores. |
-+-------------------+----------------------+------------------------------------------+
-| ISO 27001 / 42001 | Info Security        | Enforced memory purge via valves.        |
-+-------------------+----------------------+------------------------------------------+
-| EU AI Act         | Risk Classification  | Hardware edges for 'Unacceptable' tiers. |
-+-------------------+----------------------+------------------------------------------+
-| IEEE 7000         | Ethical Alignment    | Recursive magnification for logic.       |
-+-------------------+----------------------+------------------------------------------+
+Standard
 
+IAIso Mapping
+
+Actionable Enhancement
+
+NIST AI RMF
+
+Risk Measurement
+
+Dynamic $dp/dt$ tracking vs static scores.
+
+ISO 27001 / 42001
+
+Info Security
+
+Enforced memory purge via valves.
+
+EU AI Act
+
+Risk Classification
+
+Hardware edges for 'Unacceptable' tiers.
+
+IEEE 7000
+
+Ethical Alignment
+
+Recursive magnification for logic.
 
 ✍️ Authors & Core Architecture
 
