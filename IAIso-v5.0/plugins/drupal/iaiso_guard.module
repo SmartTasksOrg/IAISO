@@ -1,0 +1,8 @@
+<?php
+function iaiso_guard_node_insert($node) {
+    // Call Python SDK for safety check
+    $out = shell_exec("python3 -c 'from sdk.python.iaiso.engine import IAIsoEngine; print(IAIsoEngine().update_pressure(tokens=500))'");
+    if (trim($out) == "RELEASED") {
+        \Drupal::messenger()->addError("IAIso: Automated content generation halted.");
+    }
+}

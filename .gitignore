@@ -21,3 +21,5 @@ setup_examples.sh
 create-live-test.sh
 iaiso-enhancements.sh
 iaiso-v5-enterprise-generator.sh
+setup_sdks.sh
+README.md.BAK
