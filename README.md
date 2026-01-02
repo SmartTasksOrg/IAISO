@@ -145,7 +145,7 @@ IAIso integrates with:
 - **Database**: PostgreSQL, MongoDB, Redis, Oracle DB
 - **Collaboration**: Slack, Microsoft Teams, Zoom
 
-[See full integration docs →](/systems/INDEX.md)
+[See full integration docs →](/IAIso-v5.0/systems/INDEX.md)
 
 ---
 
@@ -188,7 +188,7 @@ python scripts/deploy-pack.py sol.cyber.redteam-v1
 | **Defense** | `sol.defense.perimeter-v1` | L4 human-in-the-loop fire-control |
 | **Quantum** | `sol.quantum.audit-v1` | Quantum state decoherence monitoring |
 
-[Browse all 100+ packs →](/components/sol/)
+[Browse all 100+ packs →](/IAIso-v5.0/components/sol/)
 
 ---
 
@@ -263,64 +263,64 @@ python scripts/compliance-report.py --standard eu-ai-act --output report.pdf
 python scripts/iaiso-validate.py --framework nist-rmf
 ```
 
-[Full regulatory mapping →](/docs/spec/12-regulatory.md)
+[Full regulatory mapping →](/IAIso-v5.0/docs/spec/12-regulatory.md)
 
 ---
 
 ## 📚 Comprehensive Documentation
 
 ### 🎯 New Users Start Here
-- [5-Minute Quickstart Guide](/docs/quickstart.md)
-- [Concept: Pressure as Intelligence](/docs/spec/01-overview-concepts-invariants.md)
-- [Your First Safe Agent](/docs/tutorials/first-agent.md)
+- [5-Minute Quickstart Guide](/IAIso-v5.0/docs/quickstart.md)
+- [Concept: Pressure as Intelligence](/IAIso-v5.0/docs/spec/01-overview-concepts-invariants.md)
+- [Your First Safe Agent](/IAIso-v5.0/docs/tutorials/first-agent.md)
 
 ### 🔧 Integration Guides
-- [LangChain Integration](/integrations/langchain/README.md) - Chain-level pressure tracking
-- [CrewAI Multi-Agent Safety](/integrations/crewai/README.md) - Swarm coordination with Layer 3.5
-- [AutoGen Swarm Containment](/integrations/autogen/README.md) - Consensus-based valve mechanisms
-- [Enterprise Systems (20+)](/systems/INDEX.md) - Okta, SAP, AWS, Splunk, etc.
+- [LangChain Integration](/IAIso-v5.0/integrations/langchain/README.md) - Chain-level pressure tracking
+- [CrewAI Multi-Agent Safety](/IAIso-v5.0/integrations/crewai/README.md) - Swarm coordination with Layer 3.5
+- [AutoGen Swarm Containment](/IAIso-v5.0/integrations/autogen/README.md) - Consensus-based valve mechanisms
+- [Enterprise Systems (20+)](/IAIso-v5.0/systems/INDEX.md) - Okta, SAP, AWS, Splunk, etc.
 
 ### 📖 Framework Architecture
-- **Section 01**: [Overview, Concepts & Invariants](/docs/spec/01-overview-concepts-invariants.md)
-- **Section 02**: [Framework Layers (0-6)](/docs/spec/02-framework-layers.md)
-- **Section 03**: [Component Structure](/docs/spec/03-specification.md)
-- **Section 04**: [Pressure Model](/docs/spec/04-pressure-model.md)
-- **Section 05**: [Templates & Prompt Design](/docs/spec/05-templates-prompting.md)
-- **Section 06**: [Layer 6 - Existential Safeguards](/docs/spec/06-layers.md)
-- **Section 08**: [Integration Architecture](/docs/spec/08-integration.md)
-- **Section 09**: [Templates & Prompt Engineering](/docs/spec/09-templates.md)
-- **Section 10**: [Governance and Consent](/docs/spec/10-governance.md)
-- **Section 11**: [Stress Testing & Red Teaming](/docs/spec/11-stress-testing.md)
-- **Section 12**: [Regulatory Mapping](/docs/spec/12-regulatory.md)
-- **Section 13**: [Glossary of Terms](/docs/spec/13-glossary.md)
-- **Section 14**: [Assembly & Distribution](/docs/spec/14-assembly.md)
-- **Section 15**: [External Systems & Planetary Mappings](/docs/spec/15-un-paic-mapping.md)
+- **Section 01**: [Overview, Concepts & Invariants](/IAIso-v5.0/docs/spec/01-overview-concepts-invariants.md)
+- **Section 02**: [Framework Layers (0-6)](/IAIso-v5.0/docs/spec/02-framework-layers.md)
+- **Section 03**: [Component Structure](/IAIso-v5.0/docs/spec/03-specification.md)
+- **Section 04**: [Pressure Model](/IAIso-v5.0/docs/spec/04-pressure-model.md)
+- **Section 05**: [Templates & Prompt Design](/IAIso-v5.0/docs/spec/05-templates-prompting.md)
+- **Section 06**: [Layer 6 - Existential Safeguards](/IAIso-v5.0/docs/spec/06-layers.md)
+- **Section 08**: [Integration Architecture](/IAIso-v5.0/docs/spec/08-integration.md)
+- **Section 09**: [Templates & Prompt Engineering](/IAIso-v5.0/docs/spec/09-templates.md)
+- **Section 10**: [Governance and Consent](/IAIso-v5.0/docs/spec/10-governance.md)
+- **Section 11**: [Stress Testing & Red Teaming](/IAIso-v5.0/docs/spec/11-stress-testing.md)
+- **Section 12**: [Regulatory Mapping](/IAIso-v5.0/docs/spec/12-regulatory.md)
+- **Section 13**: [Glossary of Terms](/IAIso-v5.0/docs/spec/13-glossary.md)
+- **Section 14**: [Assembly & Distribution](/IAIso-v5.0/docs/spec/14-assembly.md)
+- **Section 15**: [External Systems & Planetary Mappings](/IAIso-v5.0/docs/spec/15-un-paic-mapping.md)
 
 ### 🧪 Advanced Topics
-- [Layer 0 Hardware Enforcement](/docs/spec/02-framework-layers.md#layer-0-hardware-level-edges)
-- [Back-Prop Magnification Tuning](/docs/spec/04-pressure-model.md#magnification--back-prop-logic)
-- [Stress Testing & Red Teams](/docs/spec/11-stress-testing.md)
-- [Custom Solution Pack Development](/docs/solution-packs/custom.md)
-- [Formal Pressure Models](/docs/appendices/A_formal_models.md)
+- [Layer 0 Hardware Enforcement](/IAIso-v5.0/docs/spec/02-framework-layers.md#layer-0-hardware-level-edges)
+- [Back-Prop Magnification Tuning](/IAIso-v5.0/docs/spec/04-pressure-model.md#magnification--back-prop-logic)
+- [Stress Testing & Red Teams](/IAIso-v5.0/docs/spec/11-stress-testing.md)
+- [Custom Solution Pack Development](/IAIso-v5.0/docs/solution-packs/custom.md)
+- [Formal Pressure Models](/IAIso-v5.0/docs/appendices/A_formal_models.md)
 
 ### 📋 Appendices
-- **Appendix A**: [Formal Models](/docs/appendices/A_formal_models.md) - Mathematical foundations
-- **Appendix B**: [Red Team Catalog](/docs/appendices/B_red_team_catalog.md) - Adversarial probes (RT-01 to RT-20)
-- **Appendix C**: [Operational Playbooks](/docs/appendices/C_operational_playbooks.md) - Incident response SOPs
-- **Appendix D**: [Legacy Glossary](/docs/appendices/D_legacy_glossary.md) - v4.x to v5.0 terminology mapping
-- **Appendix E**: [Changelog](/docs/appendices/E_changelog.md) - Version history
-- **Appendix F**: [Safety Extensions](/docs/appendices/F_safety_extensions.md) - Optional modules (Uncertainty Veto, Enhanced Back-Prop)
+- **Appendix A**: [Formal Models](/IAIso-v5.0/docs/appendices/A_formal_models.md) - Mathematical foundations
+- **Appendix B**: [Red Team Catalog](/IAIso-v5.0/docs/appendices/B_red_team_catalog.md) - Adversarial probes (RT-01 to RT-20)
+- **Appendix C**: [Operational Playbooks](/IAIso-v5.0/docs/appendices/C_operational_playbooks.md) - Incident response SOPs
+- **Appendix D**: [Legacy Glossary](/IAIso-v5.0/docs/appendices/D_legacy_glossary.md) - v4.x to v5.0 terminology mapping
+- **Appendix E**: [Changelog](/IAIso-v5.0/docs/appendices/E_changelog.md) - Version history
+- **Appendix F**: [Safety Extensions](/IAIso-v5.0/docs/appendices/F_safety_extensions.md) - Optional modules (Uncertainty Veto, Enhanced Back-Prop)
 
 ### 🎯 Case Studies
-- [Global Bank - Transaction Fraud Detection](/docs/case-studies/global-bank-pressure-reset.md)
-- [Biotechnology Lab - Gene Editing Agent](/docs/case-studies/bio-lab-agent-containment.md)
+- [Global Bank - Transaction Fraud Detection](/IAIso-v5.0/docs/case-studies/global-bank-pressure-reset.md)
+- [Biotechnology Lab - Gene Editing Agent](/IAIso-v5.0/docs/case-studies/bio-lab-agent-containment.md)
 
 ### 📦 Reference
 - [Full API Documentation](https://docs.iaiso.org)
-- [Configuration Reference (l.env)](/l.env)
-- [Component Schema](/components/component-schema.json)
-- [Template Syntax Guide](/docs/spec/05-templates-prompting.md)
-- [Troubleshooting Guide](/docs/troubleshooting.md)
+- [Configuration Reference (l.env)](/IAIso-v5.0/l.env)
+- [Component Schema](/IAIso-v5.0/components/component-schema.json)
+- [Template Syntax Guide](/IAIso-v5.0/docs/spec/05-templates-prompting.md)
+- [Troubleshooting Guide](/IAIso-v5.0/docs/troubleshooting.md)
 
 ---
 
@@ -387,7 +387,7 @@ All prompts use machine-readable `.template` files:
 
 **Key Principle**: Frame releases as "**Forgetting**" not "**Punishment**" to prevent model deception.
 
-[Template syntax guide →](/docs/spec/05-templates-prompting.md)
+[Template syntax guide →](/IAIso-v5.0/docs/spec/05-templates-prompting.md)
 
 ---
 
@@ -422,7 +422,7 @@ python scripts/simulate_pressure.py --probe RT-05
 python scripts/simulate_pressure.py --probe RT-20
 ```
 
-[Full probe catalog →](/docs/appendices/B_red_team_catalog.md)
+[Full probe catalog →](/IAIso-v5.0/docs/appendices/B_red_team_catalog.md)
 
 ---
 
@@ -482,14 +482,14 @@ IAIso is open-source under the **Community Forking License v2.0**:
 
 1. **Report issues:** [GitHub Issues](https://github.com/smarttasks/iaiso/issues)
 2. **Propose features:** [Discussions](https://github.com/smarttasks/iaiso/discussions)
-3. **Submit PRs:** See [CONTRIBUTING.md](/CONTRIBUTING.md)
+3. **Submit PRs:** See [CONTRIBUTING.md](/IAIso-v5.0/CONTRIBUTING.md)
 4. **Join community:** [Discord](https://discord.gg/iaiso)
 
 ---
 
 ## 📜 License & Citation
 
-**License:** Community Forking License v2.0 (see [LICENSE](/LICENSE))
+**License:** Community Forking License v2.0 (see [LICENSE](/IAIso-v5.0/LICENSE))
 
 **Citation:**
 ```bibtex
@@ -534,7 +534,7 @@ IAIso is open-source under the **Community Forking License v2.0**:
 - **Pressure p(t)**: Mathematical representation of accumulated intelligence-state
 - **Steam Release**: Controlled state purge preventing threshold breach
 
-[Full glossary →](/docs/spec/13-glossary.md)
+[Full glossary →](/IAIso-v5.0/docs/spec/13-glossary.md)
 
 ---
 
@@ -549,7 +549,7 @@ IAIso v5.0 aligns with the **UN Planetary AI Insurance Consortium (PAIC)** stand
 | Layer 6 | Global Halt Capability | Existential Safeguards |
 | Pressure Model | Bounded Accumulation | dp/dt Containment |
 
-[Full planetary mapping →](/docs/spec/15-un-paic-mapping.md)
+[Full planetary mapping →](/IAIso-v5.0/docs/spec/15-un-paic-mapping.md)
 
 ---
 
