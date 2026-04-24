@@ -1,0 +1,117 @@
+# Default values for the IAIso chart.
+
+image:
+  repository: iaiso
+  tag: "0.1.0"
+  pullPolicy: IfNotPresent
+
+# Number of coordinator replicas. The coordinator is horizontally
+# scalable when backed by Redis — each replica sees the shared fleet
+# state. Three is a reasonable starting point for HA.
+replicaCount: 3
+
+# Command and args to run inside the container. This should be your
+# coordinator process, not the CLI. See examples/coordinator_service.py
+# in the repository for a starting point.
+command: []
+args: []
+
+# Config policy. Rendered into a ConfigMap and mounted at /etc/iaiso/policy.yaml.
+policy:
+  # If empty, a safe default is used. In production, provide your own.
+  contents: ""
+
+# Backing services. RedisCoordinator requires a reachable Redis. If you
+# run Redis via bitnami/redis, point to its Service DNS here.
+redis:
+  url: redis://redis-master.default.svc.cluster.local:6379/0
+  # If you use Redis ACL, store the password in a Secret and reference
+  # it here. This chart does NOT render secrets inline.
+  passwordSecretRef:
+    name: ""
+    key: "password"
+
+# OIDC verification (optional). Leave empty to disable.
+oidc:
+  # Provider discovery URL (Okta, Auth0, Azure AD all support this).
+  discoveryUrl: ""
+  audience: ""
+
+# Prometheus metrics. The app binds to this port; a ServiceMonitor is
+# created below if serviceMonitor.enabled.
+metrics:
+  port: 9464
+  serviceMonitor:
+    enabled: false
+    # Use the release namespace by default; override if Prometheus
+    # Operator watches a different namespace.
+    namespace: ""
+    labels: {}
+    interval: 30s
+
+# OpenTelemetry. If enabled, the container exports traces and metrics
+# via OTLP to the collector below.
+otel:
+  enabled: false
+  exporterOtlpEndpoint: http://otel-collector.observability.svc:4317
+
+# Kubernetes resource requests/limits. The coordinator is CPU-light but
+# can consume memory proportional to fleet size × retention. The
+# defaults below are a starting point for small to medium fleets.
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    cpu: 500m
+    memory: 512Mi
+
+# Pod-level security. Follows the Restricted Pod Security Standard.
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 65532
+  runAsGroup: 65532
+  fsGroup: 65532
+  seccompProfile:
+    type: RuntimeDefault
+
+containerSecurityContext:
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: true
+  runAsNonRoot: true
+  runAsUser: 65532
+  capabilities:
+    drop: [ALL]
+
+# Service-account configuration. Workload Identity can be enabled by
+# annotating the ServiceAccount (GKE, EKS IRSA).
+serviceAccount:
+  create: true
+  name: ""
+  annotations: {}
+
+# PodDisruptionBudget: keep at least N-1 replicas available during
+# voluntary disruptions (node drains, rolling updates). Matters mainly
+# for HA; disable if you run replicaCount=1.
+podDisruptionBudget:
+  enabled: true
+  minAvailable: 1
+
+# Node selection and affinity. Defaults keep pods spread across nodes.
+nodeSelector: {}
+tolerations: []
+affinity:
+  podAntiAffinity:
+    preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 100
+        podAffinityTerm:
+          labelSelector:
+            matchLabels:
+              app.kubernetes.io/name: iaiso
+          topologyKey: kubernetes.io/hostname
+
+# NetworkPolicy. If your cluster enforces Zero Trust, enable this to
+# allow only expected ingress (Prometheus scraping) and egress
+# (Redis, OIDC, SIEM).
+networkPolicy:
+  enabled: false
