@@ -1,28 +1,26 @@
-# IAIso
+# IAIso — Intelligence Accumulation Isolation & Safety Oversight
 
-Bounded-execution primitives and design materials for governing LLM agents.
+**Mechanical AI safety through pressure-control governance.** IAIso treats
+agentic AI systems like high-pressure engines — measuring compute
+accumulation and enforcing automatic safety releases when thresholds are
+breached. Safety through structure, not hope.
 
-This repository has two parts:
+This repository contains the full IAIso framework in two coordinated parts:
 
-- **[`core/`](core/)** — the working Python framework with tests, a normative
-  specification, and a conformance test suite. This is what you install and
-  run. Current version: **0.2.0**.
-- **[`vision/`](vision/)** — the larger IAIso **5.0** design framing: the
-  pressure-control model, layer model, coin-pusher analogy, solution-pack
-  concept, and aspirational SDK/integration catalog. This is design material
-  and roadmap, **not shippable code**. Treat it as the long-term direction
-  the core is evolving toward.
+| Directory | Contents |
+|---|---|
+| **[`vision/`](vision/)** | The **IAIso 5.0 framework specification** — architecture, layer model, invariants, pressure equations, solution-pack catalog, integration reference designs, regulatory mappings, and supporting documentation. This is the normative design material. |
+| **[`core/`](core/)** | The **reference SDK** — a Python implementation of the framework's runtime, with a machine-checkable specification directory, 240 passing tests, and 67 conformance vectors. Install this to run IAIso today. |
 
-If you want to use IAIso today, go to [`core/`](core/).
-If you want to understand the bigger picture the core is implementing piece
-by piece, go to [`vision/`](vision/).
+**Working with code?** Start in [`core/`](core/).
+**Learning the framework?** Start in [`vision/`](vision/).
 
 ## Quick start
 
 ```bash
 cd core
 pip install -e .
-python -m iaiso.conformance spec/   # run the conformance suite
+python -m iaiso.conformance spec/   # 67 conformance vectors
 pytest -q                            # 240 passing tests
 ```
 
@@ -31,140 +29,164 @@ Minimal usage:
 ```python
 from iaiso import BoundedExecution, PressureConfig
 
-with BoundedExecution.start(config=PressureConfig()) as exec:
-    outcome = exec.record_tool_call(name="search", tokens=500)
+with BoundedExecution.start(config=PressureConfig()) as execution:
+    outcome = execution.record_tool_call(name="search", tokens=500)
     if outcome.name == "ESCALATED":
-        # pause and request human review
+        # Layer 4: request human review per the escalation template
         ...
 ```
 
-See [`core/README.md`](core/README.md) for the full feature list and
-[`core/docs/CONFORMANCE.md`](core/docs/CONFORMANCE.md) for the porting guide
-to other languages.
+See [`core/README.md`](core/README.md) for the full SDK feature set and
+[`core/docs/CONFORMANCE.md`](core/docs/CONFORMANCE.md) for the workflow
+that ports the reference implementation to other languages.
 
-## What each zone is for
+## Repository structure
 
-### `core/` — the shipped implementation
+### `vision/` — IAIso 5.0 framework specification
 
-A Python package that actually does what its tests and specification say it
-does. Current scope:
+The complete framework as designed: the pressure-accumulation model, the
+7-layer containment architecture (Layer 0 through Layer 6), the 5 core
+invariants, the coin-pusher mental model, 100+ industry solution packs,
+28+ system integration reference designs, the full compliance mapping,
+and sections 01–15 of the architecture documentation plus appendices
+A–F.
 
-- Pressure engine with deterministic math and 20 conformance vectors.
-- Consent tokens (HS256 / RS256 JWTs) with 23 conformance vectors.
-- Audit envelope with JSON Schema and 7 event-stream vectors.
-- Policy-as-code loader with JSON Schema and 17 vectors.
-- Middleware for Anthropic, OpenAI, LangChain, LiteLLM, Gemini, Bedrock,
-  Mistral, Cohere.
-- Audit sinks for stdout, JSONL, Splunk, Datadog, Elastic, Loki, Sumo
-  Logic, New Relic, webhook.
-- In-memory + Redis-backed cross-execution coordinator.
-- Prometheus metrics, OTel tracing.
-- Docker, Helm, Terraform deployment templates.
-- Admin CLI.
-- 240 tests passing (170 unit + 67 conformance + 3 structural).
+`vision/` is the **design source**. It describes what IAIso is, how it
+works conceptually, what reference patterns exist for each integration
+target, and how the framework maps to regulatory standards. Code samples
+in `vision/` are reference patterns illustrating the design. Running
+implementations of those patterns live under `core/` once they are
+built, tested, and verified against the conformance suite.
 
-Everything in `core/` is claim-backed: if the README says it works, there
-is a test that proves it. If you find a gap, it's a bug.
+### `core/` — reference SDK and conformance suite
 
-### `vision/` — the design frame, roadmap, and future targets
+A Python package that implements the IAIso runtime: pressure engine,
+consent tokens, audit events, policy-as-code, admin CLI, coordinator,
+middleware for eight LLM providers, and sinks for seven SIEM platforms.
+Every feature is backed by a test. Every wire format — pressure math,
+JWT claims, audit events, policy files — has a JSON Schema and test
+vectors in [`core/spec/`](core/spec/) that define the contract.
 
-The material from the original IAIso 5.0 README: the pressure-control
-philosophy, the 7-layer model, the 5 core invariants, the coin-pusher
-mental model, the solution-pack concept, and the catalog of platform
-integrations, language SDKs, and compliance frameworks the project aims
-to cover over time.
+Running `python -m iaiso.conformance core/spec/` executes 67
+machine-verifiable vectors against the implementation. Any port of
+IAIso into another language (Node, Go, Rust, Java, …) is considered
+conformant when it passes the same vectors.
 
-Treat this zone as:
+## Framework growth
 
-- **Design documentation.** The conceptual layers and invariants the core
-  implements are described here.
-- **Roadmap.** Platform integrations and language ports that aren't in
-  `core/` yet are what future work is aimed at.
-- **Historical record.** The repository started from this vision; the core
-  is the part that has so far been grounded in working code.
+New capabilities move through the framework in a predictable path:
 
-**`vision/` is not installable.** There are intentionally no
-`pyproject.toml`, `package.json`, or equivalent files there. Code examples
-inside `vision/` are pedagogical sketches, not production implementations.
-When a vision concept graduates to working code, it moves into `core/`
-(with tests, a spec section, and conformance vectors) and the vision
-entry updates to reference it.
+1. **Design** — the concept is specified in `vision/`: architecture,
+   layer placement, reference patterns, example configurations.
+2. **Specification** — where the capability has a wire format (an event,
+   a token, a policy field, a coordinator message), it gets a JSON
+   Schema and conformance vectors under `core/spec/<subsystem>/`.
+3. **Implementation** — the runtime lands in `core/iaiso/` with tests.
+   The full suite (`pytest` + `python -m iaiso.conformance core/spec/`)
+   must pass.
+4. **Release** — `core/CHANGELOG.md` records the addition;
+   `core/spec/VERSION` increments (MINOR for additive, MAJOR for
+   breaking) if the contract changed.
+5. **Cross-language parity** — language ports land under
+   `core/ports/<language>/` (when opened). Each port re-runs the
+   conformance vectors in its own CI.
 
-## Graduation process
+This keeps the framework's design work and its running code in
+lockstep: the vision grows by being built out, and the code grows by
+being specified first.
 
-When something in `vision/` is ready to become real:
+## What's in each SDK release
 
-1. Implement it in `core/` with tests and, where applicable, a
-   `spec/<subsystem>/` entry with conformance vectors.
-2. Run the existing 240-test suite — it must still pass.
-3. Update `core/README.md` and `core/CHANGELOG.md`.
-4. Update the corresponding `vision/` section to link to the core
-   implementation and mark the vision entry as "shipped."
-5. If it changes a wire format or public contract, bump `core/spec/VERSION`
-   accordingly (MINOR for additive, MAJOR for breaking).
+IAIso 0.2.0 (the current `core/` release) provides:
 
-## Honest status
+- **Pressure engine** with deterministic math and 20 conformance
+  vectors.
+- **Consent tokens** (HS256 / RS256 JWTs) with 23 conformance vectors.
+- **Audit envelope** with JSON Schema and 7 event-stream vectors.
+- **Policy-as-code** loader with JSON Schema and 17 vectors.
+- **Middleware** for Anthropic, OpenAI, LangChain, LiteLLM, Google
+  Gemini, AWS Bedrock, Mistral, and Cohere.
+- **Audit sinks** for stdout, JSONL, Splunk, Datadog, Elastic Common
+  Schema, Grafana Loki, Sumo Logic, New Relic, and generic webhooks.
+- **In-memory and Redis-backed** cross-execution coordinator with
+  atomic Lua update path.
+- **Prometheus metrics** and **OpenTelemetry tracing**.
+- **Deployment templates** for Docker, Helm, and Terraform.
+- **Admin CLI** (`python -m iaiso`) for policy validation, token
+  issue/verify, audit tailing, and coordinator inspection.
+- **OIDC identity** integration for Okta, Auth0, and Azure AD.
 
-Not in `core/` yet, present as intent in `vision/`:
+See [`core/README.md`](core/README.md) for the full list.
 
-- **Layer 0 hardware enforcement.** Requires kernel/hypervisor work; a
-  Python library cannot enforce at the BIOS level. Any real Layer 0 path
-  will be a separate sidecar or kernel module, not a Python import.
-- **Language SDKs beyond Python.** Node, Go, Rust, Java, C#, PHP are
-  described as design targets. The conformance harness in
-  `core/spec/` is the porting contract; none of the ports themselves
-  exist yet.
-- **Platform plugins** (Shopify, Salesforce, Meta, WordPress, etc.).
-  These are aspirational. None are currently implemented.
-- **Compliance certifications** (SOC 2, FedRAMP, HIPAA, etc.).
-  Certifications are audit outcomes for deployed systems, not library
-  features. `core/` emits audit events that may help operators meet
-  compliance requirements, but the library itself cannot be certified.
-- **Industry "solution packs."** The concept is described in `vision/`;
-  no packs are shipping.
+## Upcoming from the roadmap
 
-This list is maintained deliberately. Moving something off it requires
-code, tests, and (where relevant) spec entries.
+Priorities for subsequent SDK releases include:
+
+- Conformant ports into Node.js, Go, Rust, and Java.
+- Additional platform integration patterns graduating from `vision/` to
+  `core/`: expanded CRM (Salesforce, HubSpot) adapters, e-commerce
+  (Shopify, Magento) adapters, and CMS (WordPress, Drupal) adapters.
+- Calibrated default coefficients from published benchmark studies.
+- Coordinator gRPC sidecar (the proto is drafted in
+  `core/spec/coordinator/wire.proto`).
+- Industry solution-pack runtime loader, turning the `vision/`
+  solution-pack JSONs into policy files consumable by the SDK.
+
+Follow [`core/CHANGELOG.md`](core/CHANGELOG.md) for releases.
 
 ## Contributing
 
-- Bug fixes and new tests in `core/` are welcome.
-- Moving items from `vision/` to `core/` is the most valuable contribution
-  — see "Graduation process" above.
-- Pure-vision edits (roadmap refinements, new design docs) belong in
-  `vision/` and don't change shipped behavior.
-- New concepts with no implementation path should start in `vision/`.
+The highest-value contributions graduate material from `vision/` to
+`core/`: pick a reference pattern, implement it with tests and (where
+it has a wire format) a spec entry with conformance vectors, and open
+a PR. Smaller contributions — design edits in `vision/`, SDK bug fixes
+in `core/`, new conformance vectors — are also welcome.
+
+See [`core/docs/CONTRIBUTING.md`](core/docs/CONTRIBUTING.md) for the
+review bar and coding standards.
 
 ## License
 
-See [`LICENSE`](LICENSE).
+Community Forking License v2.0. See [`LICENSE`](LICENSE).
 
-## Layout
+Public forking is required. Private forks require written agreement.
+All framework invariants must be preserved across forks.
+
+## Repository layout
 
 ```
 IAISO/
-├── README.md                  # This file
-├── NOTICE.md                  # Explains the core/vision split to newcomers
-├── MIGRATION.md               # How the old 5.0 layout maps into this one
+├── README.md               ← this file
+├── MIGRATION.md            ← guide for consolidating older layouts
 ├── LICENSE
-├── core/                      # ← shipped code, 0.2.0
-│   ├── iaiso/                 #   Python package
-│   ├── spec/                  #   Normative specification + conformance vectors
-│   ├── tests/                 #   240 tests
-│   ├── docs/
-│   ├── bench/
-│   ├── evals/
-│   ├── deploy/
+├── l.env                   ← global configuration reference
+├── mkdocs.yml              ← documentation site configuration
+├── core/                   ← reference SDK (Python, installable)
+│   ├── iaiso/              ← package source
+│   ├── spec/               ← normative specification + conformance vectors
+│   ├── tests/              ← 240 passing tests
+│   ├── docs/               ← SDK documentation
+│   ├── bench/              ← benchmarks
+│   ├── deploy/             ← Docker, Helm, Terraform templates
 │   ├── pyproject.toml
 │   ├── README.md
 │   └── CHANGELOG.md
-└── vision/                    # ← design + roadmap, not installable
-    ├── NOTICE.md              #   Warns this zone is not code
-    ├── README.md              #   Original 5.0 README, preserved
-    ├── sdk/                   #   Language-SDK sketches (examples only)
-    ├── plugins/               #   Platform-integration sketches
-    ├── systems/               #   Infrastructure-integration sketches
-    ├── config/
-    ├── scripts/               #   Deployment-script sketches
-    └── docs/                  #   Design & architecture docs
+└── vision/                 ← framework specification
+    ├── README.md           ← the IAIso 5.0 design
+    ├── docs/               ← architecture docs (sections 01–15, appendices A–F)
+    ├── components/         ← JSON component registry + 100+ solution packs
+    ├── templates/          ← prompt templates for solution packs and systems
+    ├── integrations/       ← AI framework reference designs
+    ├── systems/            ← platform integration reference designs
+    ├── examples/           ← industry example directories
+    ├── scripts/            ← reference scripts (validation, simulation)
+    ├── api/                ← OpenAPI specification
+    └── LIVE-TEST/          ← interactive demo suite
 ```
+
+## Contact
+
+- Project lead: Roen Branham · roen@smarttasks.cloud
+- Technical support: support@iaiso.org
+- Enterprise: enterprise@iaiso.org
+- Security: security@iaiso.org

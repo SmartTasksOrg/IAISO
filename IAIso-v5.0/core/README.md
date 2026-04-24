@@ -1,13 +1,17 @@
-# IAIso
+# IAIso — Reference SDK
 
-**Experimental framework for bounded agent execution.** IAIso is a Python library
-that adds rate-limiting, scope-based authorization, and structured audit logging
-to LLM agent loops. It is designed to be one component of a larger agent
-architecture — not a complete safety solution.
+**Python reference implementation of the IAIso framework.** IAIso is a
+Python library that adds pressure-based rate limiting, scope-based
+authorization, and structured audit logging to LLM agent loops. It is
+the runtime layer of the broader IAIso framework; see
+[`../vision/`](../vision/) for the full framework specification.
 
-> **Status:** Alpha (0.1.0). The core API is working and tested, but has not
-> been deployed at scale. Do not rely on IAIso as the sole safeguard for
-> high-stakes systems. See "What IAIso is not" below.
+> **SDK version 0.2.0.** This release ships a normative specification
+> with 67 machine-checkable conformance vectors, 240 passing tests,
+> and production-grade primitives for pressure accounting, consent
+> tokens, audit events, and cross-execution coordination. Calibrate
+> coefficients against your workload before relying on specific
+> threshold values — see `docs/calibration.md`.
 
 ## What it does
 
@@ -148,26 +152,33 @@ Honest takeaways from the data:
 The right approach for a given deployment likely **combines** multiple
 signals. See `docs/calibration.md` for how to tune for your workload.
 
-## What IAIso is not
+## Scope
 
-Stating this explicitly because the previous version of this project
-overclaimed substantially:
+IAIso's SDK is the runtime layer of a larger safety architecture. It
+provides the mechanical primitives — bounded pressure, scoped consent,
+auditable events, fleet coordination — that higher-level controls
+build on. Some things live outside the SDK by design:
 
-- **Not a safety guarantee.** It is a rate-limiting primitive. A compromised
-  agent in the same process can bypass it. For stronger isolation, run
-  agents in sandboxes and enforce at process boundaries.
-- **Not a compliance product.** Running this library does not make a system
-  compliant with the EU AI Act, GDPR, ISO 42001, or any other regulation.
-  Compliance is an organizational property. IAIso may produce artifacts
-  (event logs, signed consent records) that assist compliance work
-  performed by other parties — it does not perform that work itself.
-- **Not deployed at Fortune 500 / critical infrastructure / aerospace / biotech.**
-  Past documentation made such claims; those were not accurate. This
-  library is an early-stage project maintained by a small number of
-  contributors.
-- **Not hardware-enforced.** There is no BIOS-level integration, no
-  air-gapped isolation, no cryptographic attestation. The engine is
-  pure Python running in the agent's process.
+- **Process and hardware isolation.** The SDK runs as a Python library
+  in the agent's process. For stronger isolation, run the SDK inside a
+  sandbox (gVisor, Firecracker, dedicated container) and combine it
+  with process-level enforcement. Layer 0 of the framework specifies
+  this anchor point — see [`../vision/docs/spec/06-layers.md`](../vision/docs/spec/06-layers.md).
+- **Compliance certification.** Certifications such as SOC 2 Type II
+  and FedRAMP are audit outcomes for deployed systems, performed by
+  third-party auditors against a specific operational context. The SDK
+  emits the audit events, consent records, and policy artifacts that
+  support those audits; the certification itself is done by the
+  operator. See [`../vision/docs/spec/12-regulatory.md`](../vision/docs/spec/12-regulatory.md).
+- **Workload-specific calibration.** Default coefficients produce
+  reasonable behavior on the reference scenarios in `evals/`. For a
+  given production workload, calibrate against measured traces — see
+  `docs/calibration.md`.
+- **Hardware-level enforcement.** BIOS kill-switches, cryptographic
+  attestation, and hypervisor-level compute caps are specified in the
+  framework as Layer 0 anchors. The SDK integrates with those anchors
+  through configuration (e.g., `PRESSURE_THRESHOLD` derived from
+  hardware quotas) rather than implementing them in Python.
 
 ## Additional subsystems
 
@@ -225,7 +236,8 @@ production use:
 - `docs/THREAT_MODEL.md` — adversaries, assets, trust boundaries, and
   mitigation mapping.
 - `docs/BACKWARDS_COMPATIBILITY.md` — versioning and deprecation policy.
-- `docs/known-limitations.md` — explicit list of what IAIso does not do.
+- `docs/known-limitations.md` — SDK scope and how it composes with
+  adjacent safety layers.
 - `docs/graceful-degradation.md` — playbook for SIEM / Redis / OIDC /
   LLM provider outages.
 - `docs/shadow-canary-mode.md` — recommended three-phase rollout
@@ -237,9 +249,10 @@ production use:
 
 Still open:
 
-- **Empirical calibration results on public benchmarks.** Infrastructure
-  is shipped; running against SWE-bench / GAIA / WebArena requires real
-  API budget and is separate work this repo does not claim to have done.
+- **Empirical calibration results on public benchmarks.** Recording
+  infrastructure is shipped. Published coefficient sets derived from
+  SWE-bench / GAIA / WebArena runs are planned for a subsequent
+  release as benchmark studies are completed.
 - **Performance benchmarks at production scale.** The microbenchmark
   establishes single-process lower bounds. A real load test against
   a large fleet on production-grade hardware is separate work.
