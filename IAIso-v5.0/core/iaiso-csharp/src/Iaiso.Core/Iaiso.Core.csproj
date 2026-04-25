@@ -1,0 +1,9 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <Description>IAIso pressure engine and bounded execution facade</Description>
+    <PackageId>Iaiso.Core</PackageId>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Iaiso.Audit\Iaiso.Audit.csproj" />
+  </ItemGroup>
+</Project>

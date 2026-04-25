@@ -1,0 +1,9 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <Description>IAIso policy-as-code loader (JSON)</Description>
+    <PackageId>Iaiso.Policy</PackageId>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Iaiso.Core\Iaiso.Core.csproj" />
+  </ItemGroup>
+</Project>
