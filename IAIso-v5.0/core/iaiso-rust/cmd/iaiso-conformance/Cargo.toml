@@ -1,0 +1,16 @@
+[package]
+name = "iaiso-conformance-bin"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+authors.workspace = true
+rust-version.workspace = true
+description = "iaiso-conformance CLI binary"
+
+[[bin]]
+name = "iaiso-conformance"
+path = "src/main.rs"
+
+[dependencies]
+iaiso-conformance = { workspace = true }
