@@ -223,6 +223,28 @@ try BoundedExecution.run(.init(auditSink: sink)) { exec in
 }
 ```
 
+**Ruby** (Rails ecosystem, scripts, anywhere Ruby runs):
+
+```bash
+cd core/iaiso-ruby
+bundle install            # only installs rake
+rake test                 # 54 unit tests + 67 conformance vectors
+./exe/iaiso --help        # admin CLI
+```
+
+```ruby
+require "iaiso/audit"
+require "iaiso/core"
+
+sink = IAIso::Audit::MemorySink.new
+IAIso::Core::BoundedExecution.run(audit_sink: sink) do |exec|
+  outcome = exec.record_tool_call("search", tokens: 500)
+  if outcome == IAIso::Core::StepOutcome::ESCALATED
+    # Layer 4: request human review per the escalation template
+  end
+end
+```
+
 See [`core/README.md`](core/README.md) for the SDK signpost and
 [`core/docs/CONFORMANCE.md`](core/docs/CONFORMANCE.md) for the workflow
 that ports the framework to additional languages.
@@ -324,24 +346,26 @@ OIDC identity, YAML policies, and an `iaiso` admin CLI. See
 | C# / .NET | [`core/iaiso-csharp/`](core/iaiso-csharp/) | Stable · `0.1.0` | 67/67 |
 | PHP | [`core/iaiso-php/`](core/iaiso-php/) | Stable · `0.1.0` | 67/67 |
 | Swift | [`core/iaiso-swift/`](core/iaiso-swift/) | Draft · `0.1.0-draft` | run `swift test` |
+| Ruby | [`core/iaiso-ruby/`](core/iaiso-ruby/) | Stable · `0.1.0` | 67/67 |
 
-The first seven implementations target **IAIso spec 1.0** and were driven to
+Eight of nine implementations target **IAIso spec 1.0** and were driven to
 67/67 conformance through compile-test-fix iteration. The Swift port was
 authored without a Swift toolchain in the build sandbox, so its conformance
 status is "expected 67/67, requires `swift test` to confirm" — see
 [`core/iaiso-swift/README.md`](core/iaiso-swift/README.md) for details. All
 ports emit identical audit events and produce interoperable consent tokens
-for the same inputs. Additional language ports (Ruby) follow the porting
-workflow in [`core/docs/CONFORMANCE.md`](core/docs/CONFORMANCE.md).
+for the same inputs.
 
 ## Upcoming from the roadmap
 
-Priorities for subsequent SDK releases include:
+The roadmap's primary language ports are now complete. Future work may include:
 
-- A conformant port into Ruby. Eight reference SDKs (Python, Node, Go,
-  Rust, Java, C#, PHP, Swift) now serve as worked examples for any future
-  port — pick the language whose paradigms map most naturally to your
-  target.
+- A Kotlin-idiomatic wrapper around the Java port (coroutines + null-safety
+  make the Java API feel un-Kotliny). The Java port already covers Kotlin
+  consumers, but a thin Kotlin facade would be more ergonomic.
+- Additional deployment shapes (sidecar gateway, Envoy filter, Kubernetes
+  operator, MCP server) — these are products, not ports, and the nine
+  reference SDKs serve as the runtime foundation each shape would build on.
 - Additional platform integration patterns graduating from `vision/` to
   `core/`: expanded CRM (Salesforce, HubSpot) adapters, e-commerce
   (Shopify, Magento) adapters, and CMS (WordPress, Drupal) adapters.
@@ -454,7 +478,7 @@ IAISO/
 │       ├── composer.json, phpunit.xml
 │       ├── README.md
 │       └── LICENSE
-│   └── iaiso-swift/            ← Swift SDK — SwiftPM 0.1.0-draft (test count + 67 vectors via swift test)
+│   ├── iaiso-swift/            ← Swift SDK — SwiftPM 0.1.0-draft (test count + 67 vectors via swift test)
 │       ├── Package.swift       ← 10 library products + iaiso CLI exe
 │       ├── Sources/
 │       │   ├── IAIsoAudit/, IAIsoCore/, IAIsoConsent/, IAIsoPolicy/,
@@ -462,6 +486,17 @@ IAISO/
 │       │   ├── IAIsoMetrics/, IAIsoObservability/, IAIsoConformance/, IAIsoCLI/
 │       ├── Tests/              ← XCTest, conformance suite
 │       ├── README.md
+│       └── LICENSE
+│   └── iaiso-ruby/             ← Ruby SDK — gem 0.1.0 (54 tests + 67 vectors)
+│       ├── iaiso.gemspec       ← single gem, zero runtime deps
+│       ├── lib/iaiso/          ← Audit/, Core/, Consent/, Policy/, Coordination/,
+│       │                         Middleware/{anthropic, openai, gemini, bedrock,
+│       │                         mistral, cohere, litellm}.rb,
+│       │                         Identity/, Metrics/, Observability/, Conformance/,
+│       │                         cli.rb
+│       ├── test/               ← Minitest, conformance suite
+│       ├── exe/iaiso           ← admin CLI launcher
+│       ├── README.md, CHANGELOG.md
 │       └── LICENSE
 └── vision/                     ← framework specification
     ├── README.md               ← the IAIso 5.0 design
