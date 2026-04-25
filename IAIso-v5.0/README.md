@@ -118,6 +118,111 @@ fn main() {
 }
 ```
 
+**Java:**
+
+```bash
+cd core/iaiso-java
+./build.sh test                 # 50 unit tests + 67 conformance, no Maven needed
+# or with Maven:
+mvn clean test
+```
+
+```java
+import io.iaiso.audit.MemorySink;
+import io.iaiso.audit.Sink;
+import io.iaiso.core.BoundedExecution;
+import io.iaiso.core.BoundedExecutionOptions;
+import io.iaiso.core.StepOutcome;
+
+public class Demo {
+    public static void main(String[] args) {
+        Sink sink = new MemorySink();
+        BoundedExecution.run(
+            BoundedExecutionOptions.builder().auditSink(sink).build(),
+            exec -> {
+                StepOutcome outcome = exec.recordToolCall("search", 500);
+                if (outcome == StepOutcome.ESCALATED) {
+                    // Layer 4: request human review per the escalation template
+                }
+            });
+    }
+}
+```
+
+**C# / .NET:**
+
+```bash
+cd core/iaiso-csharp
+dotnet test                                         # build + 50 tests + 67 conformance
+dotnet run --project src/Iaiso.Cli -- --help        # admin CLI
+```
+
+```csharp
+using Iaiso.Audit;
+using Iaiso.Core;
+
+var sink = new MemorySink();
+BoundedExecution.Run(
+    new BoundedExecutionOptions { AuditSink = sink },
+    exec =>
+    {
+        var outcome = exec.RecordToolCall("search", 500);
+        if (outcome == StepOutcome.Escalated)
+        {
+            // Layer 4: request human review per the escalation template
+        }
+    });
+```
+
+**PHP:**
+
+```bash
+cd core/iaiso-php
+composer install
+composer test                                       # 53 unit tests + 67 conformance
+./bin/iaiso --help                                  # admin CLI
+```
+
+```php
+<?php
+require 'vendor/autoload.php';
+
+use IAIso\Audit\MemorySink;
+use IAIso\Core\BoundedExecution;
+use IAIso\Core\BoundedExecutionOptions;
+use IAIso\Core\StepOutcome;
+
+$sink = new MemorySink();
+BoundedExecution::run(
+    new BoundedExecutionOptions(auditSink: $sink),
+    function ($exec): void {
+        $outcome = $exec->recordToolCall('search', 500);
+        if ($outcome === StepOutcome::Escalated) {
+            // Layer 4: request human review per the escalation template
+        }
+    },
+);
+```
+
+**Swift** (iOS / macOS / tvOS / watchOS / Linux):
+
+```swift
+// In your app's Package.swift dependencies:
+//   .package(path: "core/iaiso-swift")
+// Target dependencies: ["IAIsoCore", "IAIsoAudit"]
+
+import IAIsoAudit
+import IAIsoCore
+
+let sink = MemorySink()
+try BoundedExecution.run(.init(auditSink: sink)) { exec in
+    let outcome = exec.recordToolCall("search", tokens: 500)
+    if outcome == .escalated {
+        // Layer 4: request human review per the escalation template
+    }
+}
+```
+
 See [`core/README.md`](core/README.md) for the SDK signpost and
 [`core/docs/CONFORMANCE.md`](core/docs/CONFORMANCE.md) for the workflow
 that ports the framework to additional languages.
@@ -215,20 +320,28 @@ OIDC identity, YAML policies, and an `iaiso` admin CLI. See
 | TypeScript / Node.js | [`core/iaiso-node/`](core/iaiso-node/) | Stable · `@iaiso/core@0.3.0` | 67/67 |
 | Go | [`core/iaiso-go/`](core/iaiso-go/) | Stable · `v0.1.0` | 67/67 |
 | Rust | [`core/iaiso-rust/`](core/iaiso-rust/) | Stable · `0.1.0` | 67/67 |
+| Java | [`core/iaiso-java/`](core/iaiso-java/) | Stable · `0.1.0` | 67/67 |
+| C# / .NET | [`core/iaiso-csharp/`](core/iaiso-csharp/) | Stable · `0.1.0` | 67/67 |
+| PHP | [`core/iaiso-php/`](core/iaiso-php/) | Stable · `0.1.0` | 67/67 |
+| Swift | [`core/iaiso-swift/`](core/iaiso-swift/) | Draft · `0.1.0-draft` | run `swift test` |
 
-All four implementations target **IAIso spec 1.0** and pass every vector in
-[`core/spec/`](core/spec/). They emit identical audit events and produce
-interoperable consent tokens for the same inputs. Additional language ports
-(Java, C#, PHP) follow the porting workflow in
-[`core/docs/CONFORMANCE.md`](core/docs/CONFORMANCE.md).
+The first seven implementations target **IAIso spec 1.0** and were driven to
+67/67 conformance through compile-test-fix iteration. The Swift port was
+authored without a Swift toolchain in the build sandbox, so its conformance
+status is "expected 67/67, requires `swift test` to confirm" — see
+[`core/iaiso-swift/README.md`](core/iaiso-swift/README.md) for details. All
+ports emit identical audit events and produce interoperable consent tokens
+for the same inputs. Additional language ports (Ruby) follow the porting
+workflow in [`core/docs/CONFORMANCE.md`](core/docs/CONFORMANCE.md).
 
 ## Upcoming from the roadmap
 
 Priorities for subsequent SDK releases include:
 
-- Conformant ports into Java and C#. Four reference SDKs (Python, Node,
-  Go, Rust) now serve as worked examples for any future port — pick the
-  language whose paradigms map most naturally to your target.
+- A conformant port into Ruby. Eight reference SDKs (Python, Node, Go,
+  Rust, Java, C#, PHP, Swift) now serve as worked examples for any future
+  port — pick the language whose paradigms map most naturally to your
+  target.
 - Additional platform integration patterns graduating from `vision/` to
   `core/`: expanded CRM (Salesforce, HubSpot) adapters, e-commerce
   (Shopify, Magento) adapters, and CMS (WordPress, Drupal) adapters.
@@ -294,7 +407,7 @@ IAISO/
 │       ├── go.mod
 │       ├── README.md
 │       └── LICENSE
-│   └── iaiso-rust/             ← Rust SDK — Cargo workspace v0.1.0 (47 tests + 67 vectors)
+│   ├── iaiso-rust/             ← Rust SDK — Cargo workspace v0.1.0 (47 tests + 67 vectors)
 │       ├── crates/
 │       │   ├── core/           ← pressure engine + BoundedExecution
 │       │   ├── consent/        ← JWT (HS256/RS256)
@@ -305,6 +418,49 @@ IAISO/
 │       │   ├── iaiso/          ← admin CLI binary
 │       │   └── iaiso-conformance/
 │       ├── Cargo.toml
+│       ├── README.md
+│       └── LICENSE
+│   ├── iaiso-java/             ← Java SDK — Maven workspace 0.1.0 (50 tests + 67 vectors)
+│       ├── iaiso-core/         ← pressure engine + BoundedExecution
+│       ├── iaiso-consent/      ← JWT (HS256/RS256, no library deps)
+│       ├── iaiso-audit/        ← envelope + base sinks
+│       ├── iaiso-policy/, iaiso-coordination/, iaiso-middleware/,
+│       ├── iaiso-identity/, iaiso-metrics/, iaiso-observability/,
+│       ├── iaiso-conformance/, iaiso-cli/
+│       ├── pom.xml             ← parent POM
+│       ├── build.sh            ← Maven-free local build
+│       ├── README.md
+│       └── LICENSE
+│   ├── iaiso-csharp/           ← C# / .NET SDK — net8.0 solution 0.1.0 (50 tests + 67 vectors)
+│       ├── src/
+│       │   ├── Iaiso.Core/     ← pressure engine + BoundedExecution
+│       │   ├── Iaiso.Consent/  ← JWT (HS256/RS256, hand-rolled)
+│       │   ├── Iaiso.Audit/    ← envelope + base sinks
+│       │   ├── Iaiso.Policy/, Iaiso.Coordination/, Iaiso.Middleware/,
+│       │   ├── Iaiso.Identity/, Iaiso.Metrics/, Iaiso.Observability/,
+│       │   ├── Iaiso.Conformance/, Iaiso.Cli/
+│       ├── tests/Iaiso.Tests/  ← in-tree test runner (no xUnit dependency)
+│       ├── Iaiso.sln
+│       ├── Directory.Build.props
+│       ├── README.md
+│       └── LICENSE
+│   ├── iaiso-php/              ← PHP SDK — Composer package 0.1.0 (53 tests + 67 vectors)
+│       ├── src/                ← single Composer package, sub-namespaces under IAIso\
+│       │   ├── Audit/, Core/, Consent/, Policy/, Coordination/,
+│       │   ├── Middleware/{Anthropic,OpenAi,Gemini,Bedrock,Mistral,Cohere,LiteLlm}/,
+│       │   ├── Identity/, Metrics/, Observability/, Conformance/, Cli/
+│       ├── tests/Unit/, tests/Conformance/  ← PHPUnit
+│       ├── bin/iaiso           ← admin CLI launcher
+│       ├── composer.json, phpunit.xml
+│       ├── README.md
+│       └── LICENSE
+│   └── iaiso-swift/            ← Swift SDK — SwiftPM 0.1.0-draft (test count + 67 vectors via swift test)
+│       ├── Package.swift       ← 10 library products + iaiso CLI exe
+│       ├── Sources/
+│       │   ├── IAIsoAudit/, IAIsoCore/, IAIsoConsent/, IAIsoPolicy/,
+│       │   ├── IAIsoCoordination/, IAIsoMiddleware/, IAIsoIdentity/,
+│       │   ├── IAIsoMetrics/, IAIsoObservability/, IAIsoConformance/, IAIsoCLI/
+│       ├── Tests/              ← XCTest, conformance suite
 │       ├── README.md
 │       └── LICENSE
 └── vision/                     ← framework specification

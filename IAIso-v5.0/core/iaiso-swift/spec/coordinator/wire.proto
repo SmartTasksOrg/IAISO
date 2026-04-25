@@ -1,0 +1,160 @@
+// IAIso Coordinator gRPC Wire Format — DRAFT
+//
+// Status: DRAFT. Not part of the normative contract for IAIso 1.0.
+//         Published for early prototyping and feedback. Expect breaking
+//         changes until the DRAFT marker is removed.
+//
+// Purpose: Future native coordinator sidecar for multi-language IAIso
+//          deployments that prefer a typed RPC over the Redis keyspace
+//          contract (spec/coordinator/README.md §1).
+//
+// When this is promoted to normative, the Redis backend will remain
+// supported as a parallel option. Implementations that ship against
+// the DRAFT wire format SHOULD gate behind a feature flag until this
+// is frozen.
+
+syntax = "proto3";
+
+package iaiso.coordinator.v1;
+
+option go_package = "github.com/anthropic/iaiso/coordinator/proto/v1;coordinatorv1";
+option java_package = "dev.iaiso.coordinator.v1";
+option java_multiple_files = true;
+
+// The coordinator service. A single server can host many coordinator
+// instances (distinguished by coordinator_id).
+service Coordinator {
+  // Register an execution_id with a coordinator. Called at BoundedExecution
+  // start. Idempotent.
+  rpc Register(RegisterRequest) returns (RegisterResponse);
+
+  // Unregister an execution_id. Called at BoundedExecution close.
+  rpc Unregister(UnregisterRequest) returns (UnregisterResponse);
+
+  // Push a per-execution pressure update. Returns the post-write
+  // coordinator snapshot.
+  rpc Update(UpdateRequest) returns (UpdateResponse);
+
+  // Fetch the current snapshot without writing.
+  rpc Snapshot(SnapshotRequest) returns (SnapshotResponse);
+
+  // Reset every execution's pressure to zero. Operator-level action.
+  rpc Reset(ResetRequest) returns (ResetResponse);
+
+  // Stream coordinator events (escalation, release, etc.) to a client.
+  // Clients subscribe to observe fleet-wide transitions in real time.
+  rpc WatchEvents(WatchEventsRequest) returns (stream CoordinatorEvent);
+}
+
+// --- Core types ---
+
+message CoordinatorSnapshot {
+  // Aggregate pressure after combining all per-execution pressures
+  // through the coordinator's configured aggregator.
+  double aggregate_pressure = 1;
+
+  // Per-execution pressures as observed during this snapshot. Field
+  // names are execution_ids.
+  map<string, double> per_execution = 2;
+
+  // Number of registered executions.
+  uint32 active_executions = 3;
+
+  // Coordinator lifecycle. One of: "nominal" | "escalated" | "released".
+  string lifecycle = 4;
+}
+
+message CoordinatorEvent {
+  // Event envelope matches spec/events/README.md §1. Included here as
+  // distinct fields so clients can strongly-type them, rather than
+  // round-tripping through JSON.
+  string schema_version = 1;  // "1.0"
+  string execution_id = 2;    // pseudo-id like "coord:<coordinator_id>"
+  string kind = 3;            // "coordinator.escalation", etc.
+  double timestamp = 4;       // Unix seconds, fractional precision
+
+  // Per-kind payload, as documented in spec/events/README.md §4.
+  // Keys match the JSON event payloads; ints are encoded as int64.
+  map<string, CoordinatorEventValue> data = 5;
+}
+
+// A single event-data value. gRPC/protobuf has no native `any JSON
+// scalar` type, so we enumerate the shapes we use.
+message CoordinatorEventValue {
+  oneof value {
+    string string_value = 1;
+    double number_value = 2;
+    int64 int_value = 3;
+    bool bool_value = 4;
+  }
+}
+
+// --- RPC request/response ---
+
+message RegisterRequest {
+  string coordinator_id = 1;
+  string execution_id = 2;
+}
+
+message RegisterResponse {
+  // Current snapshot after registration.
+  CoordinatorSnapshot snapshot = 1;
+}
+
+message UnregisterRequest {
+  string coordinator_id = 1;
+  string execution_id = 2;
+}
+
+message UnregisterResponse {
+  CoordinatorSnapshot snapshot = 1;
+}
+
+message UpdateRequest {
+  string coordinator_id = 1;
+  string execution_id = 2;
+  double pressure = 3;  // MUST be in [0.0, 1.0]
+}
+
+message UpdateResponse {
+  CoordinatorSnapshot snapshot = 1;
+}
+
+message SnapshotRequest {
+  string coordinator_id = 1;
+}
+
+message SnapshotResponse {
+  CoordinatorSnapshot snapshot = 1;
+}
+
+message ResetRequest {
+  string coordinator_id = 1;
+}
+
+message ResetResponse {
+  uint32 fleet_size = 1;
+}
+
+message WatchEventsRequest {
+  string coordinator_id = 1;
+
+  // Optional filter: if non-empty, only events whose kind is in this
+  // list are streamed.
+  repeated string kinds = 2;
+}
+
+// --- Error contract (DRAFT) ---
+//
+// Errors use standard gRPC status codes:
+//
+// - INVALID_ARGUMENT: pressure out of [0, 1], unknown aggregator, etc.
+// - NOT_FOUND: coordinator_id not known and server does not auto-create.
+// - FAILED_PRECONDITION: coordinator is in a state that can't accept
+//   the operation (e.g., in the middle of a reset).
+// - UNAVAILABLE: backing store (Redis, DB) is down.
+//
+// Clients MUST handle UNAVAILABLE with retry+backoff. The coordinator
+// sidecar is expected to fail open: if the backing store is down, the
+// sidecar may either serve stale local state (with a clearly marked
+// "degraded" lifecycle) or return UNAVAILABLE, at the operator's choice.
