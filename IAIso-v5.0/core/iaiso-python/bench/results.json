@@ -1,0 +1,51 @@
+[
+  {
+    "name": "engine.step (bare)",
+    "iterations": 500000,
+    "total_seconds": 1.9500903509999716,
+    "ops_per_second": 256398.3764873299,
+    "avg_microseconds": 3.9001807019999433
+  },
+  {
+    "name": "BoundedExecution + MemorySink",
+    "iterations": 100000,
+    "total_seconds": 0.6492150679998758,
+    "ops_per_second": 154032.16118825375,
+    "avg_microseconds": 6.492150679998758
+  },
+  {
+    "name": "Coordinator update (Sum, 10 workers)",
+    "iterations": 200000,
+    "total_seconds": 0.7553724550000425,
+    "ops_per_second": 264770.0464534264,
+    "avg_microseconds": 3.7768622750002123
+  },
+  {
+    "name": "Coordinator update (Max, 10 workers)",
+    "iterations": 200000,
+    "total_seconds": 0.7202102410001316,
+    "ops_per_second": 277696.68995856924,
+    "avg_microseconds": 3.6010512050006582
+  },
+  {
+    "name": "Consent verify (HS256)",
+    "iterations": 20000,
+    "total_seconds": 0.6094081589999405,
+    "ops_per_second": 32818.72699706003,
+    "avg_microseconds": 30.470407949997025
+  },
+  {
+    "name": "Audit emit (Null)",
+    "iterations": 2000000,
+    "total_seconds": 0.12836802800006808,
+    "ops_per_second": 15580203.506740319,
+    "avg_microseconds": 0.06418401400003404
+  },
+  {
+    "name": "Audit emit (Memory)",
+    "iterations": 1000000,
+    "total_seconds": 0.1020676780001395,
+    "ops_per_second": 9797420.883804502,
+    "avg_microseconds": 0.1020676780001395
+  }
+]

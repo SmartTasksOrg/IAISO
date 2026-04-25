@@ -1,0 +1,24 @@
+# Binaries
+/bin/
+/iaiso
+/iaiso-conformance
+/cmd/*/iaiso
+/cmd/*/iaiso-conformance
+
+# Go
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+coverage.out
+
+# IDEs
+.idea/
+.vscode/
+
+# Go workspace
+go.work
+go.work.sum
