@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <Description>IAIso unit + conformance tests</Description>
+    <IsPackable>false</IsPackable>
+    <RootNamespace>Iaiso.Tests</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Iaiso.Audit\Iaiso.Audit.csproj" />
+    <ProjectReference Include="..\..\src\Iaiso.Core\Iaiso.Core.csproj" />
+    <ProjectReference Include="..\..\src\Iaiso.Consent\Iaiso.Consent.csproj" />
+    <ProjectReference Include="..\..\src\Iaiso.Policy\Iaiso.Policy.csproj" />
+    <ProjectReference Include="..\..\src\Iaiso.Coordination\Iaiso.Coordination.csproj" />
+    <ProjectReference Include="..\..\src\Iaiso.Middleware\Iaiso.Middleware.csproj" />
+    <ProjectReference Include="..\..\src\Iaiso.Identity\Iaiso.Identity.csproj" />
+    <ProjectReference Include="..\..\src\Iaiso.Conformance\Iaiso.Conformance.csproj" />
+  </ItemGroup>
+</Project>

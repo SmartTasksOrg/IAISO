@@ -1,0 +1,41 @@
+{
+    "name": "iaiso/iaiso",
+    "description": "IAIso — bounded-agent-execution framework for LLM agent loops (PHP reference SDK)",
+    "type": "library",
+    "license": "Apache-2.0",
+    "homepage": "https://github.com/SmartTasksOrg/IAISO",
+    "require": {
+        "php": ">=8.2",
+        "ext-json": "*",
+        "ext-openssl": "*",
+        "ext-hash": "*",
+        "ext-mbstring": "*"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^9.6 || ^10.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "IAIso\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "IAIso\\Tests\\": "tests/"
+        }
+    },
+    "bin": [
+        "bin/iaiso"
+    ],
+    "scripts": {
+        "test": "phpunit",
+        "conformance": "@php bin/iaiso conformance ./spec"
+    },
+    "config": {
+        "sort-packages": true,
+        "optimize-autoloader": true
+    },
+    "extra": {
+        "spec-version": "1.0"
+    }
+}

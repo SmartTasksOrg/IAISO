@@ -15,6 +15,7 @@ conformance vectors.
 | **Rust** | [`iaiso-rust/`](iaiso-rust/) | Cargo workspace (`iaiso-core`, `iaiso-consent`, …) | Stable · `0.1.0` · 67/67 conformance · 47 tests |
 | **Java** | [`iaiso-java/`](iaiso-java/) | Maven (`io.iaiso:iaiso-core`, …) | Stable · `0.1.0` · 67/67 conformance · 50 tests |
 | **C# / .NET** | [`iaiso-csharp/`](iaiso-csharp/) | NuGet (`Iaiso.Core`, `Iaiso.Consent`, …) | Stable · `0.1.0` · 67/67 conformance · 50 tests |
+| **PHP** | [`iaiso-php/`](iaiso-php/) | Composer (`iaiso/iaiso`) | Stable · `0.1.0` · 67/67 conformance · 53 tests |
 
 Each SDK directory is **self-contained**: source code, tests,
 documentation, packaging configuration. Pick the one for your stack and

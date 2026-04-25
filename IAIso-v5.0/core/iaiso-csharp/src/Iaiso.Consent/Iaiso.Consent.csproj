@@ -1,0 +1,6 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <Description>IAIso JWT consent token issuer and verifier (HS256/RS256)</Description>
+    <PackageId>Iaiso.Consent</PackageId>
+  </PropertyGroup>
+</Project>
