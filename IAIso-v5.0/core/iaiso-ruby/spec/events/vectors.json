@@ -1,0 +1,161 @@
+{
+  "_comment": "IAIso events test vectors v1.0. See spec/events/README.md. Each vector drives an engine and checks the emitted event stream. `timestamp` is not checked (environmental); `schema_version`, `execution_id`, `kind`, and listed data fields are. Additional implementation-specific fields are allowed.",
+  "version": "1.0",
+  "tolerance": 1e-9,
+  "vectors": [
+    {
+      "name": "empty_init_emits_only_engine_init",
+      "description": "Constructing an engine with no steps emits exactly one engine.init event.",
+      "config": {},
+      "clock": [0.0],
+      "steps": [],
+      "execution_id": "exec-events-1",
+      "expected_events": [
+        {"schema_version": "1.0", "execution_id": "exec-events-1", "kind": "engine.init",
+         "data": {"pressure": 0.0}}
+      ]
+    },
+    {
+      "name": "single_ok_step_emits_init_then_step",
+      "description": "One step below threshold: init, then step.",
+      "config": {},
+      "clock": [0.0, 0.1],
+      "steps": [
+        {"tokens": 100, "tool_calls": 0, "depth": 0, "tag": null}
+      ],
+      "execution_id": "exec-events-2",
+      "expected_events": [
+        {"schema_version": "1.0", "execution_id": "exec-events-2", "kind": "engine.init",
+         "data": {"pressure": 0.0}},
+        {"schema_version": "1.0", "execution_id": "exec-events-2", "kind": "engine.step",
+         "data": {"step": 1, "pressure": 0.0, "delta": 0.0015, "decay": 0.02,
+                  "tokens": 100, "tool_calls": 0, "depth": 0, "tag": null}}
+      ]
+    },
+    {
+      "name": "escalation_emits_step_then_escalation_in_that_order",
+      "description": "When pressure crosses escalation, engine.step is emitted FIRST (with post-step pressure), then engine.escalation.",
+      "config": {
+        "escalation_threshold": 0.5,
+        "release_threshold": 0.75,
+        "dissipation_per_step": 0.0,
+        "depth_coefficient": 0.5,
+        "token_coefficient": 0.0,
+        "tool_coefficient": 0.0
+      },
+      "clock": [0.0, 0.1],
+      "steps": [
+        {"tokens": 0, "tool_calls": 0, "depth": 1, "tag": null}
+      ],
+      "execution_id": "exec-events-3",
+      "expected_events": [
+        {"schema_version": "1.0", "execution_id": "exec-events-3", "kind": "engine.init",
+         "data": {"pressure": 0.0}},
+        {"schema_version": "1.0", "execution_id": "exec-events-3", "kind": "engine.step",
+         "data": {"step": 1, "pressure": 0.5, "delta": 0.5, "decay": 0.0,
+                  "tokens": 0, "tool_calls": 0, "depth": 1, "tag": null}},
+        {"schema_version": "1.0", "execution_id": "exec-events-3", "kind": "engine.escalation",
+         "data": {"pressure": 0.5, "threshold": 0.5}}
+      ]
+    },
+    {
+      "name": "release_with_lock_emits_step_release_locked",
+      "description": "Release with post_release_lock emits three events in order: engine.step (pre-release pressure), engine.release, engine.locked.",
+      "config": {
+        "escalation_threshold": 0.5,
+        "release_threshold": 0.75,
+        "dissipation_per_step": 0.0,
+        "depth_coefficient": 0.75,
+        "token_coefficient": 0.0,
+        "tool_coefficient": 0.0,
+        "post_release_lock": true
+      },
+      "clock": [0.0, 0.1],
+      "steps": [
+        {"tokens": 0, "tool_calls": 0, "depth": 1, "tag": null}
+      ],
+      "execution_id": "exec-events-4",
+      "expected_events": [
+        {"schema_version": "1.0", "execution_id": "exec-events-4", "kind": "engine.init",
+         "data": {"pressure": 0.0}},
+        {"schema_version": "1.0", "execution_id": "exec-events-4", "kind": "engine.step",
+         "data": {"step": 1, "pressure": 0.75, "delta": 0.75, "decay": 0.0,
+                  "tokens": 0, "tool_calls": 0, "depth": 1, "tag": null}},
+        {"schema_version": "1.0", "execution_id": "exec-events-4", "kind": "engine.release",
+         "data": {"pressure": 0.75, "threshold": 0.75}},
+        {"schema_version": "1.0", "execution_id": "exec-events-4", "kind": "engine.locked",
+         "data": {"reason": "post_release_lock"}}
+      ]
+    },
+    {
+      "name": "release_without_lock_emits_step_release_only",
+      "description": "With post_release_lock=false, no engine.locked follows the release.",
+      "config": {
+        "escalation_threshold": 0.5,
+        "release_threshold": 0.75,
+        "dissipation_per_step": 0.0,
+        "depth_coefficient": 0.75,
+        "token_coefficient": 0.0,
+        "tool_coefficient": 0.0,
+        "post_release_lock": false
+      },
+      "clock": [0.0, 0.1],
+      "steps": [
+        {"tokens": 0, "tool_calls": 0, "depth": 1, "tag": null}
+      ],
+      "execution_id": "exec-events-5",
+      "expected_events": [
+        {"schema_version": "1.0", "execution_id": "exec-events-5", "kind": "engine.init"},
+        {"schema_version": "1.0", "execution_id": "exec-events-5", "kind": "engine.step"},
+        {"schema_version": "1.0", "execution_id": "exec-events-5", "kind": "engine.release",
+         "data": {"pressure": 0.75, "threshold": 0.75}}
+      ],
+      "_note": "Must NOT emit engine.locked"
+    },
+    {
+      "name": "locked_step_emits_rejected_only",
+      "description": "After lock, subsequent steps emit engine.step.rejected and not engine.step.",
+      "config": {
+        "escalation_threshold": 0.5,
+        "release_threshold": 0.75,
+        "dissipation_per_step": 0.0,
+        "depth_coefficient": 0.75,
+        "token_coefficient": 0.0,
+        "tool_coefficient": 0.0,
+        "post_release_lock": true
+      },
+      "clock": [0.0, 0.1, 0.2],
+      "steps": [
+        {"tokens": 0, "tool_calls": 0, "depth": 1, "tag": null},
+        {"tokens": 500, "tool_calls": 2, "depth": 3, "tag": "should-be-ignored"}
+      ],
+      "execution_id": "exec-events-6",
+      "expected_events": [
+        {"kind": "engine.init"},
+        {"kind": "engine.step"},
+        {"kind": "engine.release"},
+        {"kind": "engine.locked"},
+        {"schema_version": "1.0", "execution_id": "exec-events-6", "kind": "engine.step.rejected",
+         "data": {"reason": "locked", "requested_tokens": 500, "requested_tools": 2}}
+      ]
+    },
+    {
+      "name": "reset_emits_engine_reset_event",
+      "description": "reset() emits engine.reset with pressure 0.",
+      "config": {},
+      "clock": [0.0, 0.1, 0.2],
+      "steps": [
+        {"tokens": 0, "tool_calls": 1, "depth": 0, "tag": null}
+      ],
+      "reset_after_step": 1,
+      "clock_after_reset": 0.2,
+      "execution_id": "exec-events-7",
+      "expected_events": [
+        {"kind": "engine.init"},
+        {"kind": "engine.step"},
+        {"schema_version": "1.0", "execution_id": "exec-events-7", "kind": "engine.reset",
+         "data": {"pressure": 0.0}}
+      ]
+    }
+  ]
+}
