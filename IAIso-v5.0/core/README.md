@@ -17,6 +17,7 @@ conformance vectors.
 | **C# / .NET** | [`iaiso-csharp/`](iaiso-csharp/) | NuGet (`Iaiso.Core`, `Iaiso.Consent`, …) | Stable · `0.1.0` · 67/67 conformance · 50 tests |
 | **PHP** | [`iaiso-php/`](iaiso-php/) | Composer (`iaiso/iaiso`) | Stable · `0.1.0` · 67/67 conformance · 53 tests |
 | **Swift** | [`iaiso-swift/`](iaiso-swift/) | SwiftPM (10 library products) | Draft · `0.1.0-draft` · run `swift test` to validate |
+| **Ruby** | [`iaiso-ruby/`](iaiso-ruby/) | RubyGems (`iaiso`) | Stable · `0.1.0` · 67/67 conformance · 54 tests |
 
 Each SDK directory is **self-contained**: source code, tests,
 documentation, packaging configuration. Pick the one for your stack and
