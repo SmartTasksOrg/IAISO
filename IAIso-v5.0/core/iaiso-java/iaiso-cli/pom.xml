@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>io.iaiso</groupId>
+        <artifactId>iaiso-parent</artifactId>
+        <version>0.1.0</version>
+    </parent>
+    <artifactId>iaiso-cli</artifactId>
+    <n>IAIso :: CLI</n>
+    <description>IAIso admin CLI (iaiso command)</description>
+
+    <dependencies>
+        <dependency><groupId>io.iaiso</groupId><artifactId>iaiso-audit</artifactId></dependency>
+        <dependency><groupId>io.iaiso</groupId><artifactId>iaiso-consent</artifactId></dependency>
+        <dependency><groupId>io.iaiso</groupId><artifactId>iaiso-policy</artifactId></dependency>
+        <dependency><groupId>io.iaiso</groupId><artifactId>iaiso-coordination</artifactId></dependency>
+        <dependency><groupId>io.iaiso</groupId><artifactId>iaiso-conformance</artifactId></dependency>
+        <dependency><groupId>com.google.code.gson</groupId><artifactId>gson</artifactId></dependency>
+
+        <dependency><groupId>junit</groupId><artifactId>junit</artifactId><scope>test</scope></dependency>
+        <dependency><groupId>org.hamcrest</groupId><artifactId>hamcrest</artifactId><scope>test</scope></dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-jar-plugin</artifactId>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <mainClass>io.iaiso.cli.Main</mainClass>
+                        </manifest>
+                    </archive>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>

@@ -1,0 +1,29 @@
+#!/usr/bin/env php
+<?php
+
+declare(strict_types=1);
+
+/*
+ * IAIso admin CLI launcher.
+ *
+ * Locates vendor/autoload.php whether this is run:
+ *   - inside the workspace directly (./bin/iaiso ...)
+ *   - as a globally installed Composer bin (~/.composer/vendor/bin/iaiso)
+ *   - inside another project that installed iaiso/iaiso (vendor/bin/iaiso)
+ */
+
+$candidates = [
+    __DIR__ . '/../vendor/autoload.php',
+    __DIR__ . '/../../../autoload.php',
+    __DIR__ . '/../../autoload.php',
+];
+
+foreach ($candidates as $f) {
+    if (file_exists($f)) {
+        require $f;
+        exit(\IAIso\Cli\Application::run($argv));
+    }
+}
+
+fwrite(STDERR, "iaiso: failed to locate vendor/autoload.php\n");
+exit(1);

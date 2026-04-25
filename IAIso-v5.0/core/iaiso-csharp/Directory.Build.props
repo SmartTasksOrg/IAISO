@@ -1,0 +1,20 @@
+<Project>
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <LangVersion>12</LangVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <AnalysisLevel>none</AnalysisLevel>
+
+    <!-- Package metadata applied to every library project -->
+    <Version>0.1.0</Version>
+    <Authors>IAIso Contributors</Authors>
+    <Company>IAIso</Company>
+    <Product>IAIso</Product>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/SmartTasksOrg/IAISO</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/SmartTasksOrg/IAISO</RepositoryUrl>
+    <Copyright>Copyright (c) IAIso Contributors</Copyright>
+  </PropertyGroup>
+</Project>

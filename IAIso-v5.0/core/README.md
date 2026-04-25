@@ -13,6 +13,8 @@ conformance vectors.
 | **Node.js / TypeScript** | [`iaiso-node/`](iaiso-node/) | `@iaiso/core` (npm) | Stable · `0.3.0` · 67/67 conformance · 171 tests |
 | **Go** | [`iaiso-go/`](iaiso-go/) | `github.com/iaiso/iaiso-go` | Stable · `v0.1.0` · 67/67 conformance · 48 tests |
 | **Rust** | [`iaiso-rust/`](iaiso-rust/) | Cargo workspace (`iaiso-core`, `iaiso-consent`, …) | Stable · `0.1.0` · 67/67 conformance · 47 tests |
+| **Java** | [`iaiso-java/`](iaiso-java/) | Maven (`io.iaiso:iaiso-core`, …) | Stable · `0.1.0` · 67/67 conformance · 50 tests |
+| **C# / .NET** | [`iaiso-csharp/`](iaiso-csharp/) | NuGet (`Iaiso.Core`, `Iaiso.Consent`, …) | Stable · `0.1.0` · 67/67 conformance · 50 tests |
 
 Each SDK directory is **self-contained**: source code, tests,
 documentation, packaging configuration. Pick the one for your stack and
