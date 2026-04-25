@@ -1,0 +1,40 @@
+[package]
+name = "iaiso-audit"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+authors.workspace = true
+rust-version.workspace = true
+description = "IAIso audit event envelope and sink implementations"
+
+[dependencies]
+serde = { workspace = true }
+serde_json = { workspace = true }
+parking_lot = { workspace = true }
+
+[features]
+default = []
+# SIEM sinks behind features. Operators turn on what they ship.
+splunk = ["dep:reqwest", "dep:tokio"]
+datadog = ["dep:reqwest", "dep:tokio"]
+loki = ["dep:reqwest", "dep:tokio"]
+elastic = ["dep:reqwest", "dep:tokio", "dep:base64"]
+sumo = ["dep:reqwest", "dep:tokio"]
+newrelic = ["dep:reqwest", "dep:tokio"]
+all-sinks = ["splunk", "datadog", "loki", "elastic", "sumo", "newrelic"]
+
+[dependencies.reqwest]
+workspace = true
+optional = true
+
+[dependencies.tokio]
+workspace = true
+optional = true
+
+[dependencies.base64]
+workspace = true
+optional = true
+
+[dependencies.chrono]
+workspace = true

@@ -1,0 +1,12 @@
+# Build artifacts
+/target/
+**/*.rs.bk
+*.pdb
+
+# IDEs
+.idea/
+.vscode/
+
+# Sub-crate lockfiles should not exist; only the workspace root has Cargo.lock
+**/crates/*/Cargo.lock
+**/cmd/*/Cargo.lock

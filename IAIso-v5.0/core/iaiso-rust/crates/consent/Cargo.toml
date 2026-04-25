@@ -1,0 +1,23 @@
+[package]
+name = "iaiso-consent"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+authors.workspace = true
+rust-version.workspace = true
+description = "IAIso consent token issuer and verifier (HS256/RS256 JWT)"
+
+[dependencies]
+serde = { workspace = true }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+parking_lot = { workspace = true }
+jsonwebtoken = { workspace = true }
+base64 = { workspace = true }
+# Pin transitive deps that bumped MSRV beyond Rust 1.75. We do NOT use
+# simple_asn1 directly; this entry is here purely to constrain the
+# resolver so jsonwebtoken picks an older simple_asn1 that uses an
+# older `time` crate compatible with Rust 1.75.
+simple_asn1 = "=0.6.2"
+time = "=0.3.36"
