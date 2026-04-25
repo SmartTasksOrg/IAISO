@@ -1,0 +1,18 @@
+[package]
+name = "iaiso-cli"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+authors.workspace = true
+rust-version.workspace = true
+description = "IAIso admin CLI implementation"
+
+[dependencies]
+iaiso-audit = { workspace = true }
+iaiso-conformance = { workspace = true }
+iaiso-consent = { workspace = true }
+iaiso-coordination = { workspace = true }
+iaiso-policy = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }

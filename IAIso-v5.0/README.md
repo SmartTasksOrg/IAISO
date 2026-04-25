@@ -17,14 +17,17 @@ This repository contains the full IAIso framework in two coordinated parts:
 
 ## Quick start
 
-```bash
-cd core
-pip install -e .
-python -m iaiso.conformance spec/   # 67 conformance vectors
-pytest -q                            # 240 passing tests
-```
+Pick the SDK for your stack. Both target the same spec and produce
+interoperable events and tokens.
 
-Minimal usage:
+**Python:**
+
+```bash
+cd core/iaiso-python
+pip install -e .
+python -m iaiso.conformance ../spec/      # 67 conformance vectors
+pytest -q                                   # 240 passing tests
+```
 
 ```python
 from iaiso import BoundedExecution, PressureConfig
@@ -36,9 +39,88 @@ with BoundedExecution.start(config=PressureConfig()) as execution:
         ...
 ```
 
-See [`core/README.md`](core/README.md) for the full SDK feature set and
+**Node.js / TypeScript:**
+
+```bash
+cd core/iaiso-node
+npm install
+npm test                                    # 171 tests (104 unit + 67 conformance)
+npx iaiso-conformance ./spec                # standalone conformance check
+```
+
+```typescript
+import { BoundedExecution, PressureConfig } from "@iaiso/core";
+
+await BoundedExecution.run(
+  { config: new PressureConfig() },
+  async (execution) => {
+    const outcome = execution.recordToolCall({ name: "search", tokens: 500 });
+    if (outcome === "escalated") {
+      // Layer 4: request human review per the escalation template
+    }
+  },
+);
+```
+
+**Go:**
+
+```bash
+cd core/iaiso-go
+go test ./...                              # 48 tests + 67 conformance
+go run ./cmd/iaiso-conformance ./spec      # standalone conformance check
+```
+
+```go
+package main
+
+import (
+    "github.com/iaiso/iaiso-go/iaiso/audit"
+    "github.com/iaiso/iaiso-go/iaiso/core"
+)
+
+func main() {
+    sink := audit.NewMemorySink()
+    core.Run(core.BoundedExecutionOptions{AuditSink: sink}, func(exec *core.BoundedExecution) error {
+        outcome, _ := exec.RecordToolCall("search", 500)
+        if outcome == core.StepOutcomeEscalated {
+            // Layer 4: request human review per the escalation template
+        }
+        return nil
+    })
+}
+```
+
+**Rust:**
+
+```bash
+cd core/iaiso-rust
+cargo test --workspace                         # 47 unit tests + 67 conformance
+cargo run -p iaiso-conformance-bin -- ./spec   # standalone conformance check
+```
+
+```rust
+use iaiso_audit::{MemorySink, Sink};
+use iaiso_core::{BoundedExecution, BoundedExecutionOptions, StepOutcome};
+use std::sync::Arc;
+
+fn main() {
+    let sink: Arc<dyn Sink> = Arc::new(MemorySink::new());
+    BoundedExecution::run(
+        BoundedExecutionOptions { audit_sink: sink, ..Default::default() },
+        |exec| {
+            let outcome = exec.record_tool_call("search", 500)?;
+            if outcome == StepOutcome::Escalated {
+                // Layer 4: request human review per the escalation template
+            }
+            Ok(())
+        },
+    ).unwrap();
+}
+```
+
+See [`core/README.md`](core/README.md) for the SDK signpost and
 [`core/docs/CONFORMANCE.md`](core/docs/CONFORMANCE.md) for the workflow
-that ports the reference implementation to other languages.
+that ports the framework to additional languages.
 
 ## Repository structure
 
@@ -81,15 +163,17 @@ New capabilities move through the framework in a predictable path:
 2. **Specification** — where the capability has a wire format (an event,
    a token, a policy field, a coordinator message), it gets a JSON
    Schema and conformance vectors under `core/spec/<subsystem>/`.
-3. **Implementation** — the runtime lands in `core/iaiso/` with tests.
+3. **Implementation** — the runtime lands in `core/iaiso-python/iaiso/` with tests.
    The full suite (`pytest` + `python -m iaiso.conformance core/spec/`)
    must pass.
-4. **Release** — `core/CHANGELOG.md` records the addition;
+4. **Release** — `core/iaiso-python/CHANGELOG.md` records the addition;
    `core/spec/VERSION` increments (MINOR for additive, MAJOR for
    breaking) if the contract changed.
-5. **Cross-language parity** — language ports land under
-   `core/ports/<language>/` (when opened). Each port re-runs the
-   conformance vectors in its own CI.
+5. **Cross-language parity** — language ports land at the top of
+   `core/`, alongside the Python SDK: `core/iaiso-python/`,
+   `core/iaiso-node/`, future `core/iaiso-go/`, etc. Each SDK is
+   self-contained; each re-runs the same conformance vectors in its
+   own CI.
 
 This keeps the framework's design work and its running code in
 lockstep: the vision grows by being built out, and the code grows by
@@ -116,13 +200,35 @@ IAIso 0.2.0 (the current `core/` release) provides:
   issue/verify, audit tailing, and coordinator inspection.
 - **OIDC identity** integration for Okta, Auth0, and Azure AD.
 
-See [`core/README.md`](core/README.md) for the full list.
+See [`core/README.md`](core/README.md) for the full list. The Node port
+at `@iaiso/core@0.3.0` implements the same capability set: 8 LLM
+providers, 8 audit sinks (including the 6 SIEM sinks above), in-memory
+and Redis coordinators, Prometheus metrics, OpenTelemetry tracing,
+OIDC identity, YAML policies, and an `iaiso` admin CLI. See
+[`core/iaiso-node/README.md`](core/iaiso-node/README.md).
+
+## Reference SDKs
+
+| Language | Location | Status | Conformance |
+|---|---|---|---|
+| Python | [`core/iaiso-python/`](core/iaiso-python/) | Stable · `0.2.0` | 67/67 |
+| TypeScript / Node.js | [`core/iaiso-node/`](core/iaiso-node/) | Stable · `@iaiso/core@0.3.0` | 67/67 |
+| Go | [`core/iaiso-go/`](core/iaiso-go/) | Stable · `v0.1.0` | 67/67 |
+| Rust | [`core/iaiso-rust/`](core/iaiso-rust/) | Stable · `0.1.0` | 67/67 |
+
+All four implementations target **IAIso spec 1.0** and pass every vector in
+[`core/spec/`](core/spec/). They emit identical audit events and produce
+interoperable consent tokens for the same inputs. Additional language ports
+(Java, C#, PHP) follow the porting workflow in
+[`core/docs/CONFORMANCE.md`](core/docs/CONFORMANCE.md).
 
 ## Upcoming from the roadmap
 
 Priorities for subsequent SDK releases include:
 
-- Conformant ports into Node.js, Go, Rust, and Java.
+- Conformant ports into Java and C#. Four reference SDKs (Python, Node,
+  Go, Rust) now serve as worked examples for any future port — pick the
+  language whose paradigms map most naturally to your target.
 - Additional platform integration patterns graduating from `vision/` to
   `core/`: expanded CRM (Salesforce, HubSpot) adapters, e-commerce
   (Shopify, Magento) adapters, and CMS (WordPress, Drupal) adapters.
@@ -132,7 +238,7 @@ Priorities for subsequent SDK releases include:
 - Industry solution-pack runtime loader, turning the `vision/`
   solution-pack JSONs into policy files consumable by the SDK.
 
-Follow [`core/CHANGELOG.md`](core/CHANGELOG.md) for releases.
+Follow [`core/iaiso-python/CHANGELOG.md`](core/iaiso-python/CHANGELOG.md) for releases.
 
 ## Contributing
 
@@ -161,27 +267,57 @@ IAISO/
 ├── LICENSE
 ├── l.env                   ← global configuration reference
 ├── mkdocs.yml              ← documentation site configuration
-├── core/                   ← reference SDK (Python, installable)
-│   ├── iaiso/              ← package source
-│   ├── spec/               ← normative specification + conformance vectors
-│   ├── tests/              ← 240 passing tests
-│   ├── docs/               ← SDK documentation
-│   ├── bench/              ← benchmarks
-│   ├── deploy/             ← Docker, Helm, Terraform templates
-│   ├── pyproject.toml
-│   ├── README.md
-│   └── CHANGELOG.md
-└── vision/                 ← framework specification
-    ├── README.md           ← the IAIso 5.0 design
-    ├── docs/               ← architecture docs (sections 01–15, appendices A–F)
-    ├── components/         ← JSON component registry + 100+ solution packs
-    ├── templates/          ← prompt templates for solution packs and systems
-    ├── integrations/       ← AI framework reference designs
-    ├── systems/            ← platform integration reference designs
-    ├── examples/           ← industry example directories
-    ├── scripts/            ← reference scripts (validation, simulation)
-    ├── api/                ← OpenAPI specification
-    └── LIVE-TEST/          ← interactive demo suite
+├── core/                       ← reference SDKs + shared spec (installable per-language)
+│   ├── README.md               ← language signpost
+│   ├── spec/                   ← normative specification + 67 conformance vectors
+│   ├── docs/                   ← language-agnostic framework docs
+│   ├── iaiso-python/           ← Python SDK — package `iaiso` (240 tests + 67 vectors)
+│   │   ├── iaiso/              ← package source
+│   │   ├── tests/
+│   │   ├── docs/               ← Python-specific docs
+│   │   ├── bench/, evals/, deploy/, examples/, scripts/
+│   │   ├── pyproject.toml
+│   │   ├── README.md
+│   │   └── CHANGELOG.md
+│   ├── iaiso-node/             ← Node.js / TypeScript SDK — `@iaiso/core@0.3.0` (171 tests + 67 vectors)
+│       ├── src/
+│       ├── tests/
+│       ├── bin/                ← `iaiso` and `iaiso-conformance` CLIs
+│       ├── package.json
+│       ├── README.md
+│       └── LICENSE
+│   ├── iaiso-go/               ← Go SDK — `github.com/iaiso/iaiso-go@v0.1.0` (48 tests + 67 vectors)
+│       ├── iaiso/
+│       ├── cmd/
+│       │   ├── iaiso/          ← admin CLI entry
+│       │   └── iaiso-conformance/
+│       ├── go.mod
+│       ├── README.md
+│       └── LICENSE
+│   └── iaiso-rust/             ← Rust SDK — Cargo workspace v0.1.0 (47 tests + 67 vectors)
+│       ├── crates/
+│       │   ├── core/           ← pressure engine + BoundedExecution
+│       │   ├── consent/        ← JWT (HS256/RS256)
+│       │   ├── audit/          ← envelope + base sinks
+│       │   ├── policy/, coordination/, middleware/, identity/,
+│       │   ├── metrics/, observability/, conformance/, cli/
+│       ├── cmd/
+│       │   ├── iaiso/          ← admin CLI binary
+│       │   └── iaiso-conformance/
+│       ├── Cargo.toml
+│       ├── README.md
+│       └── LICENSE
+└── vision/                     ← framework specification
+    ├── README.md               ← the IAIso 5.0 design
+    ├── docs/                   ← architecture docs (sections 01–15, appendices A–F)
+    ├── components/             ← JSON component registry + 100+ solution packs
+    ├── templates/              ← prompt templates for solution packs and systems
+    ├── integrations/           ← AI framework reference designs
+    ├── systems/                ← platform integration reference designs
+    ├── examples/               ← industry example directories
+    ├── scripts/                ← reference scripts (validation, simulation)
+    ├── api/                    ← OpenAPI specification
+    └── LIVE-TEST/              ← interactive demo suite
 ```
 
 ## Contact

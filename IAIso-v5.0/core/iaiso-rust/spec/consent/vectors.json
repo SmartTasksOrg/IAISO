@@ -1,0 +1,166 @@
+{
+  "_comment": "IAIso consent test vectors v1.0. See spec/consent/README.md. The HS256 key used for end-to-end vectors is given in `hs256_key_shared`. This is a fixed conformance key; NEVER use it in production.",
+  "version": "1.0",
+  "hs256_key_shared": "test_secret_do_not_use_in_production_this_is_for_conformance_vectors_only_deadbeef",
+
+  "scope_match": [
+    {"name": "exact_match",               "granted": ["tools.search"], "requested": "tools.search",        "expected": true},
+    {"name": "prefix_at_segment_boundary","granted": ["tools"],        "requested": "tools.search",        "expected": true},
+    {"name": "prefix_deep_nesting",       "granted": ["tools"],        "requested": "tools.a.b.c.d",       "expected": true},
+    {"name": "granted_more_specific_than_requested","granted": ["tools.search.bulk"],"requested": "tools.search","expected": false},
+    {"name": "different_root",            "granted": ["admin"],        "requested": "tools.search",        "expected": false},
+    {"name": "partial_word_not_prefix",   "granted": ["tool"],         "requested": "tools.search",        "expected": false},
+    {"name": "substring_not_boundary",    "granted": ["tools"],        "requested": "toolsbar",            "expected": false},
+    {"name": "multiple_grants_one_matches","granted": ["billing", "tools"], "requested": "tools.search",   "expected": true},
+    {"name": "empty_grants_never_match",  "granted": [],               "requested": "tools.search",        "expected": false},
+    {"name": "case_sensitive_no_match",   "granted": ["Tools"],        "requested": "tools",               "expected": false},
+    {"name": "dash_and_underscore_segments","granted": ["api-v2.user_read"],"requested": "api-v2.user_read","expected": true},
+    {"name": "exact_single_segment",      "granted": ["admin"],        "requested": "admin",               "expected": true}
+  ],
+
+  "scope_match_errors": [
+    {"name": "empty_requested_raises", "granted": ["tools"], "requested": "", "expect_error": "non-empty"}
+  ],
+
+  "valid_tokens": [
+    {
+      "name": "minimal_valid",
+      "description": "All required claims, no optional. Should verify cleanly.",
+      "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJpYWlzbyIsInN1YiI6InVzZXItNDIiLCJpYXQiOjE3MDAwMDAwMDAsImV4cCI6MTkwMDAwMDAwMCwianRpIjoianRpLTEiLCJzY29wZXMiOlsidG9vbHMuc2VhcmNoIiwidG9vbHMuZmV0Y2giXX0.cojBWPS7jg-bHCQXXHhWqAYBAwdfuYrxSlkS5J5U2yI",
+      "algorithm": "HS256",
+      "issuer": "iaiso",
+      "now": 1700000100,
+      "expected": {
+        "sub": "user-42",
+        "jti": "jti-1",
+        "scopes": ["tools.search", "tools.fetch"],
+        "execution_id": null,
+        "metadata": {}
+      }
+    },
+    {
+      "name": "execution_bound_matches",
+      "description": "Token bound to exec-abc, verifier asks for exec-abc. Should succeed.",
+      "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJpYWlzbyIsInN1YiI6InVzZXItNDIiLCJpYXQiOjE3MDAwMDAwMDAsImV4cCI6MTkwMDAwMDAwMCwianRpIjoianRpLTIiLCJzY29wZXMiOlsidG9vbHMuc2VhcmNoIiwidG9vbHMuZmV0Y2giXSwiZXhlY3V0aW9uX2lkIjoiZXhlYy1hYmMifQ.FAzT6MdN1X9Ku8Ttg9sQ6uVR1YivFJGrrjyIo0oMuvY",
+      "algorithm": "HS256",
+      "issuer": "iaiso",
+      "now": 1700000100,
+      "execution_id": "exec-abc",
+      "expected": {
+        "sub": "user-42",
+        "jti": "jti-2",
+        "scopes": ["tools.search", "tools.fetch"],
+        "execution_id": "exec-abc",
+        "metadata": {}
+      }
+    },
+    {
+      "name": "token_with_metadata",
+      "description": "Metadata object is propagated through verification.",
+      "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJpYWlzbyIsInN1YiI6InVzZXItNDIiLCJpYXQiOjE3MDAwMDAwMDAsImV4cCI6MTkwMDAwMDAwMCwianRpIjoianRpLTMiLCJzY29wZXMiOlsidG9vbHMuc2VhcmNoIiwidG9vbHMuZmV0Y2giXSwibWV0YWRhdGEiOnsidGVuYW50IjoiYWNtZSJ9fQ.j4m2c-7n_2U45wxuPFOsxX8dW86iW4Oo3q18cD80vmA",
+      "algorithm": "HS256",
+      "issuer": "iaiso",
+      "now": 1700000100,
+      "expected": {
+        "sub": "user-42",
+        "jti": "jti-3",
+        "scopes": ["tools.search", "tools.fetch"],
+        "execution_id": null,
+        "metadata": {"tenant": "acme"}
+      }
+    },
+    {
+      "name": "empty_scopes_is_valid_token",
+      "description": "A token granting no scopes is still a valid token — only scope checks fail.",
+      "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJpYWlzbyIsInN1YiI6InVzZXItNDIiLCJpYXQiOjE3MDAwMDAwMDAsImV4cCI6MTkwMDAwMDAwMCwianRpIjoianRpLWVtcHR5Iiwic2NvcGVzIjpbXX0.HOIybclCR089Shb9zUABNrhcna0PU0bUwWoCY-KZkmE",
+      "algorithm": "HS256",
+      "issuer": "iaiso",
+      "now": 1700000100,
+      "expected": {
+        "sub": "user-42",
+        "jti": "jti-empty",
+        "scopes": [],
+        "execution_id": null,
+        "metadata": {}
+      }
+    }
+  ],
+
+  "invalid_tokens": [
+    {
+      "name": "expired_token",
+      "description": "exp is in the past relative to `now`. Must raise ExpiredToken.",
+      "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJpYWlzbyIsInN1YiI6InVzZXItNDIiLCJpYXQiOjEwMDAwMDAwMDAsImV4cCI6MTAwMDAwMDAwMSwianRpIjoianRpLWV4cGlyZWQiLCJzY29wZXMiOlsidG9vbHMuc2VhcmNoIiwidG9vbHMuZmV0Y2giXX0.mjVOKdh4aqK3zAMPmQJ2yPCkblT1u2zosBqMByuAsME",
+      "algorithm": "HS256",
+      "issuer": "iaiso",
+      "now": 1700000000,
+      "expect_error": "expired"
+    },
+    {
+      "name": "wrong_issuer",
+      "description": "Token claims `iss: not-iaiso` but verifier expects `iaiso`. Must raise InvalidToken.",
+      "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJub3QtaWFpc28iLCJzdWIiOiJ1c2VyLTQyIiwiaWF0IjoxNzAwMDAwMDAwLCJleHAiOjE5MDAwMDAwMDAsImp0aSI6Imp0aS13cm9uZy1pc3MiLCJzY29wZXMiOlsidG9vbHMuc2VhcmNoIiwidG9vbHMuZmV0Y2giXX0.vZVXqWOlH9s_CwXQNfOmq08wjwnZ66ErxNHJPlbNay8",
+      "algorithm": "HS256",
+      "issuer": "iaiso",
+      "now": 1700000100,
+      "expect_error": "invalid"
+    },
+    {
+      "name": "bad_signature",
+      "description": "Signature bytes deliberately corrupted. Must raise InvalidToken.",
+      "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJpYWlzbyIsInN1YiI6InVzZXItNDIiLCJpYXQiOjE3MDAwMDAwMDAsImV4cCI6MTkwMDAwMDAwMCwianRpIjoianRpLTEiLCJzY29wZXMiOlsidG9vbHMuc2VhcmNoIiwidG9vbHMuZmV0Y2giXX0.AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+      "algorithm": "HS256",
+      "issuer": "iaiso",
+      "now": 1700000100,
+      "expect_error": "invalid"
+    },
+    {
+      "name": "execution_binding_mismatch",
+      "description": "Token bound to exec-abc but verifier asks for exec-xyz. Must raise InvalidToken.",
+      "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJpYWlzbyIsInN1YiI6InVzZXItNDIiLCJpYXQiOjE3MDAwMDAwMDAsImV4cCI6MTkwMDAwMDAwMCwianRpIjoianRpLTIiLCJzY29wZXMiOlsidG9vbHMuc2VhcmNoIiwidG9vbHMuZmV0Y2giXSwiZXhlY3V0aW9uX2lkIjoiZXhlYy1hYmMifQ.FAzT6MdN1X9Ku8Ttg9sQ6uVR1YivFJGrrjyIo0oMuvY",
+      "algorithm": "HS256",
+      "issuer": "iaiso",
+      "now": 1700000100,
+      "execution_id": "exec-xyz",
+      "expect_error": "invalid"
+    }
+  ],
+
+  "issue_and_verify_roundtrip": [
+    {
+      "name": "roundtrip_basic",
+      "description": "Issue a token with the fixed key, then verify it. Tests that a fresh token round-trips.",
+      "issue": {
+        "subject": "roundtrip-user",
+        "scopes": ["tools.search"],
+        "ttl_seconds": 60,
+        "execution_id": null,
+        "metadata": null
+      },
+      "expected_after_issue": {
+        "subject": "roundtrip-user",
+        "scopes": ["tools.search"],
+        "execution_id": null
+      },
+      "expected_after_verify_succeeds": true
+    },
+    {
+      "name": "roundtrip_with_execution_binding",
+      "description": "Issue bound, verify with matching exec. Expect success.",
+      "issue": {
+        "subject": "roundtrip-user",
+        "scopes": ["tools.search", "tools.fetch"],
+        "ttl_seconds": 60,
+        "execution_id": "exec-roundtrip",
+        "metadata": {"role": "admin"}
+      },
+      "verify_with_execution_id": "exec-roundtrip",
+      "expected_after_issue": {
+        "subject": "roundtrip-user",
+        "scopes": ["tools.search", "tools.fetch"],
+        "execution_id": "exec-roundtrip"
+      },
+      "expected_after_verify_succeeds": true
+    }
+  ]
+}
