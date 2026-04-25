@@ -1,0 +1,16 @@
+# Maven
+target/
+
+# Local build script output
+build/
+
+# IDEs
+.idea/
+.vscode/
+*.iml
+.classpath
+.project
+.settings/
+
+# OS
+.DS_Store

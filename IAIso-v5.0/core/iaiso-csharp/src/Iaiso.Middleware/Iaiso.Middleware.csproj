@@ -1,0 +1,9 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <Description>IAIso LLM provider middleware (Anthropic, OpenAI, Gemini, Bedrock, Mistral, Cohere, LiteLLM)</Description>
+    <PackageId>Iaiso.Middleware</PackageId>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Iaiso.Core\Iaiso.Core.csproj" />
+  </ItemGroup>
+</Project>

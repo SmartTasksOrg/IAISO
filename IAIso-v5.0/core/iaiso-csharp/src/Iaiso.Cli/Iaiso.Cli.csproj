@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <Description>IAIso admin CLI (iaiso command)</Description>
+    <PackageId>Iaiso.Cli</PackageId>
+    <AssemblyName>iaiso</AssemblyName>
+    <RootNamespace>Iaiso.Cli</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Iaiso.Audit\Iaiso.Audit.csproj" />
+    <ProjectReference Include="..\Iaiso.Consent\Iaiso.Consent.csproj" />
+    <ProjectReference Include="..\Iaiso.Coordination\Iaiso.Coordination.csproj" />
+    <ProjectReference Include="..\Iaiso.Conformance\Iaiso.Conformance.csproj" />
+    <ProjectReference Include="..\Iaiso.Policy\Iaiso.Policy.csproj" />
+  </ItemGroup>
+</Project>
