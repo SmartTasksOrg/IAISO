@@ -204,6 +204,25 @@ BoundedExecution::run(
 );
 ```
 
+**Swift** (iOS / macOS / tvOS / watchOS / Linux):
+
+```swift
+// In your app's Package.swift dependencies:
+//   .package(path: "core/iaiso-swift")
+// Target dependencies: ["IAIsoCore", "IAIsoAudit"]
+
+import IAIsoAudit
+import IAIsoCore
+
+let sink = MemorySink()
+try BoundedExecution.run(.init(auditSink: sink)) { exec in
+    let outcome = exec.recordToolCall("search", tokens: 500)
+    if outcome == .escalated {
+        // Layer 4: request human review per the escalation template
+    }
+}
+```
+
 See [`core/README.md`](core/README.md) for the SDK signpost and
 [`core/docs/CONFORMANCE.md`](core/docs/CONFORMANCE.md) for the workflow
 that ports the framework to additional languages.
@@ -304,20 +323,25 @@ OIDC identity, YAML policies, and an `iaiso` admin CLI. See
 | Java | [`core/iaiso-java/`](core/iaiso-java/) | Stable · `0.1.0` | 67/67 |
 | C# / .NET | [`core/iaiso-csharp/`](core/iaiso-csharp/) | Stable · `0.1.0` | 67/67 |
 | PHP | [`core/iaiso-php/`](core/iaiso-php/) | Stable · `0.1.0` | 67/67 |
+| Swift | [`core/iaiso-swift/`](core/iaiso-swift/) | Draft · `0.1.0-draft` | run `swift test` |
 
-All seven implementations target **IAIso spec 1.0** and pass every vector in
-[`core/spec/`](core/spec/). They emit identical audit events and produce
-interoperable consent tokens for the same inputs. Additional language ports
-(Ruby) follow the porting workflow in
-[`core/docs/CONFORMANCE.md`](core/docs/CONFORMANCE.md).
+The first seven implementations target **IAIso spec 1.0** and were driven to
+67/67 conformance through compile-test-fix iteration. The Swift port was
+authored without a Swift toolchain in the build sandbox, so its conformance
+status is "expected 67/67, requires `swift test` to confirm" — see
+[`core/iaiso-swift/README.md`](core/iaiso-swift/README.md) for details. All
+ports emit identical audit events and produce interoperable consent tokens
+for the same inputs. Additional language ports (Ruby) follow the porting
+workflow in [`core/docs/CONFORMANCE.md`](core/docs/CONFORMANCE.md).
 
 ## Upcoming from the roadmap
 
 Priorities for subsequent SDK releases include:
 
-- A conformant port into Ruby. Seven reference SDKs (Python, Node, Go,
-  Rust, Java, C#, PHP) now serve as worked examples for any future port —
-  pick the language whose paradigms map most naturally to your target.
+- A conformant port into Ruby. Eight reference SDKs (Python, Node, Go,
+  Rust, Java, C#, PHP, Swift) now serve as worked examples for any future
+  port — pick the language whose paradigms map most naturally to your
+  target.
 - Additional platform integration patterns graduating from `vision/` to
   `core/`: expanded CRM (Salesforce, HubSpot) adapters, e-commerce
   (Shopify, Magento) adapters, and CMS (WordPress, Drupal) adapters.
@@ -420,7 +444,7 @@ IAISO/
 │       ├── Directory.Build.props
 │       ├── README.md
 │       └── LICENSE
-│   └── iaiso-php/              ← PHP SDK — Composer package 0.1.0 (53 tests + 67 vectors)
+│   ├── iaiso-php/              ← PHP SDK — Composer package 0.1.0 (53 tests + 67 vectors)
 │       ├── src/                ← single Composer package, sub-namespaces under IAIso\
 │       │   ├── Audit/, Core/, Consent/, Policy/, Coordination/,
 │       │   ├── Middleware/{Anthropic,OpenAi,Gemini,Bedrock,Mistral,Cohere,LiteLlm}/,
@@ -428,6 +452,15 @@ IAISO/
 │       ├── tests/Unit/, tests/Conformance/  ← PHPUnit
 │       ├── bin/iaiso           ← admin CLI launcher
 │       ├── composer.json, phpunit.xml
+│       ├── README.md
+│       └── LICENSE
+│   └── iaiso-swift/            ← Swift SDK — SwiftPM 0.1.0-draft (test count + 67 vectors via swift test)
+│       ├── Package.swift       ← 10 library products + iaiso CLI exe
+│       ├── Sources/
+│       │   ├── IAIsoAudit/, IAIsoCore/, IAIsoConsent/, IAIsoPolicy/,
+│       │   ├── IAIsoCoordination/, IAIsoMiddleware/, IAIsoIdentity/,
+│       │   ├── IAIsoMetrics/, IAIsoObservability/, IAIsoConformance/, IAIsoCLI/
+│       ├── Tests/              ← XCTest, conformance suite
 │       ├── README.md
 │       └── LICENSE
 └── vision/                     ← framework specification

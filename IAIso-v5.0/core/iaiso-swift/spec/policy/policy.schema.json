@@ -1,0 +1,71 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://iaiso.dev/spec/1.0/policy/policy.schema.json",
+  "title": "IAIso Policy File",
+  "description": "Top-level configuration document for an IAIso deployment. See spec/policy/README.md.",
+  "type": "object",
+  "required": ["version"],
+  "additionalProperties": true,
+  "properties": {
+    "version": {
+      "type": "string",
+      "const": "1",
+      "description": "Policy schema version. Must be exactly \"1\" for this spec."
+    },
+    "pressure": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "token_coefficient":      {"type": "number", "minimum": 0},
+        "tool_coefficient":       {"type": "number", "minimum": 0},
+        "depth_coefficient":      {"type": "number", "minimum": 0},
+        "dissipation_per_step":   {"type": "number", "minimum": 0},
+        "dissipation_per_second": {"type": "number", "minimum": 0},
+        "escalation_threshold":   {"type": "number", "minimum": 0, "maximum": 1},
+        "release_threshold":      {"type": "number", "minimum": 0, "maximum": 1},
+        "post_release_lock":      {"type": "boolean"}
+      }
+    },
+    "coordinator": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "escalation_threshold":    {"type": "number", "minimum": 0},
+        "release_threshold":       {"type": "number", "minimum": 0},
+        "notify_cooldown_seconds": {"type": "number", "minimum": 0},
+        "aggregator": {
+          "type": "string",
+          "enum": ["sum", "mean", "max", "weighted_sum"]
+        },
+        "weights": {
+          "type": "object",
+          "additionalProperties": {"type": "number"}
+        },
+        "default_weight": {"type": "number"}
+      }
+    },
+    "consent": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "issuer": {"type": "string", "minLength": 1},
+        "default_ttl_seconds": {"type": "number", "minimum": 0},
+        "required_scopes": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z0-9_-]+(\\.[a-z0-9_-]+)*$"
+          }
+        },
+        "allowed_algorithms": {
+          "type": "array",
+          "items": {"type": "string"}
+        }
+      }
+    },
+    "metadata": {
+      "type": "object",
+      "description": "Free-form tagging; preserved but not interpreted."
+    }
+  }
+}
