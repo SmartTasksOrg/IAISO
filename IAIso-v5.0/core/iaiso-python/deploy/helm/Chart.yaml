@@ -1,0 +1,15 @@
+apiVersion: v2
+name: iaiso
+description: IAIso — pressure-bounded execution for LLM agents
+type: application
+version: 0.1.0
+appVersion: "0.1.0"
+keywords:
+  - llm
+  - agent
+  - safety
+  - rate-limiting
+home: https://github.com/your-org/iaiso
+maintainers:
+  - name: Your Team
+    email: platform@your-org.example

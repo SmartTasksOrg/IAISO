@@ -1,0 +1,167 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://iaiso.dev/spec/1.0/events/payloads.schema.json",
+  "title": "IAIso AuditEvent per-kind payload schemas",
+  "description": "Per-kind `data` schemas. Implementations MAY add additional fields; required fields listed here MUST be present. See spec/events/README.md §4.",
+  "$defs": {
+    "engine.init": {
+      "type": "object",
+      "required": ["pressure"],
+      "properties": {
+        "pressure": {"type": "number", "minimum": 0, "maximum": 1}
+      }
+    },
+    "engine.step": {
+      "type": "object",
+      "required": ["step", "pressure", "delta", "decay", "tokens", "tool_calls", "depth", "tag"],
+      "properties": {
+        "step": {"type": "integer", "minimum": 1},
+        "pressure": {"type": "number", "minimum": 0, "maximum": 1},
+        "delta": {"type": "number", "minimum": 0},
+        "decay": {"type": "number", "minimum": 0},
+        "tokens": {"type": "integer", "minimum": 0},
+        "tool_calls": {"type": "integer", "minimum": 0},
+        "depth": {"type": "integer", "minimum": 0},
+        "tag": {"type": ["string", "null"]}
+      }
+    },
+    "engine.escalation": {
+      "type": "object",
+      "required": ["pressure", "threshold"],
+      "properties": {
+        "pressure": {"type": "number", "minimum": 0, "maximum": 1},
+        "threshold": {"type": "number", "minimum": 0, "maximum": 1}
+      }
+    },
+    "engine.release": {
+      "type": "object",
+      "required": ["pressure", "threshold"],
+      "properties": {
+        "pressure": {"type": "number", "minimum": 0, "maximum": 1},
+        "threshold": {"type": "number", "minimum": 0, "maximum": 1}
+      }
+    },
+    "engine.locked": {
+      "type": "object",
+      "required": ["reason"],
+      "properties": {
+        "reason": {"type": "string", "enum": ["post_release_lock"]}
+      }
+    },
+    "engine.step.rejected": {
+      "type": "object",
+      "required": ["reason", "requested_tokens", "requested_tools"],
+      "properties": {
+        "reason": {"type": "string", "enum": ["locked"]},
+        "requested_tokens": {"type": "integer", "minimum": 0},
+        "requested_tools": {"type": "integer", "minimum": 0}
+      }
+    },
+    "engine.reset": {
+      "type": "object",
+      "required": ["pressure"],
+      "properties": {
+        "pressure": {"type": "number", "const": 0.0}
+      }
+    },
+    "execution.consent_attached": {
+      "type": "object",
+      "required": ["subject", "scopes", "jti"],
+      "properties": {
+        "subject": {"type": "string"},
+        "scopes": {"type": "array", "items": {"type": "string"}},
+        "jti": {"type": "string"}
+      }
+    },
+    "execution.closed": {
+      "type": "object",
+      "required": ["final_pressure", "final_lifecycle", "exception"],
+      "properties": {
+        "final_pressure": {"type": "number", "minimum": 0, "maximum": 1},
+        "final_lifecycle": {"type": "string", "enum": ["init", "running", "escalated", "released", "locked"]},
+        "exception": {"type": ["string", "null"]}
+      }
+    },
+    "consent.missing": {
+      "type": "object",
+      "required": ["requested"],
+      "properties": {
+        "requested": {"type": "string"}
+      }
+    },
+    "consent.granted": {
+      "type": "object",
+      "required": ["requested", "jti"],
+      "properties": {
+        "requested": {"type": "string"},
+        "jti": {"type": "string"}
+      }
+    },
+    "consent.denied": {
+      "type": "object",
+      "required": ["requested", "granted", "jti"],
+      "properties": {
+        "requested": {"type": "string"},
+        "granted": {"type": "array", "items": {"type": "string"}},
+        "jti": {"type": "string"}
+      }
+    },
+    "coordinator.init": {
+      "type": "object",
+      "required": ["coordinator_id", "aggregator", "backend"],
+      "properties": {
+        "coordinator_id": {"type": "string"},
+        "aggregator": {"type": "string"},
+        "backend": {"type": "string", "enum": ["memory", "redis"]}
+      }
+    },
+    "coordinator.execution_registered": {
+      "type": "object",
+      "required": ["execution_id"],
+      "properties": {"execution_id": {"type": "string"}}
+    },
+    "coordinator.execution_unregistered": {
+      "type": "object",
+      "required": ["execution_id"],
+      "properties": {"execution_id": {"type": "string"}}
+    },
+    "coordinator.escalation": {
+      "type": "object",
+      "required": ["aggregate_pressure", "threshold"],
+      "properties": {
+        "aggregate_pressure": {"type": "number", "minimum": 0},
+        "threshold": {"type": "number", "minimum": 0, "maximum": 1}
+      }
+    },
+    "coordinator.release": {
+      "type": "object",
+      "required": ["aggregate_pressure", "threshold"],
+      "properties": {
+        "aggregate_pressure": {"type": "number", "minimum": 0},
+        "threshold": {"type": "number", "minimum": 0, "maximum": 1}
+      }
+    },
+    "coordinator.returned_to_nominal": {
+      "type": "object",
+      "required": ["aggregate_pressure"],
+      "properties": {
+        "aggregate_pressure": {"type": "number", "minimum": 0}
+      }
+    },
+    "coordinator.reset": {
+      "type": "object",
+      "required": ["fleet_size"],
+      "properties": {
+        "fleet_size": {"type": "integer", "minimum": 0}
+      }
+    },
+    "coordinator.callback_error": {
+      "type": "object",
+      "required": ["callback", "error"],
+      "properties": {
+        "callback": {"type": "string"},
+        "error": {"type": "string"}
+      }
+    }
+  }
+}
