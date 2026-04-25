@@ -1,0 +1,54 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://iaiso.dev/spec/1.0/consent/claims.schema.json",
+  "title": "IAIso ConsentScope decoded claims",
+  "description": "The decoded payload of an IAIso consent JWT. See spec/consent/README.md.",
+  "type": "object",
+  "required": ["iss", "sub", "iat", "exp", "jti", "scopes"],
+  "additionalProperties": true,
+  "properties": {
+    "iss": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Issuer identifier. Verifier validates this equals its configured issuer."
+    },
+    "sub": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Subject — the entity the token was issued to."
+    },
+    "iat": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Issued-at, Unix seconds."
+    },
+    "exp": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Expiry, Unix seconds. MUST be > iat."
+    },
+    "jti": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Unique token identifier. Used for revocation."
+    },
+    "scopes": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^[a-z0-9_-]+(\\.[a-z0-9_-]+)*$",
+        "description": "A dot-separated sequence of segments matching [a-z0-9_-]+."
+      },
+      "description": "Granted scopes. May be empty (an empty-authorization token)."
+    },
+    "execution_id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "If present, token is valid only for this execution."
+    },
+    "metadata": {
+      "type": "object",
+      "description": "Caller-defined additional claims. Propagated to audit events."
+    }
+  }
+}

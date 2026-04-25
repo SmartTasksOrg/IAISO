@@ -1,0 +1,222 @@
+{
+  "_comment": "IAIso policy test vectors v1.0. See spec/policy/README.md. Each valid vector specifies an input document and expected parsed field values. Each invalid vector specifies an expected error-path substring.",
+  "version": "1.0",
+  "tolerance": 1e-9,
+
+  "valid": [
+    {
+      "name": "minimal_version_only",
+      "description": "Just the required version field. All sections default.",
+      "document": {"version": "1"},
+      "expected_pressure": {
+        "token_coefficient": 0.015,
+        "tool_coefficient": 0.08,
+        "depth_coefficient": 0.05,
+        "dissipation_per_step": 0.02,
+        "dissipation_per_second": 0.0,
+        "escalation_threshold": 0.85,
+        "release_threshold": 0.95,
+        "post_release_lock": true
+      },
+      "expected_consent": {
+        "issuer": null,
+        "default_ttl_seconds": 3600.0,
+        "required_scopes": [],
+        "allowed_algorithms": ["HS256", "RS256"]
+      },
+      "expected_metadata": {}
+    },
+    {
+      "name": "full_pressure_section",
+      "description": "Every pressure field overridden.",
+      "document": {
+        "version": "1",
+        "pressure": {
+          "token_coefficient": 0.01,
+          "tool_coefficient": 0.05,
+          "depth_coefficient": 0.03,
+          "dissipation_per_step": 0.01,
+          "dissipation_per_second": 0.001,
+          "escalation_threshold": 0.7,
+          "release_threshold": 0.9,
+          "post_release_lock": false
+        }
+      },
+      "expected_pressure": {
+        "token_coefficient": 0.01,
+        "tool_coefficient": 0.05,
+        "depth_coefficient": 0.03,
+        "dissipation_per_step": 0.01,
+        "dissipation_per_second": 0.001,
+        "escalation_threshold": 0.7,
+        "release_threshold": 0.9,
+        "post_release_lock": false
+      }
+    },
+    {
+      "name": "coordinator_with_sum_aggregator",
+      "description": "Coordinator section present; aggregator defaults to sum.",
+      "document": {
+        "version": "1",
+        "coordinator": {
+          "escalation_threshold": 5.0,
+          "release_threshold": 8.0
+        }
+      },
+      "expected_coordinator": {
+        "escalation_threshold": 5.0,
+        "release_threshold": 8.0,
+        "notify_cooldown_seconds": 1.0
+      },
+      "expected_aggregator_name": "sum"
+    },
+    {
+      "name": "coordinator_weighted_sum_with_weights",
+      "description": "weighted_sum aggregator uses the weights map.",
+      "document": {
+        "version": "1",
+        "coordinator": {
+          "escalation_threshold": 5.0,
+          "release_threshold": 8.0,
+          "aggregator": "weighted_sum",
+          "weights": {"exec-critical": 3.0, "exec-batch": 0.5},
+          "default_weight": 1.0
+        }
+      },
+      "expected_aggregator_name": "weighted_sum"
+    },
+    {
+      "name": "consent_custom_issuer",
+      "description": "Custom issuer and required scopes.",
+      "document": {
+        "version": "1",
+        "consent": {
+          "issuer": "platform-auth",
+          "default_ttl_seconds": 900,
+          "required_scopes": ["tools.read", "tools.search"]
+        }
+      },
+      "expected_consent": {
+        "issuer": "platform-auth",
+        "default_ttl_seconds": 900.0,
+        "required_scopes": ["tools.read", "tools.search"]
+      }
+    },
+    {
+      "name": "metadata_preserved_verbatim",
+      "description": "Metadata is passed through unchanged.",
+      "document": {
+        "version": "1",
+        "metadata": {"environment": "prod", "owner": "platform", "cost_center": "r-and-d"}
+      },
+      "expected_metadata": {"environment": "prod", "owner": "platform", "cost_center": "r-and-d"}
+    },
+    {
+      "name": "unknown_top_level_key_does_not_fail",
+      "description": "Forward-compat: future_field is ignored, loading succeeds.",
+      "document": {
+        "version": "1",
+        "future_field": {"anything": "at all"}
+      },
+      "expect_loads": true
+    },
+    {
+      "name": "unknown_nested_key_does_not_fail",
+      "description": "Forward-compat: unknown fields inside a known section are ignored.",
+      "document": {
+        "version": "1",
+        "pressure": {
+          "escalation_threshold": 0.7,
+          "release_threshold": 0.9,
+          "future_coefficient": 42
+        }
+      },
+      "expected_pressure": {
+        "escalation_threshold": 0.7,
+        "release_threshold": 0.9
+      }
+    }
+  ],
+
+  "invalid": [
+    {
+      "name": "missing_version",
+      "description": "version is required.",
+      "document": {"pressure": {"escalation_threshold": 0.5}},
+      "expect_error_path": "version"
+    },
+    {
+      "name": "wrong_version",
+      "description": "version must be exactly '1'.",
+      "document": {"version": "2"},
+      "expect_error_path": "version"
+    },
+    {
+      "name": "release_threshold_below_escalation",
+      "description": "Cross-field: release must exceed escalation.",
+      "document": {
+        "version": "1",
+        "pressure": {
+          "escalation_threshold": 0.9,
+          "release_threshold": 0.5
+        }
+      },
+      "expect_error_path": "release_threshold"
+    },
+    {
+      "name": "negative_token_coefficient",
+      "description": "Coefficients must be >= 0.",
+      "document": {
+        "version": "1",
+        "pressure": {"token_coefficient": -0.01}
+      },
+      "expect_error_path": "token_coefficient"
+    },
+    {
+      "name": "escalation_threshold_above_one",
+      "description": "Pressure thresholds are in [0, 1].",
+      "document": {
+        "version": "1",
+        "pressure": {"escalation_threshold": 1.5}
+      },
+      "expect_error_path": "escalation_threshold"
+    },
+    {
+      "name": "unknown_aggregator",
+      "description": "aggregator must be one of the four known values.",
+      "document": {
+        "version": "1",
+        "coordinator": {
+          "escalation_threshold": 5.0,
+          "release_threshold": 8.0,
+          "aggregator": "median"
+        }
+      },
+      "expect_error_path": "aggregator"
+    },
+    {
+      "name": "required_scope_with_invalid_grammar",
+      "description": "required_scopes items must match the scope grammar.",
+      "document": {
+        "version": "1",
+        "consent": {"required_scopes": ["Tools.Invalid"]}
+      },
+      "expect_error_path": "required_scopes"
+    },
+    {
+      "name": "top_level_not_a_mapping",
+      "description": "Policy file must be a mapping, not an array.",
+      "document": ["not", "a", "mapping"],
+      "expect_error_path": "$"
+    },
+    {
+      "name": "wrong_type_for_number_field",
+      "description": "token_coefficient is a number, not a string.",
+      "document": {
+        "version": "1",
+        "pressure": {"token_coefficient": "0.015"}
+      },
+      "expect_error_path": "token_coefficient"
+    }
+  ]
+}
