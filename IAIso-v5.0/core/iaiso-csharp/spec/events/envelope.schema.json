@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://iaiso.dev/spec/1.0/events/envelope.schema.json",
+  "title": "IAIso AuditEvent envelope",
+  "description": "Every audit event produced by IAIso. See spec/events/README.md §1.",
+  "type": "object",
+  "required": ["schema_version", "execution_id", "kind", "timestamp", "data"],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "1.0"
+    },
+    "execution_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "kind": {
+      "type": "string",
+      "pattern": "^[a-z0-9_]+(\\.[a-z0-9_]+)+$",
+      "description": "Dotted event kind, e.g. engine.step, consent.granted."
+    },
+    "timestamp": {
+      "type": "number",
+      "minimum": 0
+    },
+    "data": {
+      "type": "object",
+      "description": "Per-kind payload. See spec/events/payloads.schema.json for per-kind schemas."
+    }
+  }
+}
