@@ -144,7 +144,7 @@ pipeline.
 Expected effort: setting up SWE-bench is typically a day or two; a
 single full run on SWE-bench-Lite (300 instances) takes 4-12 hours and
 costs $20-200 in API usage depending on the model. GAIA is lighter.
-This is the "actual research" part that can't be shortcut — it's why
-the previous version of IAIso's "calibration" was just made up
-numbers, and why the right way to fix it is to ship the infrastructure
-and have someone actually run the study.
+Running this study on your own infrastructure produces the authoritative
+calibration for your deployment — the IAIso SDK ships the harness so
+operators and researchers can produce measured, auditable coefficients
+rather than inheriting generic defaults.

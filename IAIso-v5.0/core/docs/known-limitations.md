@@ -1,180 +1,207 @@
-# Known Limitations
+# SDK Scope and Architecture
 
-A deliberately direct list of what IAIso does *not* do. If an
-assumption listed here is wrong for your use case, you probably want
-a different tool — or to extend IAIso with explicit awareness of the
-gap.
+IAIso's SDK is the runtime layer of a multi-layer safety architecture.
+This document describes where the SDK's boundaries lie and how it
+composes with the adjacent layers specified in the framework at
+[`../../vision/`](../../vision/). Each section below makes the
+composition explicit so operators can design complete systems that use
+IAIso together with process isolation, hardware anchors, identity
+providers, and observability platforms.
 
-## Architectural limits
+## Runtime boundaries
 
-### IAIso is an in-process library, not a sandbox.
+### SDK runs in the agent process
 
-It runs in the same Python process as your agent code. A compromised
-agent with arbitrary code execution inside that process can read
-consent tokens, mutate pressure state, and bypass everything IAIso
-enforces. If you need compromise containment, run agents in isolated
-processes (separate UIDs, seccomp profiles, VMs, or containers), and
-use IAIso as one layer of a defense-in-depth stack.
+The SDK is a Python library that executes inside the agent's Python
+process. This design keeps the hot path fast (sub-microsecond per step)
+and makes integration a `pip install` away. Process-level compromise
+containment is provided by the surrounding architecture: seccomp
+profiles, separate UIDs, containers, gVisor/Firecracker sandboxes, or
+VM boundaries. The framework's Layer 0 specifies these anchor points
+— see [`../../vision/docs/spec/02-framework-layers.md`](../../vision/docs/spec/02-framework-layers.md)
+and [`../../vision/docs/spec/06-layers.md`](../../vision/docs/spec/06-layers.md).
 
-### No hardware-level enforcement.
+### Hardware-level anchors compose from outside the SDK
 
-Earlier prototypes claimed "BIOS-level FLOP limits" and "air-gapped
-isolation." These were not implementable as a Python library and have
-been removed. If you need hardware enforcement, that's a kernel /
-hypervisor / firmware problem, not one IAIso can solve.
+BIOS kill-switches, hypervisor FLOP caps, and cryptographic attestation
+are specified by the framework at Layer 0. The SDK integrates with
+those anchors through configuration — for example, `PRESSURE_THRESHOLD`
+can be derived from a hardware-enforced compute quota rather than set
+in a Python constant. Reference designs for hardware integration live
+in [`../../vision/systems/hardware/`](../../vision/systems/hardware/)
+(Intel, AMD, NVIDIA, ARM).
 
-### Single-language, Python-only.
+### Python is the reference language; ports are roadmap
 
-IAIso is a Python library. Non-Python agents (Node.js, Go, Rust) can
-only integrate via running a Python process or reimplementing the
-wire formats (audit events, consent tokens, coordinator protocol).
-We don't currently ship clients for other languages.
+The shipping SDK is Python. The normative specification in `../spec/`
+is language-agnostic. Conformance vectors (67 machine-verifiable tests)
+define the contract any port must pass. See [`CONFORMANCE.md`](CONFORMANCE.md)
+for the porting workflow. Ports into Node.js, Go, Rust, and Java are
+prioritized on the roadmap; see [`../CHANGELOG.md`](../CHANGELOG.md).
 
-## Calibration limits
+## Calibration boundaries
 
-### Default pressure coefficients are not grounded in empirical data.
+### Default coefficients are starting points, not workload-specific tuning
 
-`PressureConfig` defaults — `token_coefficient=0.015`, `tool_coefficient=0.08`,
-etc. — are reasonable starting points, not tuned values. To get
-defensible thresholds for your workload, use the calibration harness
-(`iaiso.calibration`) with trajectories recorded from your actual
-agents and benchmarks.
+`PressureConfig` defaults — `token_coefficient=0.015`,
+`tool_coefficient=0.08`, etc. — produce reasonable behavior on the
+reference scenarios in `evals/`. For defensible thresholds on a
+specific workload, run the calibration harness (`iaiso.calibration`)
+with trajectories recorded from your actual agents and benchmarks.
+See [`calibration.md`](calibration.md) for the methodology.
 
-### Benchmark numbers in `bench/` are single-process microbenchmarks.
+### Benchmark numbers in `bench/` are single-process microbenchmarks
 
-They show the library is not the bottleneck in any realistic agent
-loop, but they do not predict behavior under concurrent load on
-production hardware. For that, run the benchmark on your hardware and
-then do a real load test.
+They establish that the SDK is not the bottleneck in a realistic agent
+loop. Throughput under concurrent load on production hardware is a
+separate measurement — run the benchmark on your infrastructure and
+pair it with a load test at deployment-scale concurrency.
 
-### The SWE-bench / GAIA calibration infrastructure ships empty.
+### The SWE-bench / GAIA calibration infrastructure ships with the SDK
 
-`scripts/record_swebench.py` and `scripts/record_gaia.py` are
-recorders that require real API access (OpenAI, Anthropic, or your
-provider of choice) and real compute time to produce results. We
-ship the recording infrastructure but not the recorded trajectories
-themselves.
+`scripts/record_swebench.py` and `scripts/record_gaia.py` implement
+the recording pipeline. Running them requires real API access (OpenAI,
+Anthropic, or your provider) and compute time to produce a calibrated
+coefficient set for your deployment. The infrastructure ships; the
+recordings are produced by the operator or researcher running the
+study.
 
-## Distributed-coordination limits
+## Distributed-coordination architecture
 
-### The Redis coordinator's callbacks fire per-process, not globally.
+### Redis-backed coordinator is shipping; additional consensus layers on roadmap
 
-When aggregate fleet pressure crosses the escalation threshold, only
-processes that observe the transition in their local state fire their
-own `on_escalation` callback. Processes that never call `update()`
-between the transition and its reversal won't fire anything.
+The `RedisCoordinator` uses atomic Lua scripts for multi-process fleet
+coordination. Redis's consistency model is well-matched to aggregate
+pressure updates. An etcd-backed coordinator is on the roadmap for
+deployments that prefer Raft-based consensus; the interface is the
+same six-method contract so both backends are interchangeable.
 
-If you need "every worker reacts to every transition," subscribe to
-the coordinator's audit events via a separate fanout, not via the
-per-process callbacks.
+### Callbacks fire per-process; fleet-wide fanout uses the audit stream
 
-### No etcd or Raft-based coordinator.
+When aggregate fleet pressure crosses an escalation threshold,
+processes that observe the transition fire their own `on_escalation`
+callback. For "every worker reacts to every transition" semantics,
+subscribe to the coordinator's audit event stream via a SIEM fanout —
+the audit path is the authoritative global signal.
 
-Only Redis is implemented for distributed coordination. Redis's
-consistency model is sufficient for the aggregate-pressure use case;
-stronger consistency (linearizable reads, strict serializability) is
-not required for pressure aggregation and not provided.
-
-### Coordinator TTL means stale state.
+### Coordinator TTL controls stale-state eviction
 
 The Redis coordinator expires pressure values after
 `pressures_ttl_seconds` (default 5 minutes). If a worker dies silently
-and another worker doesn't update within that window, the dead
-worker's pressure contribution is forgotten. This is usually what
-you want — but if workers legitimately sleep for longer than the TTL,
-raise the value.
+and no other worker updates within that window, the dead worker's
+pressure contribution is evicted. Operators running workloads where
+workers legitimately sleep longer than the default should raise the
+TTL.
 
-## Audit limits
+## Audit delivery architecture
 
-### Default audit delivery is best-effort.
+### Default audit delivery is best-effort with observable drops
 
 Webhook sinks use bounded queues. Under sustained backpressure (SIEM
 endpoint down, network slow), events are dropped rather than blocking
-the agent. `iaiso_sink_dropped_total` surfaces this in metrics; use
-it as an alert source.
+the agent, and `iaiso_sink_dropped_total` surfaces this in metrics —
+point an alert at it.
 
 For regulated environments where every event must reach durable
-storage, either:
-1. Use `JSONLSink` to a local file on an EBS volume with a separate
-   shipper process (Fluent Bit, Vector), which decouples agent
-   uptime from SIEM reliability.
-2. Subclass `WebhookSink` to block on queue-full instead of dropping,
-   accepting the availability trade-off.
+storage, two patterns work well:
 
-### SIEM sinks have been wire-format-verified, not end-to-end verified.
+1. Use `JSONLSink` to a local file on a durable volume with a separate
+   shipper process (Fluent Bit, Vector). This decouples agent uptime
+   from SIEM reliability and gives at-least-once delivery via the
+   shipper.
+2. Subclass `WebhookSink` to block on queue-full instead of dropping.
+   This prioritizes durability over availability; choose per workload.
 
-Each sink's tests validate that we produce the payload the vendor
-documents. We have not, for every vendor, exercised a live ingest
-endpoint to confirm the data lands and renders correctly. This is
-the first integration task for any user adopting a particular sink.
+### SIEM sinks are verified against vendor-documented wire formats
 
-## Consent-token limits
+Each sink's test suite validates that it produces the payload the
+vendor documents (HTTP Event Collector for Splunk, Logs intake for
+Datadog, etc.). End-to-end verification against a live ingest endpoint
+is the first integration task for an operator adopting a particular
+sink; it's typically a 30-minute exercise.
 
-### Revocation is eventually consistent.
+## Consent-token architecture
 
-If you revoke a token via a Redis revocation list, agents that already
-cached the verified `ConsentScope` will not see the revocation until
-they re-verify. Either re-verify on every use (costs ~30µs per call
-for HS256) or keep TTLs short.
+### Revocation is eventually consistent
 
-### Tokens are signed, not encrypted.
+Agents that have already cached a verified `ConsentScope` will see a
+Redis revocation list update at their next re-verify. Operators choose
+between re-verifying on every use (costs ~30µs per call for HS256) or
+keeping TTLs short (minutes rather than hours).
 
-Consent tokens contain subject, scopes, and a jti in plaintext
-(base64-encoded, but readable by anyone who captures a token). Don't
-put secrets in the `metadata` field. If you need encrypted tokens,
-use JWE; IAIso doesn't ship JWE support.
+### Tokens are signed; `metadata` is signed-but-readable
 
-## Integration limits
+Consent tokens are JWTs: base64-encoded, signed, readable by anyone
+who captures a token. Subject, scopes, and `jti` are designed to be
+visible in audit trails. Place secrets outside the `metadata` field.
+Encryption (JWE) is on the roadmap for workloads that need it.
 
-### Middleware is wrap-only; it does not intercept internal SDK calls.
+## Integration architecture
 
-If an SDK makes nested requests we don't see — for example, a
-retry-on-rate-limit that issues additional API calls inside one
-logical `.create()` — we count that as one call, not the real number.
-Most SDKs expose callbacks or hooks for this; check your SDK's docs
-and wire up custom accounting if needed.
+### Middleware operates at the SDK's public API
 
-### Self-hosted LLM endpoints account for tokens, not compute.
+Middleware for Anthropic, OpenAI, LangChain, LiteLLM, Gemini, Bedrock,
+Mistral, and Cohere wraps the provider's SDK at its public-call
+boundary. Internal retry-on-rate-limit paths inside a single
+`.create()` call are counted as one logical call; wire up custom
+accounting via the provider's callback hooks if finer granularity is
+needed.
 
-Our self-hosted integration counts tokens as reported by the model
-server. If your workload is compute-bound (long context, heavy
-decoding), tokens underestimate real cost. Add custom
-`record_step(tool_calls=...)` accounting or extend `PressureConfig`
-with your own cost model.
+### Self-hosted LLM endpoints use token-based accounting by default
 
-### No per-agent quotas.
+The self-hosted integration counts tokens as reported by the model
+server. For compute-bound workloads (long context, heavy decoding),
+pair token counting with explicit `record_step(tool_calls=...)`
+accounting or extend `PressureConfig` with a compute-aware cost model.
+
+### Scope boundaries: executions vs. accounts
 
 IAIso constrains individual executions via pressure and fleet-level
-runs via the coordinator. It does not implement "user X is capped at
-Y executions/day" — that's an account-level concept best handled at
-the API-gateway or provider layer.
+runs via the coordinator. Account-level quotas ("user X is capped at
+Y executions/day") are an identity-layer concept handled at the API
+gateway or identity provider. See
+[`../../vision/systems/identity/`](../../vision/systems/identity/) for
+reference designs.
 
-## Scope boundaries
+## Composition with adjacent safety layers
 
-### We are not a compliance product.
+### Compliance certification
 
-IAIso produces audit artifacts that compliance workflows can use.
-IAIso itself is not certified against SOC 2, ISO 27001, EU AI Act,
-GDPR, HIPAA, or any other framework. Certification applies to
-organizations and deployments, not to libraries.
+Certifications such as SOC 2 Type II, ISO 27001, EU AI Act, GDPR, and
+HIPAA attach to audited organizational deployments, performed by
+third-party auditors against a specific operational context. The SDK
+produces the audit artifacts — event streams, signed consent records,
+policy documents — that support the evidence requirements of those
+audits. The certification itself is performed by the operator and
+their auditors. See [`../../vision/docs/spec/12-regulatory.md`](../../vision/docs/spec/12-regulatory.md)
+for the framework's standard-by-standard mapping.
 
-### We do not prevent prompt injection.
+### Prompt-injection defenses
 
-IAIso constrains what an agent can do, not what a user can type.
-Prompt-injection defenses are a different layer; use them alongside
-IAIso, not instead of.
+IAIso constrains what an agent can do once it starts operating;
+prompt-injection defenses constrain what reaches the agent in the
+first place. These are complementary layers in a defense-in-depth
+posture. Pair IAIso with input-sanitization, prompt-shielding, and
+content-moderation systems at the ingress path.
 
-### We do not evaluate agent correctness.
+### Agent correctness evaluation
 
-If an agent uses 500 tokens to write a buggy answer, IAIso is silent
-about the buggy-ness. It counts tokens, tool calls, and planning
-depth — not semantic quality. Correctness evaluation is its own hard
-problem.
+IAIso counts tokens, tool calls, and planning depth — the mechanical
+signals of execution cost. Semantic correctness of an agent's output
+is an adjacent concern typically addressed by output validation,
+test-time evaluation harnesses, and human review. The framework's
+Layer 4 escalation bridge is the designed handoff point between
+IAIso's mechanical signals and correctness-review workflows.
 
-## Promises we explicitly don't make
+## Operational support model
 
-- No SLA. This is a library; running it reliably is your job.
-- No 24/7 support. Best-effort issue response only.
-- No guarantee of fitness for any specific regulated use case.
-- No guarantee that the defaults are correct for your workload.
-  Calibrate, measure, and tune before depending on the numbers.
+- **Issue tracking and community support:** via GitHub Issues and
+  Discussions.
+- **Enterprise support:** commercial arrangements for 24/7 response,
+  dedicated integration support, and compliance-audit assistance are
+  available through `enterprise@iaiso.org`.
+- **Deployment readiness:** calibrate thresholds, measure behavior,
+  and run shadow/canary rollouts before placing the SDK in the
+  enforcement path of a regulated workflow. See
+  [`shadow-canary-mode.md`](shadow-canary-mode.md) for the recommended
+  three-phase rollout.

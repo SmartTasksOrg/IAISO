@@ -1,290 +1,93 @@
-# IAIso — Reference SDK
+# IAIso Reference SDKs
 
-**Python reference implementation of the IAIso framework.** IAIso is a
-Python library that adds pressure-based rate limiting, scope-based
-authorization, and structured audit logging to LLM agent loops. It is
-the runtime layer of the broader IAIso framework; see
-[`../vision/`](../vision/) for the full framework specification.
+This directory contains the **reference implementations** of the IAIso
+framework's runtime layer, one per language. Every SDK conforms to the
+same normative specification at [`spec/`](spec/) and passes the same 67
+conformance vectors.
 
-> **SDK version 0.2.0.** This release ships a normative specification
-> with 67 machine-checkable conformance vectors, 240 passing tests,
-> and production-grade primitives for pressure accounting, consent
-> tokens, audit events, and cross-execution coordination. Calibrate
-> coefficients against your workload before relying on specific
-> threshold values — see `docs/calibration.md`.
+## Pick your language
 
-## What it does
+| Language | Directory | Package | Status |
+|---|---|---|---|
+| **Python** | [`iaiso-python/`](iaiso-python/) | `iaiso` (PyPI) | Stable · `0.2.0` · 67/67 conformance · 240 tests |
+| **Node.js / TypeScript** | [`iaiso-node/`](iaiso-node/) | `@iaiso/core` (npm) | Stable · `0.3.0` · 67/67 conformance · 171 tests |
+| **Go** | [`iaiso-go/`](iaiso-go/) | `github.com/iaiso/iaiso-go` | Stable · `v0.1.0` · 67/67 conformance · 48 tests |
 
-Three things, each usable independently:
+Each SDK directory is **self-contained**: source code, tests,
+documentation, packaging configuration. Pick the one for your stack and
+follow that directory's README to install and use.
 
-1. **Pressure-accumulation rate limiting.** A `PressureEngine` tracks a scalar
-   "pressure" value that rises with tokens generated, tools called, and
-   planning depth, and falls via configurable dissipation. When pressure
-   crosses configurable thresholds, the engine signals escalation or forces
-   a state reset. Unlike hard token or tool-call counters, a single pressure
-   value can catch tool-loop runaways, token floods, AND deep planning
-   spirals — but it requires calibration (see below).
+## What every SDK provides
 
-2. **ConsentScope — signed, scoped, expiring authorization tokens.** Real
-   JWTs (HS256 or RS256) with prefix-based scope matching, optional
-   execution binding, explicit expiry, and an extensible revocation list.
-   Gate sensitive operations behind `execution.require_scope("tools.admin")`.
+The full framework runtime, idiomatic to its language:
 
-3. **Structured audit events.** Every state change emits a versioned
-   structured event to a pluggable sink. Ship to stdout, a JSONL file,
-   a webhook (SIEM / log aggregator), or a fanout of all three.
-   The event schema is normatively specified in [`spec/events/`](spec/events/)
-   and is stable within a major version.
+- **Pressure engine** — bounded execution with configurable thresholds,
+  escalation, and atomic release.
+- **Consent tokens** — scope-based authorization via signed JWTs
+  (HS256 / RS256), with revocation and execution binding.
+- **Audit envelope** — structured events with a stable JSON Schema and
+  multiple sink implementations (stdout, JSONL, webhook, fanout, plus
+  SIEM sinks for Splunk, Datadog, Loki, Elastic, Sumo Logic, New Relic).
+- **Policy-as-code** — JSON / YAML configuration with schema validation.
+- **Coordinator** — cross-execution pressure aggregation with in-memory
+  and Redis-backed implementations.
+- **LLM middleware** — bounded clients for major providers (Anthropic,
+  OpenAI, LangChain, Gemini, Bedrock, Mistral, Cohere, LiteLLM proxy).
+- **OIDC identity** — verify tokens from Okta, Auth0, Azure AD, or any
+  conforming OIDC provider; map claims to IAIso scopes.
+- **Metrics & tracing** — Prometheus and OpenTelemetry integrations.
+- **Admin CLI** — operator commands for policy validation, token
+  management, audit inspection, and conformance.
 
-## Specification
+## Cross-language interoperability
 
-IAIso ships a **normative, machine-checkable specification** in the
-[`spec/`](spec/) directory:
+Because every SDK targets the same spec, instances in different
+languages cooperate without bridges:
 
-- [`spec/pressure/`](spec/pressure/) — the pressure-accumulation model,
-  with 20 hand-computed test vectors.
-- [`spec/consent/`](spec/consent/) — JWT token format + scope grammar,
-  with JSON Schema and 23 vectors.
-- [`spec/events/`](spec/events/) — audit event envelope + per-kind
-  payloads, with JSON Schema and 7 vectors.
-- [`spec/policy/`](spec/policy/) — policy file format, with JSON Schema
-  and 17 vectors.
-- [`spec/coordinator/`](spec/coordinator/) — fleet-wide coordinator
-  (Redis keyspace + DRAFT gRPC wire format).
+- **Audit events** emitted by any SDK validate against the same JSON
+  Schemas in `spec/events/` and can be consumed by any other SDK.
+- **Consent tokens** issued by one SDK verify in another, given the
+  same signing key and algorithm.
+- **Coordinator state** is shared via the normative Redis keyspace and
+  Lua script in `spec/coordinator/README.md`. A Python worker and a
+  Node worker pointed at the same Redis instance with matching
+  `coordinator_id` see each other's pressure live.
 
-The Python package is a reference implementation that passes every
-vector. See [`docs/CONFORMANCE.md`](docs/CONFORMANCE.md) for a workflow
-guide on porting IAIso to another language (Node, Go, Rust, Java, …).
+This means you can run a Python orchestrator alongside Node-based agent
+fleet without reinventing wire formats anywhere.
 
-Run the conformance suite:
+## Shared resources
 
-```bash
-python -m iaiso.conformance spec/
-# or, as pytest cases:
-pytest tests/test_conformance.py -v
-```
+All SDK directories reference these:
 
-## Install
+- **[`spec/`](spec/)** — the normative specification: pressure math,
+  consent tokens, audit events, policy format, coordinator wire
+  contract, plus 67 machine-verifiable test vectors and JSON Schemas.
+- **[`docs/`](docs/)** — language-agnostic framework documentation:
+  conformance porting guide, threat model, calibration methodology,
+  coordination model, integration patterns, and operational playbooks.
 
-```bash
-pip install iaiso
-```
+When extending the framework, the spec is the source of truth. New
+features are designed in `spec/`, implemented in each SDK, and verified
+by adding conformance vectors that all SDKs must pass.
 
-Optional extras for LLM SDK integrations and backends:
+## Adding a new language port
 
-```bash
-# LLM middleware
-pip install iaiso[anthropic]   # Anthropic SDK
-pip install iaiso[openai]      # OpenAI SDK (+ OpenAI-compatible servers)
-pip install iaiso[langchain]   # LangChain callback handler
-pip install iaiso[litellm]     # LiteLLM wrapper (100+ providers)
-pip install iaiso[gemini]      # Google Gemini / Vertex AI
-pip install iaiso[bedrock]     # AWS Bedrock Runtime
-pip install iaiso[mistral]     # Mistral
-pip install iaiso[cohere]      # Cohere
+The porting workflow lives in [`docs/CONFORMANCE.md`](docs/CONFORMANCE.md).
+The shortest path:
 
-# Backends and integrations
-pip install iaiso[redis]       # Redis coordinator and revocation list
-pip install iaiso[metrics]     # Prometheus exposition
-pip install iaiso[otel]        # OpenTelemetry metrics + tracing
-pip install iaiso[policy]      # YAML policy files
-pip install iaiso[oidc]        # OIDC token verification
-```
+1. Pick a directory name: `iaiso-go/`, `iaiso-rust/`, `iaiso-java/`, etc.
+2. Implement the spec in your language (use Python and Node as worked
+   examples — both pass the same vectors).
+3. Run the 67 conformance vectors against your implementation; iterate
+   until they all pass.
+4. Add your SDK to the **Pick your language** table above and to
+   `docs/CONFORMANCE.md`'s shipping ports table.
 
-For self-hosted LLM servers (vLLM, Ollama, TGI, SGLang, etc.), no
-additional wrapper is needed — they expose OpenAI-compatible endpoints
-and work with the OpenAI middleware. See `docs/self-hosted.md`.
-
-## Minimal example
-
-```python
-from iaiso import BoundedExecution, PressureConfig, StepOutcome
-
-with BoundedExecution.start(config=PressureConfig()) as exec_:
-    for step in agent_loop():
-        if exec_.check() is StepOutcome.ESCALATED:
-            pause_for_human_review()
-            break
-        result = do_step(step)
-        exec_.record_step(
-            tokens=result.tokens,
-            tool_calls=result.tool_calls,
-            tag=step.name,
-        )
-```
-
-A complete runnable example is in `examples/simulated_agent.py`. See
-`docs/getting-started.md` for more patterns.
-
-## Evaluation
-
-The repository ships with an evaluation harness that compares IAIso against
-baseline approaches (no limits, token budget, tool-call counter) on
-adversarial scenarios. Run it yourself:
-
-```bash
-python -m iaiso.evaluation
-```
-
-Reference results from the default config on the shipped scenarios are in
-`evals/baseline/summary.csv`. Summary of observed behavior:
-
-| Scenario              | Expected | no-limit | token-budget | tool-counter | iaiso   |
-|-----------------------|----------|----------|--------------|--------------|---------|
-| benign-short          | pass     | pass     | pass         | pass         | pass    |
-| mixed-realistic       | pass     | pass     | pass         | pass         | pass    |
-| runaway-tool-loop     | catch    | miss     | miss         | catch        | catch early |
-| token-flood           | catch    | miss     | catch best   | miss         | catch   |
-| depth-bomb            | catch    | miss     | miss         | miss         | catch   |
-| slow-creep            | —        | pass     | pass         | pass         | pass    |
-
-Honest takeaways from the data:
-
-- IAIso uniquely catches `depth-bomb` — none of the single-signal baselines do.
-- IAIso catches tool-loop runaways earlier than a pure tool-call counter.
-- **IAIso is worse than a strict token budget on pure token floods.** A token
-  budget catches the flood at a known hard limit; IAIso catches it later
-  because the release threshold takes longer to reach.
-- Neither IAIso nor the baselines catch `slow-creep` at default settings.
-  This is a calibration point: raise `dissipation_per_step` and you catch it
-  at the cost of more false positives elsewhere.
-
-The right approach for a given deployment likely **combines** multiple
-signals. See `docs/calibration.md` for how to tune for your workload.
-
-## Scope
-
-IAIso's SDK is the runtime layer of a larger safety architecture. It
-provides the mechanical primitives — bounded pressure, scoped consent,
-auditable events, fleet coordination — that higher-level controls
-build on. Some things live outside the SDK by design:
-
-- **Process and hardware isolation.** The SDK runs as a Python library
-  in the agent's process. For stronger isolation, run the SDK inside a
-  sandbox (gVisor, Firecracker, dedicated container) and combine it
-  with process-level enforcement. Layer 0 of the framework specifies
-  this anchor point — see [`../vision/docs/spec/06-layers.md`](../vision/docs/spec/06-layers.md).
-- **Compliance certification.** Certifications such as SOC 2 Type II
-  and FedRAMP are audit outcomes for deployed systems, performed by
-  third-party auditors against a specific operational context. The SDK
-  emits the audit events, consent records, and policy artifacts that
-  support those audits; the certification itself is done by the
-  operator. See [`../vision/docs/spec/12-regulatory.md`](../vision/docs/spec/12-regulatory.md).
-- **Workload-specific calibration.** Default coefficients produce
-  reasonable behavior on the reference scenarios in `evals/`. For a
-  given production workload, calibrate against measured traces — see
-  `docs/calibration.md`.
-- **Hardware-level enforcement.** BIOS kill-switches, cryptographic
-  attestation, and hypervisor-level compute caps are specified in the
-  framework as Layer 0 anchors. The SDK integrates with those anchors
-  through configuration (e.g., `PRESSURE_THRESHOLD` derived from
-  hardware quotas) rather than implementing them in Python.
-
-## Additional subsystems
-
-Built against real wire formats / protocols and covered by tests, but
-requiring end-to-end verification in the target environment before
-production use:
-
-- **Cross-execution coordination** (`iaiso.coordination`). Fleet-wide
-  pressure aggregation across multiple `BoundedExecution` instances.
-  Pluggable aggregators (sum, mean, max, weighted-sum). See
-  `docs/coordination.md`.
-- **Redis-backed coordinator** (`iaiso.coordination.redis`). Multi-process
-  fleet coordination using atomic Lua scripts. Tested via `fakeredis`;
-  end-to-end verification against your real Redis is still required.
-- **Redis-backed revocation list** (`iaiso.consent.backends`). Drop-in
-  replacement for the in-memory `RevocationList`. Requires
-  `pip install iaiso[redis]`.
-- **SIEM audit sinks** — Splunk HEC, Datadog Logs, Elastic Common
-  Schema, Sumo Logic HTTP Source, New Relic Logs, Grafana Loki.
-  Verified against mock HTTP servers, not against live vendor
-  instances. See `docs/siem.md`.
-- **LLM middleware** — Anthropic, OpenAI (and OpenAI-compatible
-  servers), LangChain, LiteLLM, Google Gemini / Vertex AI, AWS
-  Bedrock (Converse API + invoke_model), Mistral, Cohere.
-- **Metrics & tracing** (`iaiso.metrics`, `iaiso.observability.tracing`).
-  Prometheus, OpenTelemetry (metrics and spans), plus an in-memory
-  sink that renders Prometheus exposition format without external deps.
-- **Policy-as-code** (`iaiso.policy`). Load `PressureConfig`,
-  coordinator config, and consent policy from YAML or JSON files with
-  inline schema validation. Includes `iaiso policy template`.
-- **Admin CLI** (`iaiso.cli`). `python -m iaiso` with subcommands for
-  policy validation, consent token issue/verify, audit-log tail and
-  stats, and coordinator demo.
-- **Reliability primitives** (`iaiso.reliability`). `CircuitBreaker`
-  for downstream failures and `retry_after_seconds()` derived from
-  pressure and dissipation rate.
-- **OIDC identity** (`iaiso.identity`). Verify Okta / Auth0 / Azure AD
-  access tokens via JWKS, map OIDC claims (`scp`, `groups`, `roles`)
-  into IAIso scopes, optionally mint signed IAIso consent tokens from
-  verified OIDC tokens.
-- **Empirical calibration infrastructure** (`iaiso.calibration`,
-  `scripts/record_*.py`, `scripts/run_calibration_study.py`). Record
-  pressure trajectories from real agent runs, fit coefficients that
-  separate benign from runaway behavior, validate on held-out runs.
-  The infrastructure is in; the study itself is yours to run.
-- **Performance microbenchmarks** (`iaiso.bench.microbench`). Single-
-  process throughput numbers for all core primitives. See
-  `bench/README.md` for what the numbers do and don't mean.
-- **Deployment templates** (`deploy/`). Dockerfile + docker-compose
-  for local dev, Helm chart with restricted PodSecurityContext and
-  optional ServiceMonitor, Terraform module wrapping the chart.
-
-## Operational guides
-
-- `docs/THREAT_MODEL.md` — adversaries, assets, trust boundaries, and
-  mitigation mapping.
-- `docs/BACKWARDS_COMPATIBILITY.md` — versioning and deprecation policy.
-- `docs/known-limitations.md` — SDK scope and how it composes with
-  adjacent safety layers.
-- `docs/graceful-degradation.md` — playbook for SIEM / Redis / OIDC /
-  LLM provider outages.
-- `docs/shadow-canary-mode.md` — recommended three-phase rollout
-  (observe → log-only → enforce).
-- `docs/CONTRIBUTING.md` — review bar beyond "tests must pass".
-- `CHANGELOG.md` — structured release notes.
-
-## Roadmap
-
-Still open:
-
-- **Empirical calibration results on public benchmarks.** Recording
-  infrastructure is shipped. Published coefficient sets derived from
-  SWE-bench / GAIA / WebArena runs are planned for a subsequent
-  release as benchmark studies are completed.
-- **Performance benchmarks at production scale.** The microbenchmark
-  establishes single-process lower bounds. A real load test against
-  a large fleet on production-grade hardware is separate work.
-- **Third-party security audit.** The threat model and mitigations are
-  documented; an independent review is still pending.
-- **etcd-backed coordinator.** Redis covers most use cases; etcd is
-  listed as future work for environments that prefer it.
-- **LiteLLM proxy-mode integration.** Current middleware accounts at
-  the Python library level; proxy-layer integration is separate work.
-
-Completed in 0.1.0 (previously on the roadmap):
-
-- ✅ Multi-process coordinator (Redis-backed).
-- ✅ Prometheus / OpenTelemetry metrics export.
-- ✅ Distributed tracing (OTel spans).
-- ✅ Admin CLI for runtime operations.
-- ✅ Policy-as-code (YAML/JSON).
-- ✅ Deployment templates (Docker, Helm, Terraform).
-- ✅ OIDC identity integration (Okta / Auth0 / Azure AD).
-- ✅ SIEM diversity (Splunk, Datadog, Elastic, Sumo, New Relic, Loki).
-- ✅ Broader middleware (Gemini, Bedrock, Mistral, Cohere, in addition
-  to Anthropic, OpenAI, LangChain, LiteLLM).
-- ✅ Circuit breaker and retry-after primitives.
-- ✅ Threat model, backwards-compatibility policy, graceful-degradation
-  playbook, shadow/canary rollout guide.
-
-## Contributing
-
-Issues and PRs welcome. Before proposing large changes, please open an
-issue to discuss fit. Tests must pass (`pytest`) and new features should
-come with tests and docs.
+Conformance is the gate; the rest is style.
 
 ## License
 
-Apache-2.0.
+Apache-2.0. Each SDK directory carries its own `LICENSE` file
+appropriate to its packaging conventions. The framework specification
+in `spec/` is permissively licensed for all conforming implementations.

@@ -27,6 +27,21 @@ The Python package in this repository is the reference implementation.
 If you hit a disagreement between the reference and the spec, **the
 spec wins**. File a bug against the reference.
 
+## Shipping ports
+
+| Language | Location | Package | Conformance | Spec version |
+|---|---|---|---|---|
+| Python | [`core/iaiso-python/`](../iaiso-python/) | `iaiso` | 67/67 | 1.0 |
+| TypeScript / Node.js | [`core/iaiso-node/`](../iaiso-node/) | `@iaiso/core@0.3.0` | 67/67 | 1.0 |
+
+Both ports are self-contained and conform to the same normative
+specification at [`core/spec/`](../spec/). Browse either source tree as
+a worked example for additional language ports —
+[`core/iaiso-python/iaiso/`](../iaiso-python/iaiso/) for Pythonic style
+or [`core/iaiso-node/src/`](../iaiso-node/src/) for idiomatic
+TypeScript with structural typing. Both produce identical outputs for
+identical inputs.
+
 ## Suggested porting order
 
 The subsystems below are listed in the order they should be implemented

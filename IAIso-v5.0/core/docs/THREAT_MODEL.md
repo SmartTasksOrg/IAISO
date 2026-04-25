@@ -205,8 +205,8 @@ setting prevents callback storms.
 
 _Residual:_ At very large scale, consider sharded coordinators
 (different `coordinator_id` per shard) or a different consensus
-layer. IAIso does not ship an etcd-backed coordinator; that's future
-work.
+layer. An etcd-backed coordinator is on the roadmap; the interface is
+the same six methods as the Redis backend.
 
 ## Secrets in scope
 

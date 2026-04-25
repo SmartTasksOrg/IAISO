@@ -2,26 +2,25 @@
 
 This guide is for people building plugins that connect IAIso to other
 systems — SIEMs, identity providers, ERP systems, observability tools.
-It exists specifically to avoid the pattern of shipping stub files
-labeled "production integration" that do not actually integrate with
-anything.
+It describes the standards an integration should meet before it ships
+under an IAIso namespace, so that every integration in the registry
+delivers a verified end-to-end connection with its target system.
 
-## The test for "real integration"
+## The bar for a registry-listed integration
 
-Before writing code, ask:
+Before writing code, ensure:
 
-1. **Do I have access to the real system being integrated?** An instance,
-   sandbox, or dev tenant. Not just docs.
-2. **Can I demonstrate the integration working end-to-end?** Event
-   actually reaches the destination, operator can query it, schema is
-   what we said it would be.
-3. **Am I prepared to maintain this?** APIs change. Integrations without
-   a maintainer become bit-rotten stubs within 12-18 months.
+1. **Access to the target system.** An instance, sandbox, or dev tenant
+   to test against — not just documentation.
+2. **End-to-end demonstration.** The event actually reaches the
+   destination, an operator can query it in the target system, and the
+   schema matches what the integration's docs describe.
+3. **A maintainer.** APIs evolve. A named maintainer keeps the
+   integration current as the target's API changes over time.
 
-If the answer to any of these is "no," don't publish the integration
-under an IAIso namespace. It's fine to keep a work-in-progress branch
-or a fork; it's not fine to mark something "production-ready" that
-doesn't meet the test.
+Integrations under development are welcome as in-progress branches or
+forks. Promotion into the registry happens when the three items above
+are satisfied.
 
 ## Anatomy of a good integration
 
@@ -117,20 +116,22 @@ For an integration to be listed in the main IAIso documentation:
   instance or a well-documented mock.
 - Its README documents: supported versions of the external system,
   credentials/setup required, a working end-to-end example, and
-  what the integration does **and does not** do.
-- It says "experimental" or "alpha" until someone has run it in
-  production for at least 90 days.
+  the integration's scope.
+- Status is labeled clearly: **preview** during initial release,
+  **stable** after 90+ days of reported production use.
 
-## What NOT to do
+## Integration quality standards
 
-- Don't publish an integration whose README contains "92% of Fortune 500
-  use $PLATFORM, therefore IAIso powers 92% of Fortune 500." The market
-  share of the platform you integrate with is not IAIso's market share.
-- Don't publish 30 stub integrations to claim breadth. Five working
-  integrations are worth more than fifty stubs that import the target
-  SDK and do nothing useful.
-- Don't make compliance claims on behalf of the integration. "This
-  integration forwards audit events to Splunk" is a true, useful
-  statement. "This integration makes your system SOC 2 compliant" is
-  not — SOC 2 compliance is a property of an organization and its
-  controls, not of any single technical integration.
+- **Accurate scope descriptions.** An integration's reach is measured
+  by operators who have deployed it. Describe what the integration
+  provides concretely — what events flow, what signals are captured,
+  what the operator sees in the target system.
+- **Depth over breadth.** One well-tested integration with a
+  reproducible end-to-end example contributes more than multiple
+  integrations that import the target SDK without exercising it.
+- **Scope integration claims to the integration.** "This integration
+  forwards audit events to Splunk in HEC format" is a concrete,
+  verifiable statement. Certification claims (SOC 2, FedRAMP, HIPAA)
+  attach to the operator's audited deployment rather than to any
+  single technical integration, so they are framed as "IAIso's audit
+  artifacts support SOC 2 evidence" in the integration's README.

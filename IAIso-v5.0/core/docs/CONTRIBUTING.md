@@ -43,9 +43,9 @@ looking for, how to propose changes, and what the review bar is.
 2. Wait for a maintainer to confirm the shape before writing code.
 3. PR against the shape agreed on in the issue.
 
-Skipping step 1 for large changes is the #1 way PRs get closed without
-merging. We'd rather spend a day aligning on interface than review
-500 lines we won't accept.
+Skipping step 1 for large changes is the most common cause of PRs
+being rewritten. A day spent aligning on the interface up front saves
+a much larger rework cycle during review.
 
 ## The review bar
 
@@ -58,9 +58,10 @@ Every PR is checked against this list:
 - [ ] **Public API is documented.** Every new public function, class,
       or module has a docstring. The docstring explains what it does,
       not just what each parameter is.
-- [ ] **Honesty is preserved.** We will not merge claims we cannot
-      back up. If you add a middleware for "Provider X," the docs
-      describe what was and wasn't verified end-to-end.
+- [ ] **Claims are verified.** If you add a middleware for
+      "Provider X," the docs describe exactly what was verified
+      end-to-end. Capability descriptions match what the code and
+      tests demonstrate.
 - [ ] **No dead code.** If a module isn't used and isn't exported,
       delete it or explain why it's there.
 - [ ] **Consistent style.** We use Python 3.12 type syntax (`X | Y`

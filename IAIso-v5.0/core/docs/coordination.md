@@ -78,8 +78,13 @@ event.
 
 ## Multi-process deployments
 
-The in-memory `SharedPressureCoordinator` is limited to a single process.
-For fleets spread across processes or hosts, build a coordinator against
-a shared store (Redis, etcd, a custom service). The interface is small
-and stable — six methods. A Redis implementation is on the roadmap but
-not shipped in v0.1.
+The in-memory `SharedPressureCoordinator` is scoped to a single process.
+For fleets spread across processes or hosts, use
+`iaiso.coordination.redis.RedisCoordinator`, which implements the same
+interface against a Redis-backed keyspace with atomic Lua updates. See
+[`../spec/coordinator/README.md`](../spec/coordinator/README.md) for
+the normative wire format and keyspace specification. Operators who
+prefer etcd or a custom shared store can build against the same
+six-method interface; the draft gRPC wire format in
+[`../spec/coordinator/wire.proto`](../spec/coordinator/wire.proto)
+describes the direction for a future native sidecar.
