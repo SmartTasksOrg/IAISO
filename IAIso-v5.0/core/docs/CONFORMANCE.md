@@ -33,14 +33,38 @@ spec wins**. File a bug against the reference.
 |---|---|---|---|---|
 | Python | [`core/iaiso-python/`](../iaiso-python/) | `iaiso` | 67/67 | 1.0 |
 | TypeScript / Node.js | [`core/iaiso-node/`](../iaiso-node/) | `@iaiso/core@0.3.0` | 67/67 | 1.0 |
+| Go | [`core/iaiso-go/`](../iaiso-go/) | `github.com/iaiso/iaiso-go@v0.1.0` | 67/67 | 1.0 |
+| Rust | [`core/iaiso-rust/`](../iaiso-rust/) | Cargo workspace `iaiso-*@0.1.0` | 67/67 | 1.0 |
+| Java | [`core/iaiso-java/`](../iaiso-java/) | Maven `io.iaiso:iaiso-*@0.1.0` | 67/67 | 1.0 |
+| C# / .NET | [`core/iaiso-csharp/`](../iaiso-csharp/) | NuGet `Iaiso.*@0.1.0` | 67/67 | 1.0 |
+| PHP | [`core/iaiso-php/`](../iaiso-php/) | Composer `iaiso/iaiso@0.1.0` | 67/67 | 1.0 |
+| Swift | [`core/iaiso-swift/`](../iaiso-swift/) | SwiftPM `iaiso-swift@0.1.0-draft` | run `swift test` | 1.0 |
+| Ruby | [`core/iaiso-ruby/`](../iaiso-ruby/) | RubyGems `iaiso@0.1.0` | 67/67 | 1.0 |
 
-Both ports are self-contained and conform to the same normative
-specification at [`core/spec/`](../spec/). Browse either source tree as
-a worked example for additional language ports —
-[`core/iaiso-python/iaiso/`](../iaiso-python/iaiso/) for Pythonic style
-or [`core/iaiso-node/src/`](../iaiso-node/src/) for idiomatic
-TypeScript with structural typing. Both produce identical outputs for
-identical inputs.
+Eight of the nine ports are self-contained and were driven to 67/67 through
+compile-test-fix iteration. The Swift port was authored without an
+available toolchain — its conformance suite is shipped, runs identically
+to the others, and is expected to pass 67/67 once you run `swift test`,
+but that confirmation has to come from the consumer's machine.
+
+Browse any source tree as a worked example for additional language ports —
+[`core/iaiso-python/iaiso/`](../iaiso-python/iaiso/) for Pythonic style,
+[`core/iaiso-node/src/`](../iaiso-node/src/) for idiomatic TypeScript with
+structural typing, [`core/iaiso-go/iaiso/`](../iaiso-go/iaiso/) for Go's
+explicit error handling and structural interfaces,
+[`core/iaiso-rust/crates/`](../iaiso-rust/crates/) for Rust's
+multi-crate workspace and structural traits,
+[`core/iaiso-java/`](../iaiso-java/) for Java's Maven multi-module
+layout with structural interfaces,
+[`core/iaiso-csharp/`](../iaiso-csharp/) for C#'s multi-project .NET
+solution with structural interfaces,
+[`core/iaiso-php/`](../iaiso-php/) for PHP's single-package PSR-4
+layout with native enums and zero runtime dependencies,
+[`core/iaiso-swift/`](../iaiso-swift/) for Swift's SwiftPM multi-target
+layout with CryptoKit / Security.framework crypto, or
+[`core/iaiso-ruby/`](../iaiso-ruby/) for Ruby's single-gem layout with
+duck-typed interfaces and zero runtime dependencies. All nine produce
+identical outputs for identical inputs.
 
 ## Suggested porting order
 

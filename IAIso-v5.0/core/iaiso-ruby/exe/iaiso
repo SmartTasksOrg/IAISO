@@ -1,0 +1,10 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+# IAIso admin CLI launcher.
+$LOAD_PATH.unshift(File.expand_path("../lib", __dir__))
+
+require "iaiso"
+require "iaiso/cli"
+
+exit IAIso::CLI.run(ARGV)
