@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>io.iaiso</groupId>
+        <artifactId>iaiso-parent</artifactId>
+        <version>0.1.0</version>
+    </parent>
+    <artifactId>iaiso-metrics</artifactId>
+    <n>IAIso :: Metrics</n>
+    <description>IAIso Prometheus metrics sink (structurally typed)</description>
+    <dependencies>
+        <dependency><groupId>io.iaiso</groupId><artifactId>iaiso-audit</artifactId></dependency>
+        <dependency><groupId>junit</groupId><artifactId>junit</artifactId><scope>test</scope></dependency>
+        <dependency><groupId>org.hamcrest</groupId><artifactId>hamcrest</artifactId><scope>test</scope></dependency>
+    </dependencies>
+</project>

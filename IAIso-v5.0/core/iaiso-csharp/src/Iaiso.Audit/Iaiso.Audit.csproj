@@ -1,0 +1,6 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <Description>IAIso audit event envelope and sink implementations</Description>
+    <PackageId>Iaiso.Audit</PackageId>
+  </PropertyGroup>
+</Project>
