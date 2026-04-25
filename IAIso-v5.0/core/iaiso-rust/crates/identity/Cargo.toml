@@ -1,0 +1,21 @@
+[package]
+name = "iaiso-identity"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+authors.workspace = true
+rust-version.workspace = true
+description = "IAIso OIDC identity verification + scope mapping"
+
+[dependencies]
+iaiso-consent = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+parking_lot = { workspace = true }
+thiserror = { workspace = true }
+jsonwebtoken = { workspace = true }
+base64 = { workspace = true }
+# MSRV-pinned transitive deps (see consent crate for context)
+simple_asn1 = "=0.6.2"
+time = "=0.3.36"

@@ -1,0 +1,18 @@
+[package]
+name = "iaiso-policy"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+authors.workspace = true
+rust-version.workspace = true
+description = "IAIso policy-as-code loader (JSON + YAML)"
+
+[dependencies]
+iaiso-core = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+serde_yaml = { workspace = true }
+thiserror = { workspace = true }
+# Pin transitive deps that bumped MSRV beyond Rust 1.75.
+indexmap = "=2.6.0"
