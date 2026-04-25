@@ -1,0 +1,21 @@
+# SwiftPM build outputs
+.build/
+.swiftpm/
+Package.resolved
+
+# Xcode
+*.xcodeproj/
+*.xcworkspace/
+xcuserdata/
+*.xcuserstate
+DerivedData/
+
+# Carthage / CocoaPods (in case downstream projects use them)
+Carthage/
+Pods/
+
+# OS / IDE
+.DS_Store
+*.swp
+.vscode/
+.idea/
