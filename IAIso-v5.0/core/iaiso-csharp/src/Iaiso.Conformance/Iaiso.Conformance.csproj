@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <Description>IAIso conformance vector runner</Description>
+    <PackageId>Iaiso.Conformance</PackageId>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Iaiso.Audit\Iaiso.Audit.csproj" />
+    <ProjectReference Include="..\Iaiso.Core\Iaiso.Core.csproj" />
+    <ProjectReference Include="..\Iaiso.Consent\Iaiso.Consent.csproj" />
+    <ProjectReference Include="..\Iaiso.Policy\Iaiso.Policy.csproj" />
+  </ItemGroup>
+</Project>

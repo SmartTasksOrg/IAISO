@@ -1,0 +1,9 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <Description>IAIso OIDC identity verification + scope mapping</Description>
+    <PackageId>Iaiso.Identity</PackageId>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Iaiso.Consent\Iaiso.Consent.csproj" />
+  </ItemGroup>
+</Project>

@@ -1,0 +1,9 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <Description>IAIso Prometheus metrics sink (structurally typed)</Description>
+    <PackageId>Iaiso.Metrics</PackageId>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Iaiso.Audit\Iaiso.Audit.csproj" />
+  </ItemGroup>
+</Project>
