@@ -5,19 +5,22 @@ agentic AI systems like high-pressure engines — measuring compute
 accumulation and enforcing automatic safety releases when thresholds are
 breached. Safety through structure, not hope.
 
-This repository contains the full IAIso framework in two coordinated parts:
+This repository contains the full IAIso framework in three coordinated
+parts:
 
 | Directory | Contents |
 |---|---|
 | **[`vision/`](vision/)** | The **IAIso 5.0 framework specification** — architecture, layer model, invariants, pressure equations, solution-pack catalog, integration reference designs, regulatory mappings, and supporting documentation. This is the normative design material. |
-| **[`core/`](core/)** | The **reference SDK** — a Python implementation of the framework's runtime, with a machine-checkable specification directory, 240 passing tests, and 67 conformance vectors. Install this to run IAIso today. |
+| **[`core/`](core/)** | The **reference SDKs** — nine language implementations of the framework's runtime (Python, Node.js / TypeScript, Go, Rust, Java, C# / .NET, PHP, Swift, Ruby), with a shared machine-checkable specification directory and 67 conformance vectors. Install one of these to run IAIso today. |
+| **[`skills/`](skills/) [`personas/`](personas/) [`agents/`](agents/)** | The **operator runtime** — how an LLM agent acts inside IAIso, independent of the underlying SDK. 139 single-purpose Claude Skills files, 16 building-block personas, and 8 deployment-ready agent compositions. Auto-ingested by the SmartTasks `smart_personas` plugin's cross-plugin scanner; loadable directly via the Claude Skills loader at `skills/loader/`. |
 
 **Working with code?** Start in [`core/`](core/).
 **Learning the framework?** Start in [`vision/`](vision/).
+**Driving an LLM agent inside IAIso?** Start in [`skills/`](skills/).
 
 ## Quick start
 
-Pick the SDK for your stack. Both target the same spec and produce
+Pick the SDK for your stack. All target the same spec and produce
 interoperable events and tokens.
 
 **Python:**
@@ -249,6 +252,45 @@ See [`core/README.md`](core/README.md) for the SDK signpost and
 [`core/docs/CONFORMANCE.md`](core/docs/CONFORMANCE.md) for the workflow
 that ports the framework to additional languages.
 
+**Operator runtime — drive an LLM agent inside IAIso:**
+
+The skills, personas, and agents at the top of the repo are
+SDK-independent. They give an LLM (Claude or any Skills-compatible
+client) the prompt-side surface it needs to act correctly inside IAIso
+— the canonical opener block, the runtime conduct rules, the
+escalation contract, the consent-scope check pattern, and 130+ more
+focused skills.
+
+Two ways to consume them:
+
+```python
+# Direct via the Claude Skills loader
+from skills.loader.loader import SkillRegistry
+
+registry = SkillRegistry.load("./skills")
+print(registry["iaiso-runtime-governed-agent"].body)
+
+# Filter by tier (P0 = required foundation, P1 = production deployment,
+# P2 = integration wrappers, P3 = specialised)
+for skill in registry.tier("P0"):
+    print(skill.name)
+```
+
+```bash
+# Or drop the IAIso repo into a SmartTasks plugins/ folder. The
+# smart_personas plugin's cross-plugin scanner ingests all 139 skills,
+# 16 personas, and 8 agents on next enable (or via the "Scan all
+# plugins" button on the Skills page).
+cp -r IAISO/ ~/.config/SmartTasks/plugins/iaiso/
+```
+
+See [`skills/README.md`](skills/README.md) for the catalogue
+conventions, the tier model (P0 / P1 / P2 / P3), and the skill name
+prefixes (`iaiso-spec-*`, `iaiso-runtime-*`, `iaiso-author-*`,
+`iaiso-deploy-*`, `iaiso-compliance-*`, `iaiso-redteam-*`,
+`iaiso-diagnose-*`, `iaiso-integ-*`, `iaiso-llm-*`, `iaiso-sink-*`,
+`iaiso-system-*`, `iaiso-plugin-*`, `iaiso-port-*`, `iaiso-layer-N-*`).
+
 ## Repository structure
 
 ### `vision/` — IAIso 5.0 framework specification
@@ -267,19 +309,129 @@ in `vision/` are reference patterns illustrating the design. Running
 implementations of those patterns live under `core/` once they are
 built, tested, and verified against the conformance suite.
 
-### `core/` — reference SDK and conformance suite
+### `core/` — reference SDKs and conformance suite
 
-A Python package that implements the IAIso runtime: pressure engine,
-consent tokens, audit events, policy-as-code, admin CLI, coordinator,
-middleware for eight LLM providers, and sinks for seven SIEM platforms.
-Every feature is backed by a test. Every wire format — pressure math,
-JWT claims, audit events, policy files — has a JSON Schema and test
-vectors in [`core/spec/`](core/spec/) that define the contract.
+Nine language SDKs (Python, Node.js / TypeScript, Go, Rust, Java, C# /
+.NET, PHP, Swift, Ruby) implementing the IAIso runtime: pressure
+engine, consent tokens, audit events, policy-as-code, admin CLI,
+coordinator, middleware for eight LLM providers, and sinks for seven
+SIEM platforms. Every feature is backed by tests. Every wire format —
+pressure math, JWT claims, audit events, policy files — has a JSON
+Schema and test vectors in [`core/spec/`](core/spec/) that define the
+contract.
 
-Running `python -m iaiso.conformance core/spec/` executes 67
-machine-verifiable vectors against the implementation. Any port of
-IAIso into another language (Node, Go, Rust, Java, …) is considered
-conformant when it passes the same vectors.
+Running each SDK's conformance command (`python -m iaiso.conformance
+core/spec/`, `npx iaiso-conformance ./spec`, `cargo run -p
+iaiso-conformance-bin -- ./spec`, …) executes 67 machine-verifiable
+vectors against the implementation. Any port of IAIso into another
+language is considered conformant when it passes the same vectors.
+
+### `skills/`, `personas/`, `agents/` — operator runtime
+
+The prompt-side surface: how an LLM agent actually behaves inside
+IAIso, regardless of which language SDK runs underneath. These three
+directories work together — skills are dispatched on demand by personas,
+and agents stack personas with their skill sets into deployment-ready
+roles.
+
+**[`skills/`](skills/)** — 139 [Claude
+Skills](https://docs.claude.com/en/docs/claude-code/skills) files
+catalogued by tier and category. Each skill is a single-purpose
+markdown file with YAML frontmatter, designed for LLM dispatch:
+
+| Tier | Count | Purpose                                                     |
+|------|-------|-------------------------------------------------------------|
+| P0   | 16    | Required foundation — mental model, spec contracts, runtime conduct, authoring patterns. Without these, an IAIso agent cannot function. |
+| P1   | 21    | Production deployment — calibration, audit, identity, coordinator, layer-specific deployment, deployment artifacts.                     |
+| P2   | ~74   | Integration wrappers — per-orchestrator (LangChain, CrewAI, AutoGen, …), per-LLM-provider (Anthropic, OpenAI, Gemini, Bedrock, …), per-sink (Splunk, Datadog, Elastic, Loki, …), per-cloud (AWS, GCP, Azure, …), per-system (Okta, Auth0, Salesforce, SAP, …), per-platform (Shopify, WordPress, Discord, …). |
+| P3   | 30    | Specialised — authoring new templates, compliance evidence packs (EU AI Act, NIST AI RMF, ISO 42001, SOC2, GDPR, HIPAA, FedRAMP, MITRE ATLAS, OWASP LLM Top-10, IEEE 7000), red-team probes, language porting, diagnostics. |
+
+The full index is at [`skills/INDEX.md`](skills/INDEX.md); the
+authoring conventions (frontmatter spec, body structure, naming) are
+at [`skills/CONVENTIONS.md`](skills/CONVENTIONS.md). A Python loader
+([`skills/loader/loader.py`](skills/loader/loader.py)) and a TypeScript
+loader ([`skills/loader/loader.ts`](skills/loader/loader.ts)) provide
+programmatic access.
+
+**[`personas/`](personas/)** — 16 building-block personas as JSON
+envelopes. Each persona carries the canonical IAIso opener block (the
+5 invariants verbatim, the consent-enforcement block, the escalation
+contract) plus role-specific directives. Personas reference skills by
+their kebab-case name; the registry resolves the link at render time.
+
+| Persona file                                | Role                                                        |
+|---------------------------------------------|-------------------------------------------------------------|
+| `iaiso-foundation-mentor.json`              | Teach the IAIso mental model + master router                |
+| `iaiso-spec-architect.json`                 | Wire-format & contract authority                            |
+| `iaiso-runtime-engineer.json`               | BoundedExecution + Layer 0/4/6 wiring                       |
+| `iaiso-prompt-author.json`                  | Solution packs, templates, prompt-contracts                 |
+| `iaiso-calibration-engineer.json`           | Pressure thresholds + policy.yaml                           |
+| `iaiso-audit-engineer.json`                 | Audit pipeline + sink selection                             |
+| `iaiso-identity-consent-engineer.json`      | OIDC issuers + ConsentScope JWTs                            |
+| `iaiso-coordination-specialist.json`        | Redis coordinator + regime-shift                            |
+| `iaiso-deployment-engineer.json`            | Helm / Docker / Terraform / observability                   |
+| `iaiso-compliance-officer.json`             | EU AI Act / NIST / ISO 42001 / SOC2 / GDPR / HIPAA / …      |
+| `iaiso-redteam-specialist.json`             | Adversarial probe families                                  |
+| `iaiso-diagnostics-engineer.json`           | Pressure / consent / coordinator / vector triage            |
+| `iaiso-orchestrator-integrator.json`        | LangChain / CrewAI / AutoGen / Bedrock-Agents / …           |
+| `iaiso-llm-middleware-engineer.json`        | BoundedClient wrappers per provider                         |
+| `iaiso-port-engineer.json`                  | Port to a new programming language                          |
+| `iaiso-platform-integrator.json`            | Cloud + SaaS + e-commerce platforms                         |
+
+**[`agents/`](agents/)** — 8 deployment-ready agent compositions.
+Each agent stacks several persona-concerns into one ready-to-attach
+role with its full skill set:
+
+| Agent file                                     | Role                                                |
+|------------------------------------------------|-----------------------------------------------------|
+| `iaiso-foundation-team-lead-agent.json`        | Bootstrap a team from zero to first conformant agent|
+| `iaiso-runtime-conduct-agent.json`             | End-to-end runtime wiring + Layer 0/4/6             |
+| `iaiso-production-deployment-agent.json`       | Calibrate → audit → identity → coordinator → deploy |
+| `iaiso-compliance-evidence-agent.json`         | Map auditor questions to IAIso primitives + queries |
+| `iaiso-redteam-incident-agent.json`            | Proactive probes + reactive incident triage         |
+| `iaiso-orchestrator-onboarding-agent.json`     | Wrap an existing agent stack with IAIso governance  |
+| `iaiso-platform-rollout-agent.json`            | Roll IAIso across cloud + SaaS footprint            |
+| `iaiso-port-team-agent.json`                   | Lead a new-language SDK port end-to-end             |
+
+**Envelope format.** Personas and agents both use the
+`smart_personas/persona/v1` envelope, validated against the
+`PersonaCreate` Pydantic schema in
+`backend/personas/schemas.py` of the SmartTasks `smart_personas`
+plugin. The envelope structure:
+
+```json
+{
+  "format": "smart_personas/persona/v1",
+  "exported_at": "2026-05-06T...Z",
+  "source_plugin": "iaiso",
+  "source_version": "5.0.0",
+  "persona": {
+    "name": "...",
+    "job_title": "...",
+    "persona_type": "...",
+    "domain": "engineering | business_analysis | ...",
+    "biography": "...",
+    "agent_directives": "<canonical IAIso opener>\n---\n\n<role-specific text>",
+    "bias_mitigations": "...",
+    "prompt_optimization_directives": "...",
+    "skills_text": "iaiso-skill-1; iaiso-skill-2; ...",
+    "source": "builtin"
+  },
+  "instruction_skill_names": ["iaiso-skill-1", "iaiso-skill-2", "..."],
+  "action_skill_ids": []
+}
+```
+
+`source: "builtin"` marks these as IAIso-shipped defaults, not
+user-authored personas.
+
+**Auto-ingestion.** The SmartTasks `smart_personas` plugin scans every
+plugin under its plugins root for `skills/`, `personas/`, and
+`agents/` subfolders. Drop the IAIso repo into a SmartTasks plugins
+folder and on next enable the registry ingests **139 skills + 16
+personas + 8 agents = 163 entries**, with full safety checks. To
+re-scan after adding new content, hit **Scan all plugins** on the
+Skills page.
 
 ## Framework growth
 
@@ -290,25 +442,31 @@ New capabilities move through the framework in a predictable path:
 2. **Specification** — where the capability has a wire format (an event,
    a token, a policy field, a coordinator message), it gets a JSON
    Schema and conformance vectors under `core/spec/<subsystem>/`.
-3. **Implementation** — the runtime lands in `core/iaiso-python/iaiso/` with tests.
-   The full suite (`pytest` + `python -m iaiso.conformance core/spec/`)
-   must pass.
-4. **Release** — `core/iaiso-python/CHANGELOG.md` records the addition;
-   `core/spec/VERSION` increments (MINOR for additive, MAJOR for
-   breaking) if the contract changed.
-5. **Cross-language parity** — language ports land at the top of
-   `core/`, alongside the Python SDK: `core/iaiso-python/`,
-   `core/iaiso-node/`, future `core/iaiso-go/`, etc. Each SDK is
-   self-contained; each re-runs the same conformance vectors in its
-   own CI.
+3. **Implementation** — the runtime lands in `core/iaiso-python/iaiso/`
+   (and parallel ports under `core/iaiso-{node,go,rust,java,csharp,php,
+   swift,ruby}/`) with tests. The full suite (`pytest` +
+   `python -m iaiso.conformance core/spec/` and the equivalents in
+   each language) must pass.
+4. **Operator surface** — where the capability needs to be reachable
+   by an LLM at runtime, it gets a SKILL.md under `skills/`. If it
+   defines a coherent role, that role is added to `personas/`. If
+   the role is part of a deployment-ready composition, it lands in
+   `agents/`.
+5. **Release** — `core/iaiso-python/CHANGELOG.md` (and per-language
+   CHANGELOGs) record the addition; `core/spec/VERSION` increments
+   (MINOR for additive, MAJOR for breaking) if the contract changed.
+6. **Cross-language parity** — language ports each re-run the same
+   conformance vectors in their own CI.
 
-This keeps the framework's design work and its running code in
-lockstep: the vision grows by being built out, and the code grows by
-being specified first.
+This keeps the framework's design work, its running code, and its
+LLM-facing surface in lockstep: the vision grows by being built out,
+the code grows by being specified first, and the operator runtime
+grows alongside the code so an LLM can always reach the latest
+capability without code changes.
 
 ## What's in each SDK release
 
-IAIso 0.2.0 (the current `core/` release) provides:
+IAIso 0.2.0 (the current `core/iaiso-python` release) provides:
 
 - **Pressure engine** with deterministic math and 20 conformance
   vectors.
@@ -334,6 +492,14 @@ and Redis coordinators, Prometheus metrics, OpenTelemetry tracing,
 OIDC identity, YAML policies, and an `iaiso` admin CLI. See
 [`core/iaiso-node/README.md`](core/iaiso-node/README.md).
 
+Each capability above also has matching coverage in the operator
+runtime: `iaiso-spec-pressure-model`, `iaiso-spec-consent-tokens`,
+`iaiso-spec-audit-events`, `iaiso-spec-policy-files`, eight
+`iaiso-llm-*` skills, nine `iaiso-sink-*` skills, three
+`iaiso-deploy-oidc-*` skills, and so on. An LLM agent reaches the
+capability by loading the corresponding SKILL.md; the runtime executes
+the call through the SDK.
+
 ## Reference SDKs
 
 | Language | Location | Status | Conformance |
@@ -356,6 +522,18 @@ status is "expected 67/67, requires `swift test` to confirm" — see
 ports emit identical audit events and produce interoperable consent tokens
 for the same inputs.
 
+## Operator runtime
+
+| Surface         | Count | Format                          | Loader                                        |
+|-----------------|-------|---------------------------------|-----------------------------------------------|
+| Skills          | 139   | `SKILL.md` with YAML frontmatter | `skills/loader/loader.py` / `loader.ts`       |
+| Personas        | 16    | `smart_personas/persona/v1` JSON | SmartTasks `smart_personas` cross-plugin scan |
+| Agents          | 8     | `smart_personas/persona/v1` JSON | SmartTasks `smart_personas` cross-plugin scan |
+
+End-to-end ingestion verified: running the SmartTasks
+`scan_cross_plugin_skills` against this tree reports **139 skills,
+16 personas, 8 agents added; 0 skipped; 0 safety warnings**.
+
 ## Upcoming from the roadmap
 
 The roadmap's primary language ports are now complete. Future work may include:
@@ -368,7 +546,9 @@ The roadmap's primary language ports are now complete. Future work may include:
   reference SDKs serve as the runtime foundation each shape would build on.
 - Additional platform integration patterns graduating from `vision/` to
   `core/`: expanded CRM (Salesforce, HubSpot) adapters, e-commerce
-  (Shopify, Magento) adapters, and CMS (WordPress, Drupal) adapters.
+  (Shopify, Magento) adapters, and CMS (WordPress, Drupal) adapters. Each
+  graduation also gets a paired `iaiso-system-*` or `iaiso-plugin-*` skill
+  in the operator runtime.
 - Calibrated default coefficients from published benchmark studies.
 - Coordinator gRPC sidecar (the proto is drafted in
   `core/spec/coordinator/wire.proto`).
@@ -380,10 +560,13 @@ Follow [`core/iaiso-python/CHANGELOG.md`](core/iaiso-python/CHANGELOG.md) for re
 ## Contributing
 
 The highest-value contributions graduate material from `vision/` to
-`core/`: pick a reference pattern, implement it with tests and (where
-it has a wire format) a spec entry with conformance vectors, and open
-a PR. Smaller contributions — design edits in `vision/`, SDK bug fixes
-in `core/`, new conformance vectors — are also welcome.
+`core/` and the operator runtime: pick a reference pattern, implement
+it with tests and (where it has a wire format) a spec entry with
+conformance vectors, add a matching `SKILL.md` to `skills/`, and — if
+the capability defines a coherent role — a persona and/or agent. Then
+open a PR. Smaller contributions — design edits in `vision/`, SDK bug
+fixes in `core/`, new conformance vectors, new skills, persona
+refinements — are also welcome.
 
 See [`core/docs/CONTRIBUTING.md`](core/docs/CONTRIBUTING.md) for the
 review bar and coding standards.
@@ -399,11 +582,12 @@ All framework invariants must be preserved across forks.
 
 ```
 IAISO/
-├── README.md               ← this file
-├── MIGRATION.md            ← guide for consolidating older layouts
+├── README.md                   ← this file
+├── MIGRATION.md                ← guide for consolidating older layouts
 ├── LICENSE
-├── l.env                   ← global configuration reference
-├── mkdocs.yml              ← documentation site configuration
+├── plugin.json                 ← marks the repo as a SmartTasks plugin (auto-ingest)
+├── l.env                       ← global configuration reference
+├── mkdocs.yml                  ← documentation site configuration
 ├── core/                       ← reference SDKs + shared spec (installable per-language)
 │   ├── README.md               ← language signpost
 │   ├── spec/                   ← normative specification + 67 conformance vectors
@@ -498,17 +682,34 @@ IAISO/
 │       ├── exe/iaiso           ← admin CLI launcher
 │       ├── README.md, CHANGELOG.md
 │       └── LICENSE
-└── vision/                     ← framework specification
-    ├── README.md               ← the IAIso 5.0 design
-    ├── docs/                   ← architecture docs (sections 01–15, appendices A–F)
-    ├── components/             ← JSON component registry + 100+ solution packs
-    ├── templates/              ← prompt templates for solution packs and systems
-    ├── integrations/           ← AI framework reference designs
-    ├── systems/                ← platform integration reference designs
-    ├── examples/               ← industry example directories
-    ├── scripts/                ← reference scripts (validation, simulation)
-    ├── api/                    ← OpenAPI specification
-    └── LIVE-TEST/              ← interactive demo suite
+├── vision/                     ← framework specification
+│   ├── README.md               ← the IAIso 5.0 design
+│   ├── docs/                   ← architecture docs (sections 01–15, appendices A–F)
+│   ├── components/             ← JSON component registry + 100+ solution packs
+│   ├── templates/              ← prompt templates for solution packs and systems
+│   ├── integrations/           ← AI framework reference designs
+│   ├── systems/                ← platform integration reference designs
+│   ├── examples/               ← industry example directories
+│   ├── scripts/                ← reference scripts (validation, simulation)
+│   ├── api/                    ← OpenAPI specification
+│   └── LIVE-TEST/              ← interactive demo suite
+├── skills/                     ← Claude Skills catalogue (139 SKILL.md files)
+│   ├── README.md               ← catalogue overview, tier model, quick start
+│   ├── INDEX.md                ← full catalogue grouped by tier and category
+│   ├── CONVENTIONS.md          ← anatomy of a SKILL.md, frontmatter spec
+│   ├── INTEGRATION.md          ← consume from Claude or programmatically
+│   ├── loader/
+│   │   ├── loader.py           ← Python loader / SkillRegistry
+│   │   └── loader.ts           ← TypeScript loader / SkillRegistry
+│   └── <iaiso-skill-name>/     ← one folder per skill (139 total)
+│       └── SKILL.md
+├── personas/                   ← 16 building-block persona JSON envelopes
+│   └── <iaiso-persona>.json    ← `smart_personas/persona/v1` format
+├── agents/                     ← 8 deployment-ready agent JSON envelopes
+│   └── <iaiso-agent>.json      ← `smart_personas/persona/v1` format
+└── PATCHES/                    ← optional patches for downstream consumers
+    ├── README.md
+    └── smart_personas-0.16.2-cross-plugin-bundle-fix.patch
 ```
 
 ## Contact
