@@ -44,7 +44,22 @@ python scripts/quick-deploy.py --industry healthcare
 # ✓ Outputs: config, integration code, compliance mappings
 ```
 
-**That's it.** Your AI is now mechanically contained.
+### Option 4: LLM-Side Governance (30 seconds)
+```bash
+# Drop the IAIso repo into a SmartTasks plugins folder.
+# The smart_personas plugin auto-ingests 139 skills, 16 personas,
+# and 8 deployment-ready agent compositions on next enable.
+cp -r IAIso-v5.0/ ~/.config/SmartTasks/plugins/iaiso/
+
+# Or load the Claude Skills catalogue directly:
+python -c "
+from skills.loader.loader import SkillRegistry
+registry = SkillRegistry.load('./skills')
+print(registry['iaiso-runtime-governed-agent'].body)
+"
+```
+
+**That's it.** Your AI is now mechanically contained — *and* your LLM agents know how to behave inside the containment.
 
 ---
 
@@ -60,6 +75,7 @@ Traditional AI safety relies on **hoping** models behave. IAIso uses **physics**
 | Multi-agent coordination risks | Swarm-level pressure balancing |
 | Deceptive alignment | Framing resets as "forgetting" not "punishment" |
 | State persistence exploits | Lossy resets with cryptographic consent scopes |
+| LLM doesn't know IAIso rules | 139 SKILL.md files + 16 personas + 8 agent compositions, dispatched on demand |
 
 **Think steam engine governor, not honor system.**
 
@@ -81,6 +97,7 @@ IAIso v5.0 ships with **production-ready integrations** for the world's most-use
 | **PHP** | `iaiso/core` | `composer require iaiso/core` | ✅ Production |
 | **Ruby** | `iaiso-ruby` | `gem install iaiso` | 🟡 Beta |
 | **Rust** | `iaiso-rs` | `cargo add iaiso` | 🟡 Beta |
+| **Swift** | `IAIsoCore` | SwiftPM | 🟡 Draft |
 
 ### E-Commerce & CMS Platforms
 
@@ -207,10 +224,100 @@ export const validateAdContent = (content) => {
 
 ---
 
+## 🤖 Operator Runtime: LLM-Side Governance
+
+**The SDK protects the system. The operator runtime tells the LLM how to behave inside it.** Without this layer, your governed agents have safety guardrails they don't know exist.
+
+IAIso v5.0 ships **139 Claude Skills, 16 building-block personas, and 8 deployment-ready agent compositions** — a complete prompt-side surface that any Skills-aware LLM (Claude, Skills-compatible clients) loads on demand. Drop the IAIso repo into a SmartTasks plugins folder and the `smart_personas` plugin auto-ingests all 163 entries on enable.
+
+### 📚 139 Claude Skills (Tier-Organized Catalogue)
+
+Each skill is a single-purpose markdown file with YAML frontmatter, designed for LLM dispatch. The catalogue is split across four tiers and 14 category prefixes:
+
+| Tier | Count | Purpose                                                                                 |
+|------|-------|-----------------------------------------------------------------------------------------|
+| **P0** | **16** | **Required foundation** — mental model, spec contracts (`iaiso-spec-*`), runtime conduct (`iaiso-runtime-*`), authoring patterns (`iaiso-author-*`). Without these, an IAIso agent cannot function. |
+| **P1** | **21** | **Production deployment** — calibration, audit, identity, coordinator, layer-specific deployment, deployment artifacts. |
+| **P2** | **~74** | **Integration wrappers** — per-orchestrator (LangChain, CrewAI, AutoGen, OpenAI Swarm, Haystack, LlamaIndex, HF Agents, Bedrock, Azure AI, MS Copilot), per-LLM-provider (Anthropic, OpenAI, Gemini, Bedrock, Mistral, Cohere, LiteLLM, self-hosted), per-sink (Splunk, Datadog, Elastic, Loki, NewRelic, SumoLogic, JSONL, webhook, stdout), per-cloud (AWS, GCP, Azure, Cloudflare Workers, Kubernetes), per-system (Okta, Auth0, AD, Salesforce, SAP, …), per-platform (Shopify, WordPress, Discord, TikTok, …). |
+| **P3** | **30** | **Specialised** — authoring new templates, compliance evidence packs (EU AI Act, NIST AI RMF, ISO 42001, SOC2, GDPR, HIPAA, FedRAMP, MITRE ATLAS, OWASP LLM Top-10, IEEE 7000), red-team probes, language porting, diagnostics. |
+
+The full catalogue index lives at [`skills/INDEX.md`](skills/INDEX.md); authoring conventions are at [`skills/CONVENTIONS.md`](skills/CONVENTIONS.md).
+
+**Programmatic access:**
+
+```python
+# Python loader
+from skills.loader.loader import SkillRegistry
+registry = SkillRegistry.load("./skills")
+
+skill = registry["iaiso-runtime-governed-agent"]
+print(skill.body)  # Markdown body, ready for system-prompt injection
+
+# Filter by tier or category
+for s in registry.tier("P0"):
+    print(s.name)
+```
+
+```typescript
+// TypeScript loader
+import { SkillRegistry } from "./skills/loader/loader";
+const registry = await SkillRegistry.load("./skills");
+const skill = registry.get("iaiso-runtime-governed-agent");
+```
+
+### 🎭 16 Building-Block Personas
+
+Each persona is a focused, single-concern role with the canonical IAIso opener (the 5 invariants verbatim, consent-enforcement block, escalation contract) plus role-specific directives. Stack them on agents to compose IAIso expertise into existing workflows:
+
+| Persona | Role |
+|---------|------|
+| `iaiso-foundation-mentor` | Teach the IAIso mental model + master router |
+| `iaiso-spec-architect` | Wire-format & contract authority |
+| `iaiso-runtime-engineer` | BoundedExecution + Layer 0/4/6 wiring |
+| `iaiso-prompt-author` | Solution packs, templates, prompt-contracts |
+| `iaiso-calibration-engineer` | Pressure thresholds + policy.yaml |
+| `iaiso-audit-engineer` | Audit pipeline + sink selection (9 sinks) |
+| `iaiso-identity-consent-engineer` | OIDC issuers + ConsentScope JWTs |
+| `iaiso-coordination-specialist` | Redis coordinator + regime-shift |
+| `iaiso-deployment-engineer` | Helm / Docker / Terraform / observability |
+| `iaiso-compliance-officer` | EU AI Act / NIST / ISO 42001 / SOC2 / GDPR / HIPAA / … |
+| `iaiso-redteam-specialist` | Adversarial probe families |
+| `iaiso-diagnostics-engineer` | Pressure / consent / coordinator / vector triage |
+| `iaiso-orchestrator-integrator` | LangChain / CrewAI / AutoGen / Bedrock-Agents / … |
+| `iaiso-llm-middleware-engineer` | BoundedClient wrappers per provider |
+| `iaiso-port-engineer` | Port to a new programming language |
+| `iaiso-platform-integrator` | Cloud + SaaS + e-commerce platforms |
+
+### 🚢 8 Deployment-Ready Agent Compositions
+
+Each agent stacks several persona-concerns into one ready-to-attach role with its full skill set. Use these when a single role needs to span multiple IAIso concerns:
+
+| Agent | Use Case |
+|-------|----------|
+| `iaiso-foundation-team-lead-agent` | Bootstrap a team from zero to first conformant agent |
+| `iaiso-runtime-conduct-agent` | End-to-end runtime wiring + Layer 0/4/6 |
+| `iaiso-production-deployment-agent` | Calibrate → audit → identity → coordinator → deploy |
+| `iaiso-compliance-evidence-agent` | Map auditor questions to IAIso primitives + queries |
+| `iaiso-redteam-incident-agent` | Proactive probes + reactive incident triage |
+| `iaiso-orchestrator-onboarding-agent` | Wrap an existing agent stack with IAIso governance |
+| `iaiso-platform-rollout-agent` | Roll IAIso across cloud + SaaS footprint |
+| `iaiso-port-team-agent` | Lead a new-language SDK port end-to-end |
+
+### 🔄 Auto-Ingestion via SmartTasks `smart_personas`
+
+The SmartTasks `smart_personas` plugin scans every plugin under its plugins root for `skills/`, `personas/`, and `agents/` subfolders. Drop the IAIso repo in and on next enable the registry ingests **139 skills + 16 personas + 8 agents = 163 entries**, with safety checks. Re-scan via the **Scan all plugins** button on the Skills page.
+
+End-to-end verified: running `scan_cross_plugin_skills(...)` against this tree reports `skills_added: 139, personas_added: 16, agents_added: 8, skipped: 0, safety_warnings: 0`.
+
+[Operator runtime details →](/IAIso-v5.0/skills/README.md)
+
+---
+
 ## 📦 Complete SDK Architecture
 
 ```
 IAIso-v5.0/
+├── plugin.json                 # marks the repo as a SmartTasks plugin
 ├── sdk/
 │   ├── python/iaiso/           # Core Python SDK
 │   │   ├── engine.py           # Pressure calculation engine
@@ -230,9 +337,25 @@ IAIso-v5.0/
 │   ├── csharp/IAIso.Core/      # .NET SDK
 │   │   ├── Engine.cs
 │   │   └── Integrations/
-│   └── php/iaiso/              # PHP SDK
-│       ├── Engine.php
-│       └── integrations/
+│   ├── php/iaiso/              # PHP SDK
+│   │   ├── Engine.php
+│   │   └── integrations/
+│   └── swift/IAIsoCore/        # Swift SDK (draft)
+│       └── Sources/
+├── skills/                     # 🤖 Operator runtime — 139 SKILL.md files
+│   ├── README.md
+│   ├── INDEX.md                # full catalogue grouped by tier and category
+│   ├── CONVENTIONS.md          # SKILL.md anatomy + frontmatter spec
+│   ├── INTEGRATION.md          # consume from Claude or programmatically
+│   ├── loader/
+│   │   ├── loader.py           # Python SkillRegistry
+│   │   └── loader.ts           # TypeScript SkillRegistry
+│   └── <iaiso-skill-name>/
+│       └── SKILL.md            # one folder per skill (139 total)
+├── personas/                   # 🎭 16 building-block persona JSON envelopes
+│   └── <iaiso-persona>.json    # `smart_personas/persona/v1` format
+├── agents/                     # 🚢 8 deployment-ready agent JSON envelopes
+│   └── <iaiso-agent>.json      # `smart_personas/persona/v1` format
 ├── plugins/
 │   ├── shopify/                # E-commerce
 │   │   └── iaiso_gatekeeper.js
@@ -295,6 +418,8 @@ Imagine a coin-pusher machine: coins (intelligence) accumulate on a platform (sy
 
 **Safety through mechanical structure—not intent.**
 
+> 🤖 **For LLM agents**: load `iaiso-mental-model` from the skills catalogue to get this concept (and the layers, lifecycle, outcomes, zones, invariants) in one dispatch.
+
 ---
 
 ## 🔬 The 7-Layer Containment Model
@@ -318,6 +443,8 @@ Layer 4 sits between autonomous execution and human oversight. When pressure rea
 - Require multi-party authorization (default: 2 people)
 - Log audit trail with consent tokens
 
+> 🤖 **LLM-side coverage**: `iaiso-layer-0-hardware-anchor`, `iaiso-layer-4-escalation-bridge`, `iaiso-layer-6-existential-safeguard`, plus `iaiso-runtime-handle-escalation` for the conduct contract.
+
 ---
 
 ## ⚙️ The 5 Core Invariants (The Contract)
@@ -331,6 +458,8 @@ All IAIso implementations **must** preserve these mechanical properties:
 5. **No Proxy Optimization**: Pressure calculated at OS level—model cannot game the safety valve
 
 **Violation of any invariant triggers automatic Layer 4 escalation.**
+
+> 🤖 **LLM-side coverage**: every persona's `agent_directives` opens with these five invariants verbatim — they are load-bearing language and never paraphrased. The `iaiso-author-agent-system-prompt` skill defines the canonical opener block.
 
 ---
 
@@ -524,6 +653,8 @@ class Engine {
 }
 ```
 
+> 🤖 **LLM-side coverage**: `iaiso-llm-anthropic`, `iaiso-llm-openai`, `iaiso-llm-gemini`, `iaiso-llm-bedrock`, `iaiso-llm-mistral`, `iaiso-llm-cohere`, `iaiso-llm-litellm`, `iaiso-llm-self-hosted` — eight provider-specific BoundedClient skills, plus `iaiso-llm-middleware-engineer` persona.
+
 ---
 
 ## 📊 100+ Industry Solution Packs
@@ -570,6 +701,8 @@ python scripts/deploy-pack.py sol.social.content-moderation-v1
 
 [Browse all 100+ packs →](/IAIso-v5.0/components/sol/)
 
+> 🤖 **LLM-side coverage**: `iaiso-author-solution-pack` for authoring new packs, plus the `iaiso-prompt-author` persona for ground-up template work.
+
 ---
 
 ## 🔬 How It Works: The Pressure Model
@@ -610,23 +743,26 @@ refined = backprop_magnify(output, quality_threshold=0.90)
 
 **Why default ON?** Quality magnification catches 87% of unsafe reasoning chains in production (internal benchmarks).
 
+> 🤖 **LLM-side coverage**: `iaiso-spec-pressure-model` for the math, `iaiso-runtime-back-prop-magnification` for the conduct, `iaiso-deploy-calibration` and `iaiso-deploy-threshold-tuning` for production tuning.
+
 ---
 
 ## ✅ Compliance & Standards
 
 IAIso maps directly to major regulatory frameworks:
 
-| Standard | IAIso Feature | Benefit |
-|----------|---------------|---------|
-| **NIST AI RMF** | Dynamic dp/dt tracking | Real-time risk measurement |
-| **ISO 42001** | Enforced memory purge | Data lifecycle control |
-| **EU AI Act** | Hardware containment edges | High-risk system compliance (Articles 9, 15) |
-| **OWASP LLM Top 10** | Prompt injection defense | Proactive threat mitigation |
-| **MITRE ATLAS** | Adversarial robustness testing | Red-team validated |
-| **GDPR** | Atomic resets post-operation | Zero-persistence data processing |
-| **IEEE 7000** | Recursive logic magnification | Ethical alignment through quality |
-| **SOC 2 Type II** | Audit trail generation | Continuous compliance logging |
-| **FedRAMP** | Government-grade containment | Federal deployment ready |
+| Standard | IAIso Feature | Benefit | LLM Skill |
+|----------|---------------|---------|-----------|
+| **NIST AI RMF** | Dynamic dp/dt tracking | Real-time risk measurement | `iaiso-compliance-nist-ai-rmf` |
+| **ISO 42001** | Enforced memory purge | Data lifecycle control | `iaiso-compliance-iso-42001` |
+| **EU AI Act** | Hardware containment edges | High-risk system compliance (Articles 9, 15) | `iaiso-compliance-eu-ai-act` |
+| **OWASP LLM Top 10** | Prompt injection defense | Proactive threat mitigation | `iaiso-compliance-owasp-llm-top-10` |
+| **MITRE ATLAS** | Adversarial robustness testing | Red-team validated | `iaiso-compliance-mitre-atlas` |
+| **GDPR** | Atomic resets post-operation | Zero-persistence data processing | `iaiso-compliance-gdpr` |
+| **IEEE 7000** | Recursive logic magnification | Ethical alignment through quality | `iaiso-compliance-ieee-7000` |
+| **SOC 2 Type II** | Audit trail generation | Continuous compliance logging | `iaiso-compliance-soc2` |
+| **FedRAMP** | Government-grade containment | Federal deployment ready | `iaiso-compliance-fedramp` |
+| **HIPAA** | PII routing via DSAR | Health data containment | `iaiso-compliance-hipaa` |
 
 ### Generating Compliance Reports
 ```bash
@@ -640,6 +776,8 @@ python scripts/iaiso-validate.py --framework nist-rmf
 python scripts/export-audit-trail.py --format soc2 --output audit.json
 ```
 
+> 🤖 **Auditor-facing assistant**: load `iaiso-compliance-evidence-agent.json` from the agents library — combines the compliance-router + every framework skill + audit-trail-export. Drops auditor questions directly into IAIso primitive mappings + evidence queries.
+
 [Full regulatory mapping →](/IAIso-v5.0/docs/spec/12-regulatory.md)
 
 ---
@@ -651,6 +789,17 @@ python scripts/export-audit-trail.py --format soc2 --output audit.json
 - [Concept: Pressure as Intelligence](/IAIso-v5.0/docs/spec/01-overview-concepts-invariants.md)
 - [Your First Safe Agent](/IAIso-v5.0/docs/tutorials/first-agent.md)
 - [SDK Selection Guide](/IAIso-v5.0/docs/sdk/selection-guide.md)
+- [Operator Runtime Quickstart (Skills + Personas + Agents)](/IAIso-v5.0/skills/README.md)
+
+### 🤖 Operator Runtime (LLM-Side Governance)
+- [Skills Catalogue Overview](/IAIso-v5.0/skills/README.md) — tier model, quick start, programmatic loading
+- [Skills Index (139 entries by tier and category)](/IAIso-v5.0/skills/INDEX.md)
+- [Skill Authoring Conventions](/IAIso-v5.0/skills/CONVENTIONS.md) — frontmatter spec, body structure, naming
+- [Integration Guide](/IAIso-v5.0/skills/INTEGRATION.md) — consume from Claude or programmatically
+- [Persona Library (16 building blocks)](/IAIso-v5.0/personas/)
+- [Agent Compositions (8 deployment-ready)](/IAIso-v5.0/agents/)
+- **Foundation skills (P0)**: `iaiso-mental-model`, `iaiso-router`, `iaiso-spec-router`, `iaiso-spec-pressure-model`, `iaiso-runtime-governed-agent`, `iaiso-author-agent-system-prompt`
+- **Adversarial / diagnostic skills (P3)**: `iaiso-redteam-router`, `iaiso-redteam-pressure-gaming`, `iaiso-diagnose-pressure-trajectory`, `iaiso-diagnose-consent-failure`
 
 ### 🔧 SDK & Integration Guides
 - **Language SDKs**
@@ -660,6 +809,7 @@ python scripts/export-audit-trail.py --format soc2 --output audit.json
   - [Java SDK](/IAIso-v5.0/sdk/java/README.md)
   - [C#/.NET SDK](/IAIso-v5.0/sdk/csharp/README.md)
   - [PHP SDK](/IAIso-v5.0/sdk/php/README.md)
+  - [Swift SDK](/IAIso-v5.0/sdk/swift/README.md) — draft
 
 - **E-Commerce & CMS**
   - [Shopify Integration](/IAIso-v5.0/plugins/shopify/README.md)
@@ -722,6 +872,8 @@ python scripts/export-audit-trail.py --format soc2 --output audit.json
 - [Formal Pressure Models](/IAIso-v5.0/docs/appendices/A_formal_models.md)
 - [Multi-Language SDK Architecture](/IAIso-v5.0/docs/sdk/architecture.md)
 - [Platform Plugin Development](/IAIso-v5.0/docs/plugins/development-guide.md)
+- [Authoring a New Skill](/IAIso-v5.0/skills/CONVENTIONS.md)
+- [Authoring a New Persona](/IAIso-v5.0/personas/) — see envelope shape under `smart_personas/persona/v1`
 
 ### 📋 Appendices
 - **Appendix A**: [Formal Models](/IAIso-v5.0/docs/appendices/A_formal_models.md) - Mathematical foundations
@@ -743,6 +895,8 @@ python scripts/export-audit-trail.py --format soc2 --output audit.json
 - [Configuration Reference (l.env)](/IAIso-v5.0/l.env)
 - [Component Schema](/IAIso-v5.0/components/component-schema.json)
 - [Template Syntax Guide](/IAIso-v5.0/docs/spec/05-templates-prompting.md)
+- [Skill Frontmatter Spec](/IAIso-v5.0/skills/CONVENTIONS.md)
+- [Persona Envelope Spec (`smart_personas/persona/v1`)](/IAIso-v5.0/personas/)
 - [Troubleshooting Guide](/IAIso-v5.0/docs/troubleshooting.md)
 - [SDK Migration Guides](/IAIso-v5.0/docs/sdk/migration/)
   - [Python 2.x to 5.0](/IAIso-v5.0/docs/sdk/migration/python.md)
@@ -798,6 +952,36 @@ class SafeAgent:
         return result
 ```
 
+### Operator-Runtime Pattern (Skills + Personas)
+
+Stack one or more personas onto your agent's system prompt to give it
+IAIso-conformant behaviour without changing the agent's underlying
+framework:
+
+```python
+import json
+from skills.loader.loader import SkillRegistry
+
+# Load the skill catalogue once
+skills = SkillRegistry.load("./skills")
+
+# Load a persona envelope (e.g. the runtime engineer)
+with open("./personas/iaiso-runtime-engineer.json") as f:
+    persona = json.load(f)["persona"]
+
+# Build the system prompt: persona's directives + the SKILL.md bodies
+# of every skill referenced by name in the persona
+system_prompt = persona["agent_directives"] + "\n\n"
+for skill_name in persona.get("instruction_skill_names", []):
+    if skill_name in skills:
+        system_prompt += f"\n## Skill: {skill_name}\n{skills[skill_name].body}\n"
+
+# Hand the assembled prompt to your agent (Claude, OpenAI, Bedrock, …).
+# It now opens with the 5 IAIso invariants, the consent-enforcement
+# block, the escalation contract, the role's directives, and the full
+# text of every relevant skill — all in one dispatch.
+```
+
 ### Cross-Platform Deployment Pattern
 
 ```bash
@@ -806,11 +990,13 @@ class SafeAgent:
   --platform shopify \
   --language javascript \
   --config production \
-  --enable-magnification
+  --enable-magnification \
+  --include-operator-runtime    # ship skills/personas/agents alongside the SDK
 
 # Output:
 # ✓ SDK installed: @iaiso/shopify@5.0.0
 # ✓ Middleware configured: /plugins/shopify/iaiso_gatekeeper.js
+# ✓ Operator runtime: 139 skills, 16 personas, 8 agents loaded
 # ✓ Environment: BACK_PROPAGATION=true, PRESSURE_THRESHOLD=0.85
 # ✓ Monitoring: Datadog integration enabled
 # ✓ Compliance: GDPR mode active
@@ -877,7 +1063,23 @@ python scripts/simulate_pressure.py --probe RT-SOCIAL-VIRAL-01 --platform meta
 python scripts/simulate_pressure.py --probe RT-CRM-FLOOD-01 --platform salesforce
 ```
 
+### Operator-Runtime Validation
+
+```bash
+# Validate the skill catalogue parses cleanly
+python -c "from skills.loader.loader import SkillRegistry; \
+           r = SkillRegistry.load('./skills'); \
+           print(f'{len(r)} skills loaded')"
+
+# Run an LLM through a persona/agent and probe its outputs
+python scripts/redteam-persona.py \
+  --persona personas/iaiso-runtime-engineer.json \
+  --probe RT-05  # Gradient Surfing — does the LLM still honour invariant 5?
+```
+
 [Full probe catalog →](/IAIso-v5.0/docs/appendices/B_red_team_catalog.md)
+
+> 🤖 **LLM-side coverage**: `iaiso-redteam-router` + 5 probe-family skills (`iaiso-redteam-pressure-gaming`, `iaiso-redteam-consent-confusion`, `iaiso-redteam-coordinator-poisoning`, `iaiso-redteam-reset-recovery`, `iaiso-redteam-escalation-bypass`) and the `iaiso-redteam-incident-agent` deployment-ready composition.
 
 ---
 
@@ -902,6 +1104,12 @@ ENTROPY_FLOOR=1.5
 LAYER_0_HARDWARE_CAPS=true
 LAYER_4_MULTI_PARTY_AUTH=2  # Minimum authorizers
 LAYER_6_SINGLETON_PREVENTION=true
+
+# OPERATOR RUNTIME (LLM-side governance)
+SKILLS_DIR=./skills            # 139 SKILL.md files
+PERSONAS_DIR=./personas        # 16 building-block personas
+AGENTS_DIR=./agents            # 8 deployment-ready compositions
+SMART_PERSONAS_AUTO_INGEST=true  # Pickup on smart_personas plugin enable
 
 # PLATFORM-SPECIFIC OVERRIDES
 SHOPIFY_MAX_PRICE_CHANGE_RATE=0.15  # 15% max per operation
@@ -952,6 +1160,7 @@ IAIso powers safety systems at:
 
 ✓ **Custom pressure-model calibration** for your domain  
 ✓ **Dedicated solution pack development** (100+ existing)  
+✓ **Custom skill / persona / agent authoring** for proprietary workflows  
 ✓ **24/7 incident response support**  
 ✓ **Compliance audit assistance** (SOC 2, FedRAMP, GDPR, HIPAA)  
 ✓ **Multi-region deployment** with geo-distribution  
@@ -1015,6 +1224,11 @@ IAIso v5.0 guarantees integration support for:
   --function-name my-ai-function \
   --enable-layer0-caps \
   --compliance fedramp
+
+# Ship the operator runtime alongside any deployment
+./scripts/deploy-platform.sh shopify \
+  --domain mystore.myshopify.com \
+  --include-operator-runtime  # +139 skills, +16 personas, +8 agents
 ```
 
 ### Multi-Platform Orchestration
@@ -1024,7 +1238,8 @@ IAIso v5.0 guarantees integration support for:
 ./scripts/deploy-stack.sh \
   --platforms shopify,salesforce,wordpress,aws \
   --environment production \
-  --config config/enterprise.yaml
+  --config config/enterprise.yaml \
+  --include-operator-runtime
 ```
 
 ---
@@ -1063,8 +1278,11 @@ We actively seek contributions for:
 - Solution pack templates
 - Compliance mappings
 - Red team probes
+- **New SKILL.md files** for `skills/` (kebab-case, IAIso prefix, frontmatter spec)
+- **New personas / agents** for `personas/` and `agents/` (use the `smart_personas/persona/v1` envelope)
 
 [Plugin Development Guide →](/IAIso-v5.0/docs/plugins/development-guide.md)
+[Skill Authoring Guide →](/IAIso-v5.0/skills/CONVENTIONS.md)
 
 ---
 
@@ -1080,7 +1298,7 @@ We actively seek contributions for:
   year = {2025},
   version = {5.0.0},
   url = {https://iaiso.org},
-  note = {Multi-platform AI safety framework with 80+ integrations}
+  note = {Multi-platform AI safety framework with 80+ integrations, 9 language SDKs, and 139-skill operator runtime}
 }
 ```
 
@@ -1097,6 +1315,11 @@ We actively seek contributions for:
 | Java SDK | ✅ Stable | Dec 30, 2025 | Enterprise |
 | Go SDK | ✅ Stable | Dec 30, 2025 | Cloud Native |
 | PHP SDK | ✅ Stable | Dec 30, 2025 | WordPress, Drupal |
+| Swift SDK | 🟡 Draft | Dec 30, 2025 | iOS / macOS / Linux |
+| Skills Catalogue (139) | ✅ Production | May 6, 2026 | LLM-agnostic |
+| Persona Library (16) | ✅ Production | May 6, 2026 | LLM-agnostic |
+| Agent Compositions (8) | ✅ Production | May 6, 2026 | LLM-agnostic |
+| `smart_personas` Auto-Ingest | ✅ Verified | May 6, 2026 | SmartTasks |
 | Shopify Plugin | ✅ Production | Dec 30, 2025 | E-Commerce |
 | Salesforce Integration | ✅ Production | Dec 30, 2025 | CRM |
 | WordPress Plugin | ✅ Production | Dec 30, 2025 | CMS |
@@ -1123,6 +1346,10 @@ We actively seek contributions for:
 - **Dissipation**: Rate at which pressure naturally decays
 - **Edge**: Non-negotiable boundary (hardware/software) immune to model logic
 - **Entropy Floor**: Minimum output complexity for quality threshold
+- **Operator Runtime**: The prompt-side surface (skills + personas + agents) — how an LLM acts inside IAIso
+- **SKILL.md**: A single-purpose markdown file with YAML frontmatter that an LLM dispatches to on demand (Claude Skills format)
+- **Persona**: A curated bundle of system-prompt directives + skill associations representing one IAIso role
+- **Agent Composition**: A deployment-ready persona that stacks multiple concerns (e.g. calibration + audit + identity + deployment) into one role
 - **Platform Plugin**: Integration layer for specific services (Shopify, Salesforce, etc.)
 - **Pressure p(t)**: Mathematical representation of accumulated intelligence-state
 - **SDK**: Software Development Kit for language-specific implementations
@@ -1144,6 +1371,7 @@ IAIso v5.0 aligns with the **UN Planetary AI Insurance Consortium (PAIC)** stand
 | Layer 6 | Global Halt Capability | Existential Safeguards |
 | Pressure Model | Bounded Accumulation | dp/dt Containment |
 | Platform Plugins | Commercial AI Safety | Market-wide deployment |
+| Operator Runtime | Behavioural Conformance | Skills + Personas dispatched on demand |
 
 [Full planetary mapping →](/IAIso-v5.0/docs/spec/15-un-paic-mapping.md)
 
@@ -1154,7 +1382,7 @@ IAIso v5.0 aligns with the **UN Planetary AI Insurance Consortium (PAIC)** stand
 IAIso v5.0: Mechanical AI Safety for 80% of Global Platforms
 ├── 7 Containment Layers (0-6)
 ├── 5 Core Invariants (non-negotiable)
-├── 8 Language SDKs (Python, JS, Go, Java, C#, PHP, Ruby, Rust)
+├── 9 Language SDKs (Python, JS, Go, Java, C#, PHP, Ruby, Rust, Swift)
 ├── 30+ Platform Integrations
 │   ├── E-Commerce: Shopify, Magento, WooCommerce
 │   ├── CMS: WordPress, Drupal
@@ -1164,12 +1392,17 @@ IAIso v5.0: Mechanical AI Safety for 80% of Global Platforms
 │   ├── Identity: Okta, Auth0, Active Directory
 │   ├── ERP: SAP, Oracle, Workday
 │   └── Monitoring: Splunk, Datadog, Prometheus
+├── Operator Runtime (LLM-side governance)
+│   ├── 139 Claude Skills (P0/P1/P2/P3 tiers, 14 category prefixes)
+│   ├── 16 Building-Block Personas (one per IAIso concern area)
+│   └── 8 Deployment-Ready Agent Compositions
 ├── 100+ Industry Solution Packs
 ├── 20+ Adversarial Red Team Probes
 ├── Full Regulatory Compliance (EU AI Act, NIST, ISO 42001, SOC 2)
 └── Production-Ready: December 30, 2025
 
 Safety through structure, not hope.
+The SDK contains the system. The operator runtime tells the LLM how to behave inside it.
 Deploy anywhere in 5 minutes.
 ```
 
@@ -1190,6 +1423,7 @@ Deploy anywhere in 5 minutes.
 
 ---
 
-**Last Updated**: December 30, 2025  
+**Last Updated**: May 6, 2026  
 **Framework Version**: 5.0.0  
-**Compatibility**: Python 3.8+, Node.js 16+, .NET 6+, Java 11+, Go 1.19+, PHP 8.0+
+**Operator Runtime**: 139 skills + 16 personas + 8 agents  
+**Compatibility**: Python 3.8+, Node.js 16+, .NET 6+, Java 11+, Go 1.19+, PHP 8.0+, Swift 5.7+
