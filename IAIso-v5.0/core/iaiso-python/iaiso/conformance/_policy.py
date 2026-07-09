@@ -119,6 +119,8 @@ def _build_policy(
     aggregator = _build_aggregator(coord_doc)
     consent = ConsentPolicy(**_known(ConsentPolicy, doc.get("consent", {})))
 
+    from iaiso.policy import ENFORCEMENT_PERMISSIVE
+
     return Policy(
         version=doc["version"],
         pressure=pressure,
@@ -126,6 +128,7 @@ def _build_policy(
         consent=consent,
         aggregator=aggregator,
         metadata=doc.get("metadata", {}),
+        enforcement_mode=doc.get("enforcement_mode", ENFORCEMENT_PERMISSIVE),
     )
 
 
@@ -147,6 +150,13 @@ def _check_valid_expectations(vec: dict, policy, tolerance: float) -> str | None
         actual = getattr(policy.consent, key)
         if actual != expected:
             return f"consent.{key}: expected {expected!r}, got {actual!r}"
+
+    # Check enforcement mode
+    if "expected_enforcement_mode" in vec:
+        expected = vec["expected_enforcement_mode"]
+        if policy.enforcement_mode != expected:
+            return (f"enforcement_mode: expected {expected!r}, "
+                    f"got {policy.enforcement_mode!r}")
 
     # Check aggregator name
     if "expected_aggregator_name" in vec:

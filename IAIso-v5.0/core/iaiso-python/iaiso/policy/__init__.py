@@ -72,6 +72,10 @@ class ConsentPolicy:
     allowed_algorithms: list[str] = field(default_factory=lambda: ["HS256", "RS256"])
 
 
+ENFORCEMENT_PERMISSIVE = "permissive"
+ENFORCEMENT_STRICT = "strict"
+
+
 @dataclass
 class Policy:
     """Top-level policy bundle."""
@@ -82,6 +86,13 @@ class Policy:
     consent: ConsentPolicy
     aggregator: Any  # an Aggregator instance
     metadata: dict[str, Any] = field(default_factory=dict)
+    enforcement_mode: str = ENFORCEMENT_PERMISSIVE
+    """Boot-time posture. `strict` refuses to construct a degraded engine.
+
+    Validated here; *enforced* at engine construction (see
+    `iaiso.core.engine.PressureEngine`). Parsing a strict policy is not the
+    same as booting under it.
+    """
 
 
 # JSON Schema for the policy file format. Kept inline so IAIso has no
@@ -91,6 +102,8 @@ POLICY_SCHEMA = {
     "required": ["version"],
     "properties": {
         "version": {"type": "string", "enum": ["1"]},
+        "enforcement_mode": {"type": "string",
+                             "enum": ["permissive", "strict"]},
         "pressure": {
             "type": "object",
             "properties": {
@@ -285,6 +298,7 @@ def load_policy(path: str | Path) -> Policy:
         consent=consent,
         aggregator=aggregator,
         metadata=doc.get("metadata", {}),
+        enforcement_mode=doc.get("enforcement_mode", ENFORCEMENT_PERMISSIVE),
     )
 
 

@@ -1,6 +1,6 @@
 {
-  "_comment": "IAIso policy test vectors v1.0. See spec/policy/README.md. Each valid vector specifies an input document and expected parsed field values. Each invalid vector specifies an expected error-path substring.",
-  "version": "1.0",
+  "_comment": "IAIso policy test vectors v1.1. See spec/policy/README.md. Each valid vector specifies an input document and expected parsed field values. Each invalid vector specifies an expected error-path substring.",
+  "version": "1.1",
   "tolerance": 1e-9,
 
   "valid": [
@@ -135,6 +135,32 @@
         "escalation_threshold": 0.7,
         "release_threshold": 0.9
       }
+    },
+    {
+      "name": "enforcement_mode_defaults_to_permissive",
+      "description": "Absent enforcement_mode defaults to permissive.",
+      "document": {
+        "version": "1"
+      },
+      "expected_enforcement_mode": "permissive"
+    },
+    {
+      "name": "enforcement_mode_permissive_explicit",
+      "description": "Explicit permissive is accepted and preserved.",
+      "document": {
+        "version": "1",
+        "enforcement_mode": "permissive"
+      },
+      "expected_enforcement_mode": "permissive"
+    },
+    {
+      "name": "enforcement_mode_strict",
+      "description": "Strict is accepted at the policy layer; it is enforced at engine construction, not at parse time.",
+      "document": {
+        "version": "1",
+        "enforcement_mode": "strict"
+      },
+      "expected_enforcement_mode": "strict"
     }
   ],
 
@@ -217,6 +243,24 @@
         "pressure": {"token_coefficient": "0.015"}
       },
       "expect_error_path": "token_coefficient"
+    },
+    {
+      "name": "unknown_enforcement_mode",
+      "description": "Only permissive|strict are defined. An unknown mode must not silently degrade to permissive.",
+      "document": {
+        "version": "1",
+        "enforcement_mode": "advisory"
+      },
+      "expect_error_path": "enforcement_mode"
+    },
+    {
+      "name": "enforcement_mode_wrong_type",
+      "description": "enforcement_mode must be a string.",
+      "document": {
+        "version": "1",
+        "enforcement_mode": 1
+      },
+      "expect_error_path": "enforcement_mode"
     }
   ]
 }

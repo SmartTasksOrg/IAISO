@@ -14,6 +14,60 @@ import { NullSink } from "../audit/sinks/memory.js";
 import { Lifecycle, StepOutcome, defaultClock } from "./types.js";
 import type { Clock } from "./types.js";
 
+export type EnforcementMode = "permissive" | "strict";
+export const ENFORCEMENT_PERMISSIVE: EnforcementMode = "permissive";
+export const ENFORCEMENT_STRICT: EnforcementMode = "strict";
+
+/**
+ * Thrown when `enforcement_mode: "strict"` refuses a degraded configuration.
+ *
+ * Fail closed. A safety framework whose gates silently do nothing is worse
+ * than no framework, because it produces confidence.
+ */
+export class StrictModeError extends Error {
+  constructor(message: string) {
+    super(`iaiso: strict mode — ${message}`);
+    this.name = "StrictModeError";
+  }
+}
+
+/** Coefficient set shipped with the library. Matching it means nobody calibrated. */
+const LIBRARY_DEFAULT_COEFFICIENTS: Record<string, number> = {
+  token_coefficient: 0.015,
+  tool_coefficient: 0.08,
+  depth_coefficient: 0.05,
+  dissipation_per_step: 0.02,
+  dissipation_per_second: 0.0,
+  escalation_threshold: 0.85,
+  release_threshold: 0.95,
+};
+
+const warned = new Set<string>();
+
+/** Route permissive-mode degradation warnings. Replaceable; never silent by default. */
+export let warnLogger: (message: string) => void = (message) => {
+  console.warn(message);
+};
+
+export function setWarnLogger(fn: (message: string) => void): void {
+  warnLogger = fn;
+}
+
+/** Reset the once-per-process warning memo. Test helper. */
+export function _resetWarnings(): void {
+  warned.clear();
+}
+
+function degraded(condition: string, message: string, mode: EnforcementMode): void {
+  if (mode === ENFORCEMENT_STRICT) {
+    throw new StrictModeError(message);
+  }
+  if (!warned.has(condition)) {
+    warned.add(condition);
+    warnLogger(`iaiso: ${message}`);
+  }
+}
+
 export interface PressureConfigInput {
   escalation_threshold?: number;
   release_threshold?: number;
@@ -23,6 +77,10 @@ export interface PressureConfigInput {
   tool_coefficient?: number;
   depth_coefficient?: number;
   post_release_lock?: boolean;
+  /** USD per 1M tokens, keyed by model name. Enables `spend_usd` on events. */
+  model_costs?: Record<string, number>;
+  /** Hard USD ceiling; 0 disables. Exceeding it reuses the lock path. */
+  budget_usd?: number;
 }
 
 /**
@@ -40,6 +98,8 @@ export class PressureConfig {
   readonly tool_coefficient: number;
   readonly depth_coefficient: number;
   readonly post_release_lock: boolean;
+  readonly model_costs: Record<string, number> | null;
+  readonly budget_usd: number;
 
   constructor(input: PressureConfigInput = {}) {
     this.escalation_threshold = input.escalation_threshold ?? 0.85;
@@ -50,6 +110,8 @@ export class PressureConfig {
     this.tool_coefficient = input.tool_coefficient ?? 0.08;
     this.depth_coefficient = input.depth_coefficient ?? 0.05;
     this.post_release_lock = input.post_release_lock ?? true;
+    this.model_costs = input.model_costs ?? null;
+    this.budget_usd = input.budget_usd ?? 0.0;
 
     this._validate();
   }
@@ -76,6 +138,21 @@ export class PressureConfig {
         throw new RangeError(`${f} must be non-negative`);
       }
     }
+    if (this.budget_usd < 0) {
+      throw new RangeError("budget_usd must be non-negative");
+    }
+    for (const [model, price] of Object.entries(this.model_costs ?? {})) {
+      if (price < 0) {
+        throw new RangeError(`model_costs[${model}] must be non-negative`);
+      }
+    }
+  }
+
+  /** True when nothing has been calibrated away from library defaults. */
+  is_default_coefficients(): boolean {
+    return Object.entries(LIBRARY_DEFAULT_COEFFICIENTS).every(
+      ([name, value]) => (this as unknown as Record<string, number>)[name] === value,
+    );
   }
 }
 
@@ -84,6 +161,8 @@ export interface StepInputInput {
   tool_calls?: number;
   depth?: number;
   tag?: string | null;
+  /** Prices `tokens` against `PressureConfig.model_costs`. Unpriced = unmetered. */
+  model?: string | null;
 }
 
 export class StepInput {
@@ -91,12 +170,14 @@ export class StepInput {
   readonly tool_calls: number;
   readonly depth: number;
   readonly tag: string | null;
+  readonly model: string | null;
 
   constructor(input: StepInputInput = {}) {
     this.tokens = input.tokens ?? 0;
     this.tool_calls = input.tool_calls ?? 0;
     this.depth = input.depth ?? 0;
     this.tag = input.tag ?? null;
+    this.model = input.model ?? null;
   }
 }
 
@@ -114,6 +195,10 @@ export interface PressureEngineOptions {
   clock?: Clock;
   /** Timestamp source for emitted AuditEvents. Defaults to Date.now()/1000. */
   timestampClock?: Clock;
+  enforcement_mode?: EnforcementMode;
+  calibration_artifact?: string;
+  consent_algorithm?: string;
+  consent_key_auto_generated?: boolean;
 }
 
 export class PressureEngine {
@@ -128,8 +213,22 @@ export class PressureEngine {
   private _lifecycle: Lifecycle = Lifecycle.Init;
   private _lastDelta: number = 0.0;
   private _lastStepAt: number;
+  private _spendUsd: number = 0.0;
+  private readonly _enforcementMode: EnforcementMode;
 
   constructor(config: PressureConfig, opts: PressureEngineOptions) {
+    const mode = opts.enforcement_mode ?? ENFORCEMENT_PERMISSIVE;
+    if (mode !== ENFORCEMENT_PERMISSIVE && mode !== ENFORCEMENT_STRICT) {
+      throw new RangeError(
+        `enforcement_mode must be "permissive" or "strict", got ${JSON.stringify(mode)}`,
+      );
+    }
+    this._enforcementMode = mode;
+
+    // Boot guard runs before any state exists, so a strict refusal leaves
+    // nothing half-constructed behind — and emits no engine.init.
+    PressureEngine._bootGuard(config, opts, mode);
+
     this._cfg = config;
     this._executionId = opts.execution_id;
     this._audit = opts.audit_sink ?? new NullSink();
@@ -138,6 +237,56 @@ export class PressureEngine {
 
     this._lastStepAt = this._clock();
     this._emit("engine.init", { pressure: this._pressure });
+  }
+
+  private static _bootGuard(
+    config: PressureConfig,
+    opts: PressureEngineOptions,
+    mode: EnforcementMode,
+  ): void {
+    if (opts.consent_algorithm === "HS256" && opts.consent_key_auto_generated) {
+      degraded(
+        "consent_autogen_hs256",
+        "consent algorithm is HS256 and the signing key was auto-generated; " +
+          "no other party can verify these tokens. Supply a key, switch to " +
+          "RS256, or set enforcement_mode: permissive.",
+        mode,
+      );
+    }
+    if (opts.audit_sink === undefined || opts.audit_sink instanceof NullSink) {
+      degraded(
+        "null_sink",
+        "audit sink is NullSink; escalations would be unobservable. " +
+          "Configure a sink or set enforcement_mode: permissive.",
+        mode,
+      );
+    }
+    if (!config.post_release_lock) {
+      degraded(
+        "post_release_lock_false",
+        "post_release_lock is false; a released execution resumes immediately. " +
+          "Set post_release_lock: true or set enforcement_mode: permissive.",
+        mode,
+      );
+    }
+    if (config.is_default_coefficients() && !opts.calibration_artifact) {
+      degraded(
+        "uncalibrated_defaults",
+        "coefficients are at library defaults and no calibration artifact is " +
+          "present; thresholds will either never fire or fire constantly. " +
+          "Calibrate, or set enforcement_mode: permissive.",
+        mode,
+      );
+    }
+  }
+
+  get enforcement_mode(): EnforcementMode {
+    return this._enforcementMode;
+  }
+
+  /** Cumulative USD spent by this execution, per `model_costs`. */
+  get spend_usd(): number {
+    return this._spendUsd;
   }
 
   get config(): PressureConfig {
@@ -199,7 +348,9 @@ export class PressureEngine {
     this._lastStepAt = now;
     this._lifecycle = Lifecycle.Running;
 
-    this._emit("engine.step", {
+    this._spendUsd += this._price(w);
+
+    const eventData: Record<string, unknown> = {
       step: this._step,
       pressure: this._pressure,
       delta,
@@ -208,7 +359,19 @@ export class PressureEngine {
       tool_calls: w.tool_calls,
       depth: w.depth,
       tag: w.tag,
-    });
+    };
+    // `spend_usd` appears only when prices are configured, so consumers of the
+    // frozen 1.0 envelope never see a key they did not opt into.
+    if (this._cfg.model_costs) {
+      eventData["spend_usd"] = this._spendUsd;
+    }
+    this._emit("engine.step", eventData);
+
+    // Budget exhaustion reuses the existing lock path. No new lifecycle state:
+    // the wire format is frozen.
+    if (this._cfg.budget_usd > 0 && this._spendUsd >= this._cfg.budget_usd) {
+      return this._lockForBudget();
+    }
 
     if (this._pressure >= this._cfg.release_threshold) {
       return this._release();
@@ -222,6 +385,30 @@ export class PressureEngine {
       return StepOutcome.Escalated;
     }
     return StepOutcome.OK;
+  }
+
+  /** USD for this step. Unpriced or unnamed models cost nothing. */
+  private _price(w: StepInput): number {
+    const costs = this._cfg.model_costs;
+    if (!costs || w.model === null) {
+      return 0.0;
+    }
+    const pricePerMillion = costs[w.model];
+    if (pricePerMillion === undefined) {
+      return 0.0;
+    }
+    return (w.tokens / 1_000_000.0) * pricePerMillion;
+  }
+
+  private _lockForBudget(): StepOutcome {
+    this._pressure = 0.0;
+    this._lifecycle = Lifecycle.Locked;
+    this._emit("engine.locked", {
+      reason: "budget_exceeded",
+      spend_usd: this._spendUsd,
+      budget_usd: this._cfg.budget_usd,
+    });
+    return StepOutcome.Locked;
   }
 
   private _release(): StepOutcome {
@@ -242,13 +429,19 @@ export class PressureEngine {
     return StepOutcome.Released;
   }
 
-  /** Clear pressure and unlock. Emits `engine.reset`. */
+  /**
+   * Clear pressure and unlock. Emits `engine.reset`.
+   *
+   * Spend is cleared with the rest of the state: a reset is a human deciding
+   * this execution starts over, budget included.
+   */
   reset(): PressureSnapshot {
     this._pressure = 0.0;
     this._step = 0;
     this._lastDelta = 0.0;
     this._lastStepAt = this._clock();
     this._lifecycle = Lifecycle.Init;
+    this._spendUsd = 0.0;
     this._emit("engine.reset", { pressure: this._pressure });
     return this.snapshot();
   }

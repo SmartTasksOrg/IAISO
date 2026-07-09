@@ -1,6 +1,6 @@
 {
-  "_comment": "IAIso pressure model test vectors. Version 1.0. See spec/pressure/README.md. Each vector is hand-computed and reviewed; do not edit without re-checking math. Tolerance for pressure equality is 1e-9 absolute.",
-  "version": "1.0",
+  "_comment": "IAIso pressure model test vectors. Version 1.1. See spec/pressure/README.md. Each vector is hand-computed and reviewed; do not edit without re-checking math. Tolerance for pressure equality is 1e-9 absolute.",
+  "version": "1.1",
   "tolerance": 1e-9,
   "vectors": [
     {

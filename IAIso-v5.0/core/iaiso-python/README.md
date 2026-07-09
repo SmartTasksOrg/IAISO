@@ -6,12 +6,18 @@ authorization, and structured audit logging to LLM agent loops. It is
 the runtime layer of the broader IAIso framework; see
 [`../../vision/`](../../vision/) for the full framework specification.
 
-> **SDK version 0.2.0.** This release ships a normative specification
-> with 67 machine-checkable conformance vectors, 240 passing tests,
-> and production-grade primitives for pressure accounting, consent
-> tokens, audit events, and cross-execution coordination. Calibrate
-> coefficients against your workload before relying on specific
-> threshold values — see `../docs/calibration.md`.
+> **Framework 5.0 · SDK 0.2.0 · status: beta.** This release ships a
+> normative specification with 72 machine-checkable conformance vectors
+> (verified 72/72 against spec 1.1), 257 passing tests, and
+> primitives for pressure
+> accounting, consent tokens, audit events, and cross-execution
+> coordination. Calibrate coefficients against your workload before
+> relying on specific threshold values — see `../docs/calibration.md`.
+>
+> **Read [`../../LIMITATIONS.md`](../../LIMITATIONS.md) before putting
+> this in an enforcement path.** The SDK runs inside the agent process
+> and bounds a *cooperating* agent. An agent that executes arbitrary
+> code in that process can bypass any check in this library.
 
 ## What it does
 
@@ -236,7 +242,7 @@ production use:
 - `../docs/THREAT_MODEL.md` — adversaries, assets, trust boundaries, and
   mitigation mapping.
 - `docs/BACKWARDS_COMPATIBILITY.md` — versioning and deprecation policy.
-- `../docs/known-limitations.md` — SDK scope and how it composes with
+- `../../LIMITATIONS.md` — threat model, and how the SDK composes with
   adjacent safety layers.
 - `../docs/graceful-degradation.md` — playbook for SIEM / Redis / OIDC /
   LLM provider outages.

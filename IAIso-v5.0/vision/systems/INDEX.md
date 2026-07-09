@@ -1,7 +1,7 @@
 # IAIso v5.0 Enterprise Systems Integration Index
 
-**Framework Version**: 5.0.0  
-**Release Date**: December 30, 2025  
+**Framework Version**: 5.0.0
+**Release Date**: December 30, 2025
 **License**: Community Forking License v2.0
 
 ---
@@ -122,5 +122,5 @@ All systems must preserve:
 
 ---
 
-*IAIso Framework v5.0 - Definitive Release*  
+*IAIso Framework v5.0 - Definitive Release*
 *Production Complete - December 30, 2025*

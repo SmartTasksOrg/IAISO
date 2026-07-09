@@ -49,6 +49,8 @@ from iaiso.coordination import (
     WeightedSumAggregator,
 )
 from iaiso.core import (
+    ENFORCEMENT_PERMISSIVE,
+    ENFORCEMENT_STRICT,
     BoundedExecution,
     ExecutionLocked,
     Lifecycle,
@@ -58,10 +60,13 @@ from iaiso.core import (
     ScopeRequired,
     StepInput,
     StepOutcome,
+    StrictModeError,
 )
 
 __all__ = [
     # Core
+    "ENFORCEMENT_PERMISSIVE",
+    "ENFORCEMENT_STRICT",
     "BoundedExecution",
     "ExecutionLocked",
     "Lifecycle",
@@ -71,6 +76,7 @@ __all__ = [
     "ScopeRequired",
     "StepInput",
     "StepOutcome",
+    "StrictModeError",
     # Consent
     "ConsentError",
     "ConsentIssuer",

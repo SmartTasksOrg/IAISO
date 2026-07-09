@@ -2,8 +2,11 @@
 
 from iaiso.core.engine import (
     Lifecycle,
+    ENFORCEMENT_PERMISSIVE,
+    ENFORCEMENT_STRICT,
     PressureConfig,
     PressureEngine,
+    StrictModeError,
     PressureSnapshot,
     StepInput,
     StepOutcome,
@@ -18,8 +21,11 @@ __all__ = [
     "BoundedExecution",
     "ExecutionLocked",
     "Lifecycle",
+    "ENFORCEMENT_PERMISSIVE",
+    "ENFORCEMENT_STRICT",
     "PressureConfig",
     "PressureEngine",
+    "StrictModeError",
     "PressureSnapshot",
     "ScopeRequired",
     "StepInput",

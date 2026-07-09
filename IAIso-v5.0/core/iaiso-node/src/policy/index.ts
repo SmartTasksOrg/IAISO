@@ -119,6 +119,17 @@ export class WeightedSumAggregator implements Aggregator {
   }
 }
 
+/** Boot-time safety posture. See LIMITATIONS.md. */
+export type EnforcementMode = "permissive" | "strict";
+
+export const ENFORCEMENT_PERMISSIVE: EnforcementMode = "permissive";
+export const ENFORCEMENT_STRICT: EnforcementMode = "strict";
+
+const ENFORCEMENT_MODES: readonly string[] = [
+  ENFORCEMENT_PERMISSIVE,
+  ENFORCEMENT_STRICT,
+];
+
 export class Policy {
   readonly version: string;
   readonly pressure: PressureConfig;
@@ -126,6 +137,11 @@ export class Policy {
   readonly consent: ConsentPolicy;
   readonly aggregator: Aggregator;
   readonly metadata: Record<string, unknown>;
+  /**
+   * Validated here; *enforced* at engine construction. Parsing a strict
+   * policy is not the same as booting under it.
+   */
+  readonly enforcement_mode: EnforcementMode;
 
   constructor(params: {
     version: string;
@@ -134,6 +150,7 @@ export class Policy {
     consent: ConsentPolicy;
     aggregator: Aggregator;
     metadata?: Record<string, unknown>;
+    enforcement_mode?: EnforcementMode;
   }) {
     this.version = params.version;
     this.pressure = params.pressure;
@@ -141,6 +158,7 @@ export class Policy {
     this.consent = params.consent;
     this.aggregator = params.aggregator;
     this.metadata = params.metadata ?? {};
+    this.enforcement_mode = params.enforcement_mode ?? ENFORCEMENT_PERMISSIVE;
   }
 }
 
@@ -165,6 +183,21 @@ export function validatePolicy(doc: unknown): asserts doc is Record<string, unkn
     throw new PolicyError(
       `$.version: must be exactly "1", got ${JSON.stringify(doc["version"])}`,
     );
+  }
+
+  // enforcement_mode: an unknown mode must not silently degrade to permissive.
+  const mode = doc["enforcement_mode"];
+  if (mode !== undefined) {
+    if (typeof mode !== "string") {
+      throw new PolicyError(
+        `$.enforcement_mode: expected string, got ${typeof mode}`,
+      );
+    }
+    if (!ENFORCEMENT_MODES.includes(mode)) {
+      throw new PolicyError(
+        `$.enforcement_mode: must be one of permissive|strict (got ${JSON.stringify(mode)})`,
+      );
+    }
   }
 
   // pressure section
@@ -347,6 +380,10 @@ export function buildPolicy(doc: unknown): Policy {
 
   const metadata = (doc["metadata"] ?? {}) as Record<string, unknown>;
 
+  const enforcement_mode =
+    (doc["enforcement_mode"] as EnforcementMode | undefined) ??
+    ENFORCEMENT_PERMISSIVE;
+
   return new Policy({
     version: doc["version"] as string,
     pressure,
@@ -354,6 +391,7 @@ export function buildPolicy(doc: unknown): Policy {
     consent,
     aggregator,
     metadata,
+    enforcement_mode,
   });
 }
 
