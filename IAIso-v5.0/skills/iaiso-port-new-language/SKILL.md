@@ -1,6 +1,6 @@
 ---
 name: iaiso-port-new-language
-description: "Use this skill when porting IAIso to a new programming language. Triggers on \"port to <language>\", new SDK creation, conformance implementation. Do not use it for fixing an existing port — see `iaiso-spec-conformance-vectors` for the test surface."
+description: "Use this skill when porting IAIso to a new programming language. Triggers on porting requests, new SDK creation, conformance implementation. Do not use it for fixing an existing port — see `iaiso-spec-conformance-vectors` for the test surface."
 version: 1.0.0
 tier: P3
 category: porting
@@ -41,7 +41,7 @@ ports (Python, Node, Go, Rust, Java, C#, PHP, Ruby, Swift).
    SDK's class shape is a good starting point; idiomatic
    adaptation is fine.
 
-7. **Run all 67 vectors green.** No vector is optional. If
+7. **Run all 72 vectors green.** No vector is optional. If
    a vector seems wrong, it isn't — open an issue against
    the spec rather than skipping it.
 

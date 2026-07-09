@@ -12,7 +12,7 @@ license: See ../LICENSE
 
 ## When this applies
 
-The new port needs a CLI / entry point that executes the 67
+The new port needs a CLI / entry point that executes the 72
 vectors and reports pass/fail.
 
 ## Steps To Complete
@@ -32,9 +32,9 @@ vectors and reports pass/fail.
    subsystem, expected vs actual. A failure that just says
    "vector 5 failed" wastes hours.
 
-5. **Make it CI-friendly.** Exit code 0 on 67/67 pass,
+5. **Make it CI-friendly.** Exit code 0 on 72/72 pass,
    non-zero on any failure. Print a one-line summary
-   (`67/67 vectors pass`) so CI logs are scannable.
+   (`72/72 vectors pass`) so CI logs are scannable.
 
 ## What this skill does NOT cover
 
