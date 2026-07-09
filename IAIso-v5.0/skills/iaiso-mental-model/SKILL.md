@@ -98,12 +98,50 @@ controlled release — coins fall, pressure resets. The frame
 itself provides the hard edge that prevents overflow. Safety
 through mechanical structure, not intent.
 
+## What IAIso does not do
+
+Teach this at the same time as the analogy, never after it. The coin-pusher
+image is seductive and invites the listener to hear "containment". It is not.
+
+IAIso is an **in-process accounting layer**. It runs inside the agent process
+and depends on that process calling it. A boundary holds whether or not the
+thing inside it cooperates; a convention holds only while it does. IAIso is a
+convention that produces excellent telemetry.
+
+| Adversary | Contained? |
+|---|---|
+| Runaway loop, recursion, retry storm | **Yes** — pressure accumulates, release fires |
+| Budget overrun on a priced model | **Yes**, with `model_costs` and `budget_usd` |
+| Missing audit trail | **Yes** — every step emits an event |
+| Tool call outside granted scope | **Yes**, where `require_scope()` guards the call site |
+| Agent executing arbitrary code (`bash`, `eval`, `subprocess`) | **NOT contained** — it can skip the accounting call |
+| Agent that simply never calls `record_tokens()` | **NOT contained** — nothing enforces the call |
+| Malicious operator setting `token_coefficient: 0` | **NOT contained**, by design — policy is trusted input |
+| Compromised process | **NOT contained** — same address space as the accounting |
+| Prompt injection steering the agent | **NOT contained** — pressure does not read intent |
+| Uncalibrated coefficients | **NOT contained** — thresholds never fire, or always fire |
+
+Containment is out-of-process: containers, seccomp, network allowlists,
+read-only mounts, short-lived credentials, an out-of-process kill switch. IAIso
+composes with those. It replaces none of them.
+
+**Where it belongs:** in the harness — the loop that executes tool calls, or a
+proxy in front of the model API. There the agent gets no vote about whether
+accounting happens. Not inside the agent as a library the agent is trusted to
+invoke upon itself.
+
+If someone asks for containment, say plainly that IAIso is the wrong tool and
+name the right ones. A safety framework whose gates silently do nothing is worse
+than no framework, because it produces confidence.
+
 ## What this skill does NOT cover
 
 - Any code. Move to `iaiso-spec-*` or `iaiso-runtime-*` once
   the listener has the mental model.
+- Boot-time refusal — see `iaiso-deploy-enforcement-mode`.
 
 ## References
 
 - `vision/README.md` — the original framework spec
 - `core/spec/pressure/README.md` — the math, normatively
+- `LIMITATIONS.md` — the threat model, normatively

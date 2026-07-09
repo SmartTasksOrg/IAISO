@@ -1,6 +1,6 @@
 ---
 name: iaiso-port-language-idioms
-description: "Use this skill when adapting a working IAIso port to feel idiomatic. Do not use it before 67/67 conformance — idioms before conformance hide bugs."
+description: "Use this skill when adapting a working IAIso port to feel idiomatic. Do not use it before full conformance — idioms before conformance hide bugs."
 version: 1.0.0
 tier: P3
 category: porting
@@ -12,7 +12,7 @@ license: See ../LICENSE
 
 ## When this applies
 
-The port passes all 67 vectors and now needs to feel like
+The port passes all 72 vectors and now needs to feel like
 natural code in the target language.
 
 ## Steps To Complete

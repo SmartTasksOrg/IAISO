@@ -11,6 +11,7 @@ Subcommands:
     audit tail <jsonl-file>          — pretty-print JSONL audit events
     audit stats <jsonl-file>         — summarize events by kind
     coordinator demo                 — run a short coordinator demo
+    doctor                           — verify this build's safety features
 
 The CLI is intentionally small. It's not a replacement for a control
 plane; it's what an operator uses to debug, validate configuration,
@@ -182,6 +183,63 @@ def cmd_coordinator_demo(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_doctor(args: argparse.Namespace) -> int:
+    """Verify that the installed build actually has the safety features.
+
+    The published wheel and a remediated checkout can carry the same version
+    string, so the version alone proves nothing. Check for the features.
+    """
+    import dataclasses
+
+    import iaiso
+    from iaiso import PressureConfig
+
+    print(f"iaiso {getattr(iaiso, '__version__', 'unknown')}")
+    print(f"  loaded from {iaiso.__file__}")
+
+    missing: list[str] = [
+        name for name in
+        ("ENFORCEMENT_PERMISSIVE", "ENFORCEMENT_STRICT", "StrictModeError")
+        if not hasattr(iaiso, name)
+    ]
+    fields = {f.name for f in dataclasses.fields(PressureConfig)}
+    missing += [f"PressureConfig.{f}" for f in ("model_costs", "budget_usd")
+                if f not in fields]
+
+    if missing:
+        print("\n  MISSING: " + ", ".join(missing))
+        print("  This build predates the enforcement_mode boot guard and cost")
+        print('  governance. enforcement_mode="strict" will not protect you.')
+        return 1
+
+    # Existence is not enough. Prove the guard fires.
+    from iaiso import ENFORCEMENT_STRICT, BoundedExecution, StrictModeError
+    from iaiso.audit import MemorySink, NullSink
+
+    try:
+        BoundedExecution.start(
+            config=PressureConfig(token_coefficient=0.011),
+            audit_sink=NullSink(),
+            enforcement_mode=ENFORCEMENT_STRICT,
+        )
+    except StrictModeError as exc:
+        print(f"\n  boot guard fires: {exc}")
+    else:
+        print("\n  BOOT GUARD DID NOT FIRE on a NullSink under strict mode.")
+        print("  Do not rely on this build.")
+        return 1
+
+    with BoundedExecution.start(
+        config=PressureConfig(token_coefficient=0.011),
+        audit_sink=MemorySink(),
+        enforcement_mode=ENFORCEMENT_STRICT,
+    ):
+        pass
+    print("  a sound config still constructs under strict: ok")
+    print('\nUsable. Prefer enforcement_mode="strict".')
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="iaiso",
@@ -245,6 +303,11 @@ def build_parser() -> argparse.ArgumentParser:
     cd = p_coord_sub.add_parser("demo",
                                 help="Run a local coordinator demo")
     cd.set_defaults(func=cmd_coordinator_demo)
+
+    p_doctor = sub.add_parser(
+        "doctor",
+        help="Verify this build has the enforcement_mode boot guard")
+    p_doctor.set_defaults(func=cmd_doctor)
 
     return parser
 
