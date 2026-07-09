@@ -42,7 +42,7 @@ import {
   PressureEngine,
   StepInput,
 } from "./engine.js";
-import type { PressureSnapshot } from "./engine.js";
+import type { EnforcementMode, PressureSnapshot } from "./engine.js";
 
 export class ExecutionLocked extends Error {
   constructor(message: string) {
@@ -65,6 +65,15 @@ export interface BoundedExecutionOptions {
   audit_sink?: AuditSink;
   clock?: Clock;
   timestampClock?: Clock;
+  /**
+   * Forwarded to the engine's boot guard. Under `"strict"`, `start()` throws
+   * `StrictModeError` rather than returning a degraded execution — a policy
+   * that says strict must mean strict at the entry point people actually use.
+   */
+  enforcement_mode?: EnforcementMode;
+  calibration_artifact?: string;
+  consent_algorithm?: string;
+  consent_key_auto_generated?: boolean;
 }
 
 export class BoundedExecution {
@@ -96,6 +105,10 @@ export class BoundedExecution {
       audit_sink: sink,
       clock: opts.clock,
       timestampClock: tsClock,
+      enforcement_mode: opts.enforcement_mode,
+      calibration_artifact: opts.calibration_artifact,
+      consent_algorithm: opts.consent_algorithm,
+      consent_key_auto_generated: opts.consent_key_auto_generated,
     });
 
     const instance = new BoundedExecution(
@@ -135,8 +148,18 @@ export class BoundedExecution {
     }
   }
 
-  recordTokens(tokens: number, tag: string | null = null): StepOutcome {
-    return this._account(new StepInput({ tokens, tag }));
+  /** `model` prices these tokens against `PressureConfig.model_costs`. */
+  recordTokens(
+    tokens: number,
+    tag: string | null = null,
+    model: string | null = null,
+  ): StepOutcome {
+    return this._account(new StepInput({ tokens, tag, model }));
+  }
+
+  /** Cumulative USD spent by this execution, per `model_costs`. */
+  get spend_usd(): number {
+    return this.engine.spend_usd;
   }
 
   recordToolCall(
@@ -157,6 +180,7 @@ export class BoundedExecution {
       tool_calls?: number;
       depth?: number;
       tag?: string | null;
+      model?: string | null;
     } = {},
   ): StepOutcome {
     return this._account(
@@ -165,6 +189,7 @@ export class BoundedExecution {
         tool_calls: params.tool_calls ?? 0,
         depth: params.depth ?? 0,
         tag: params.tag ?? null,
+        model: params.model ?? null,
       }),
     );
   }

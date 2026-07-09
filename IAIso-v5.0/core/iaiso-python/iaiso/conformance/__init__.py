@@ -21,6 +21,8 @@ Usage as a script:
 from __future__ import annotations
 
 import json
+import logging
+from contextlib import contextmanager
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Callable, Iterable
@@ -297,6 +299,23 @@ def run_policy_vectors(spec_root: Path) -> list[VectorResult]:
 
 # --- Top-level runner ---
 
+@contextmanager
+def _silence_boot_warnings():
+    """Mute permissive-mode degradation warnings for the duration of a run.
+
+    The vectors deliberately exercise degraded configurations (NullSink,
+    post_release_lock=false, uncalibrated defaults). Their warnings are
+    expected, and printing them would corrupt the suite's output.
+    """
+    logger = logging.getLogger("iaiso")
+    previous = logger.disabled
+    logger.disabled = True
+    try:
+        yield
+    finally:
+        logger.disabled = previous
+
+
 def run_all(spec_root: Path) -> dict[str, list[VectorResult]]:
     """Run every available conformance section. Returns per-section results."""
     results: dict[str, list[VectorResult]] = {}
@@ -308,7 +327,8 @@ def run_all(spec_root: Path) -> dict[str, list[VectorResult]]:
     ]
     for section, fn in runners:
         try:
-            results[section] = fn(spec_root)
+            with _silence_boot_warnings():
+                results[section] = fn(spec_root)
         except FileNotFoundError:
             # Section not yet populated — skip quietly.
             results[section] = []

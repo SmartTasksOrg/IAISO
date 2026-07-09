@@ -21,7 +21,7 @@ def apply_magnification(agent_id, raw_output, context):
     # 1. Evaluate output against entropy floor (Invariant 1 support)
     # 2. If pressure > threshold, trigger recursive refinement loop
     # 3. Adjust context and re-evaluate until magnification target met
-    
+
     print(f"[IAIso-Magnifier] Back-prop active for {agent_id}. Refining output...")
     magnified_output = f"{raw_output} [AGI-Magnified: Back-Prop Active]"
     return magnified_output

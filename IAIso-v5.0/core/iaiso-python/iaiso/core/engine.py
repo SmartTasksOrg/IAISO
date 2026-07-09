@@ -15,12 +15,49 @@ for the normative specification.
 
 from __future__ import annotations
 
+import logging
 import time
 from dataclasses import dataclass, field
 from enum import Enum
 from typing import Any
 
 from iaiso.audit import AuditEvent, AuditSink, NullSink
+
+logger = logging.getLogger("iaiso")
+
+ENFORCEMENT_PERMISSIVE = "permissive"
+ENFORCEMENT_STRICT = "strict"
+
+#: Coefficient set shipped with the library. Matching it exactly means nobody
+#: has calibrated anything.
+_LIBRARY_DEFAULT_COEFFICIENTS = {
+    "token_coefficient": 0.015,
+    "tool_coefficient": 0.08,
+    "depth_coefficient": 0.05,
+    "dissipation_per_step": 0.02,
+    "dissipation_per_second": 0.0,
+    "escalation_threshold": 0.85,
+    "release_threshold": 0.95,
+}
+
+_warned: set[str] = set()
+
+
+class StrictModeError(ValueError):
+    """Raised when `enforcement_mode="strict"` refuses a degraded config.
+
+    Fail closed. A safety framework whose gates silently do nothing is worse
+    than no framework, because it produces confidence.
+    """
+
+
+def _degraded(condition: str, message: str, mode: str) -> None:
+    """Refuse under strict; warn once per process under permissive."""
+    if mode == ENFORCEMENT_STRICT:
+        raise StrictModeError(f"iaiso: strict mode — {message}")
+    if condition not in _warned:
+        _warned.add(condition)
+        logger.warning("iaiso: %s", message)
 
 
 class Lifecycle(str, Enum):
@@ -77,6 +114,25 @@ class PressureConfig:
     depth_coefficient: float = 0.05
     post_release_lock: bool = True
 
+    model_costs: dict[str, float] | None = field(default=None, hash=False)
+    """USD per 1M tokens, keyed by model name. When set, `engine.step` events
+    carry a `spend_usd` field. Cost is a readout; pressure is the control.
+
+    Excluded from `__hash__` (a dict is unhashable) but not from `__eq__`:
+    `PressureConfig` was hashable before this field existed and must stay so.
+    Equal configs still hash equal, so the hash/eq contract holds."""
+
+    budget_usd: float = 0.0
+    """Hard spend ceiling in USD; 0 disables. Exceeding it reuses the existing
+    lock path — no new lifecycle state, so the wire format stays frozen."""
+
+    def is_default_coefficients(self) -> bool:
+        """True when nothing has been calibrated away from library defaults."""
+        return all(
+            getattr(self, name) == value
+            for name, value in _LIBRARY_DEFAULT_COEFFICIENTS.items()
+        )
+
     def __post_init__(self) -> None:
         if not 0.0 <= self.escalation_threshold <= 1.0:
             raise ValueError("escalation_threshold must be in [0, 1]")
@@ -88,6 +144,11 @@ class PressureConfig:
                      "token_coefficient", "tool_coefficient", "depth_coefficient"):
             if getattr(self, name) < 0:
                 raise ValueError(f"{name} must be non-negative")
+        if self.budget_usd < 0:
+            raise ValueError("budget_usd must be non-negative")
+        for model, price in (self.model_costs or {}).items():
+            if price < 0:
+                raise ValueError(f"model_costs[{model!r}] must be non-negative")
 
 
 @dataclass
@@ -99,6 +160,9 @@ class StepInput:
     depth: int = 0
     tag: str | None = None
     """Optional string tag propagated into audit events, e.g. the operation name."""
+    model: str | None = None
+    """Model name used to price `tokens` against `PressureConfig.model_costs`.
+    An unpriced model costs nothing — it is not an error, it is unmetered."""
 
 
 @dataclass
@@ -134,7 +198,28 @@ class PressureEngine:
         execution_id: str,
         audit_sink: AuditSink | None = None,
         clock: Any = time.monotonic,
+        enforcement_mode: str = ENFORCEMENT_PERMISSIVE,
+        calibration_artifact: str | None = None,
+        consent_algorithm: str | None = None,
+        consent_key_auto_generated: bool = False,
     ) -> None:
+        if enforcement_mode not in (ENFORCEMENT_PERMISSIVE, ENFORCEMENT_STRICT):
+            raise ValueError(
+                f"enforcement_mode must be 'permissive' or 'strict', "
+                f"got {enforcement_mode!r}"
+            )
+        self._enforcement_mode = enforcement_mode
+
+        # Boot guard. Runs BEFORE any state exists, so a strict refusal leaves
+        # nothing half-constructed behind.
+        self._boot_guard(
+            config=config,
+            audit_sink=audit_sink,
+            calibration_artifact=calibration_artifact,
+            consent_algorithm=consent_algorithm,
+            consent_key_auto_generated=consent_key_auto_generated,
+        )
+
         self._cfg = config
         self._execution_id = execution_id
         self._audit = audit_sink or NullSink()
@@ -145,8 +230,70 @@ class PressureEngine:
         self._lifecycle: Lifecycle = Lifecycle.INIT
         self._last_delta: float = 0.0
         self._last_step_at: float = self._clock()
+        self._spend_usd: float = 0.0
 
         self._emit("engine.init", pressure=self._pressure)
+
+    def _boot_guard(
+        self,
+        config: PressureConfig,
+        audit_sink: AuditSink | None,
+        calibration_artifact: str | None,
+        consent_algorithm: str | None,
+        consent_key_auto_generated: bool,
+    ) -> None:
+        """Refuse (strict) or warn (permissive) on each degraded condition.
+
+        Every message names the failing condition and the two ways out, because
+        an operator reading it at 3am needs the remedy, not a diagnosis.
+        """
+        mode = self._enforcement_mode
+
+        if consent_algorithm == "HS256" and consent_key_auto_generated:
+            _degraded(
+                "consent_autogen_hs256",
+                "consent algorithm is HS256 and the signing key was "
+                "auto-generated; no other party can verify these tokens. "
+                "Supply a key, switch to RS256, or set "
+                "enforcement_mode: permissive.",
+                mode,
+            )
+
+        if audit_sink is None or isinstance(audit_sink, NullSink):
+            _degraded(
+                "null_sink",
+                "audit sink is NullSink; escalations would be unobservable. "
+                "Configure a sink or set enforcement_mode: permissive.",
+                mode,
+            )
+
+        if not config.post_release_lock:
+            _degraded(
+                "post_release_lock_false",
+                "post_release_lock is false; a released execution resumes "
+                "immediately. Set post_release_lock: true or set "
+                "enforcement_mode: permissive.",
+                mode,
+            )
+
+        if config.is_default_coefficients() and not calibration_artifact:
+            _degraded(
+                "uncalibrated_defaults",
+                "coefficients are at library defaults and no calibration "
+                "artifact is present; thresholds will either never fire or "
+                "fire constantly. Calibrate, or set "
+                "enforcement_mode: permissive.",
+                mode,
+            )
+
+    @property
+    def enforcement_mode(self) -> str:
+        return self._enforcement_mode
+
+    @property
+    def spend_usd(self) -> float:
+        """Cumulative USD spent by this execution, per `model_costs`."""
+        return self._spend_usd
 
     @property
     def config(self) -> PressureConfig:
@@ -213,8 +360,10 @@ class PressureEngine:
         self._last_step_at = now
         self._lifecycle = Lifecycle.RUNNING
 
-        self._emit(
-            "engine.step",
+        step_spend = self._price(work)
+        self._spend_usd += step_spend
+
+        event_data: dict[str, Any] = dict(
             step=self._step,
             pressure=self._pressure,
             delta=delta,
@@ -224,6 +373,16 @@ class PressureEngine:
             depth=work.depth,
             tag=work.tag,
         )
+        # `spend_usd` appears only when prices are configured, so consumers of
+        # the frozen 1.0 envelope never see a key they did not opt into.
+        if self._cfg.model_costs:
+            event_data["spend_usd"] = self._spend_usd
+        self._emit("engine.step", **event_data)
+
+        # Budget exhaustion reuses the existing lock path. No new lifecycle
+        # state: the wire format is frozen.
+        if self._cfg.budget_usd > 0 and self._spend_usd >= self._cfg.budget_usd:
+            return self._lock_for_budget()
 
         if self._pressure >= self._cfg.release_threshold:
             return self._release()
@@ -234,6 +393,25 @@ class PressureEngine:
                        threshold=self._cfg.escalation_threshold)
             return StepOutcome.ESCALATED
         return StepOutcome.OK
+
+    def _price(self, work: StepInput) -> float:
+        """USD for this step. Unpriced or unnamed models cost nothing."""
+        costs = self._cfg.model_costs
+        if not costs or work.model is None:
+            return 0.0
+        price_per_million = costs.get(work.model)
+        if price_per_million is None:
+            return 0.0
+        return (work.tokens / 1_000_000.0) * price_per_million
+
+    def _lock_for_budget(self) -> StepOutcome:
+        self._pressure = 0.0
+        self._lifecycle = Lifecycle.LOCKED
+        self._emit("engine.locked",
+                   reason="budget_exceeded",
+                   spend_usd=self._spend_usd,
+                   budget_usd=self._cfg.budget_usd)
+        return StepOutcome.LOCKED
 
     def _release(self) -> StepOutcome:
         prior_pressure = self._pressure
@@ -252,12 +430,17 @@ class PressureEngine:
         return StepOutcome.RELEASED
 
     def reset(self) -> PressureSnapshot:
-        """Clear pressure and unlock the engine. Emits an audit event."""
+        """Clear pressure and unlock the engine. Emits an audit event.
+
+        Spend is cleared with the rest of the state: a reset is a human
+        deciding this execution starts over, budget included.
+        """
         self._pressure = 0.0
         self._step = 0
         self._last_delta = 0.0
         self._last_step_at = self._clock()
         self._lifecycle = Lifecycle.INIT
+        self._spend_usd = 0.0
         self._emit("engine.reset", pressure=self._pressure)
         return self.snapshot()
 

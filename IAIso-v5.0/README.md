@@ -1,9 +1,102 @@
 # IAIso — Intelligence Accumulation Isolation & Safety Oversight
 
-**Mechanical AI safety through pressure-control governance.** IAIso treats
-agentic AI systems like high-pressure engines — measuring compute
-accumulation and enforcing automatic safety releases when thresholds are
-breached. Safety through structure, not hope.
+**Mechanical bounds for cooperative agents. Anchor externally for
+adversarial ones.**
+
+Bound what an agent spends and touches — and prove it afterward. IAIso
+measures compute accumulation in an agent loop and enforces an automatic
+safety release when a threshold is crossed.
+
+> **Framework 5.0 · SDK 0.2.0 · status: beta.** The framework
+> specification is at 5.0; the SDKs that implement it are at 0.2.0 and are
+> beta software. No named production deployment exists yet. The version
+> numbers differ on purpose — the design and the code version separately.
+>
+> **Before you deploy this in an enforcement path, read
+> [`LIMITATIONS.md`](LIMITATIONS.md).** It states, in one place, what IAIso
+> does not protect against.
+
+## What IAIso actually is
+
+IAIso is three independent primitives for agent loops:
+
+1. **Pressure-accumulation rate limiting** — one scalar that rises with
+   tokens, tool calls, and planning depth and decays over time. A single
+   number catches tool-loop runaways, token floods, and planning spirals
+   that three separate counters miss.
+2. **ConsentScope** — signed, scoped, expiring JWTs (HS256/RS256) gating
+   sensitive operations.
+3. **Structured audit** — every state change emits a versioned event to a
+   pluggable sink.
+
+**Trust boundary.** The SDK runs *inside* the agent process. It bounds a
+**cooperating** agent: one that calls the middleware and honors
+`ExecutionLocked`. It does not contain an agent that executes arbitrary
+code in its own process — such an agent can bypass any in-process check.
+For adversarial containment, bind IAIso's thresholds to an out-of-process
+anchor (seccomp, separate UID, container, VM, hypervisor FLOP cap). See
+[`LIMITATIONS.md`](LIMITATIONS.md).
+
+## Where this pays for itself
+
+Token-cost governance is IAIso's strongest current use case, and it needs
+no new features — the mechanisms below all exist in the shipping code.
+
+1. **Runaway-loop containment.** An agent stuck in a retry/tool cycle
+   burns tokens until a budget alert fires hours later. `PressureEngine`
+   locks the execution at `release_threshold` on the step that crosses it.
+   `post_release_lock=true` means it stays stopped until a human calls
+   `reset()`. *This is the headline cost use case.*
+2. **Per-execution spend ceilings that compose.** `token_coefficient`
+   converts tokens to pressure; `tool_coefficient` prices tool calls —
+   usually the expensive ones (retrieval, code exec). One ceiling covers
+   both.
+3. **Fleet-wide budget via `RedisCoordinator`.** Aggregate pressure across
+   N workers, so a hundred agents can't each spend "just under" a
+   per-agent cap.
+4. **Chargeback and attribution.** Structured audit events carry
+   `execution_id`, `tokens`, `tool_calls`, `tag`. Ship them to
+   Splunk/Datadog/Loki and you have per-team, per-workflow spend without
+   instrumenting the app. `iaiso audit spend --group-by tag` reads the
+   same events locally.
+5. **Scope-gated expensive operations.** `require_scope("tools.admin")` —
+   gate the frontier-model call or the expensive retrieval behind a
+   consent token, so cost-bearing paths need explicit authorization.
+6. **Escalate-before-spend.** `raise_on_escalation=True` in the middleware
+   raises *before* the provider call. The expensive request is never
+   issued.
+
+> **What this does not do.** IAIso does not choose a cheaper model,
+> compress prompts, or cache. It bounds and attributes spend; it does not
+> optimize it. Pair it with routing/caching layers.
+
+## Knowing whether the gate is doing anything
+
+A deployment's safety posture used to be invisible at runtime: an operator
+could not tell whether a gate was actually gating. `enforcement_mode` makes
+it a boot-time question.
+
+```yaml
+enforcement_mode: strict   # or: permissive (default)
+```
+
+Under `strict` the engine **refuses to construct** if any of these hold,
+and the error names the condition:
+
+- the consent algorithm is HS256 and the signing key was auto-generated —
+  nothing else can verify what it signs
+- the only audit sink is a `NullSink` — escalations would be unobservable
+- `post_release_lock` is false — a released execution resumes immediately
+- coefficients are all still at library defaults with no calibration
+  artifact — thresholds will either never fire or fire constantly
+
+Under `permissive` (the default) each condition logs a warning once per
+process and execution proceeds.
+
+Fail closed. A safety framework whose gates silently do nothing is worse
+than no framework, because it produces confidence.
+
+## Repository contents
 
 This repository contains the full IAIso framework in three coordinated
 parts:
@@ -11,7 +104,7 @@ parts:
 | Directory | Contents |
 |---|---|
 | **[`vision/`](vision/)** | The **IAIso 5.0 framework specification** — architecture, layer model, invariants, pressure equations, solution-pack catalog, integration reference designs, regulatory mappings, and supporting documentation. This is the normative design material. |
-| **[`core/`](core/)** | The **reference SDKs** — nine language implementations of the framework's runtime (Python, Node.js / TypeScript, Go, Rust, Java, C# / .NET, PHP, Swift, Ruby), with a shared machine-checkable specification directory and 67 conformance vectors. Install one of these to run IAIso today. |
+| **[`core/`](core/)** | The **reference SDKs** — nine language implementations of the framework's runtime (Python, Node.js / TypeScript, Go, Rust, Java, C# / .NET, PHP, Swift, Ruby), with a shared machine-checkable specification directory and 72 conformance vectors (spec 1.1). Install one of these to run IAIso today. |
 | **[`skills/`](skills/) [`personas/`](personas/) [`agents/`](agents/)** | The **operator runtime** — how an LLM agent acts inside IAIso, independent of the underlying SDK. 139 single-purpose Claude Skills files, 16 building-block personas, and 8 deployment-ready agent compositions. Auto-ingested by the SmartTasks `smart_personas` plugin's cross-plugin scanner; loadable directly via the Claude Skills loader at `skills/loader/`. |
 
 **Working with code?** Start in [`core/`](core/).
@@ -28,8 +121,8 @@ interoperable events and tokens.
 ```bash
 cd core/iaiso-python
 pip install -e .
-python -m iaiso.conformance ../spec/      # 67 conformance vectors
-pytest -q                                   # 240 passing tests
+python -m iaiso.conformance ../spec/      # 72 conformance vectors
+pytest -q                                   # 257 passing, 4 skipped
 ```
 
 ```python
@@ -47,7 +140,7 @@ with BoundedExecution.start(config=PressureConfig()) as execution:
 ```bash
 cd core/iaiso-node
 npm install
-npm test                                    # 171 tests (104 unit + 67 conformance)
+npm test                                    # 195 tests (123 unit + 72 conformance)
 npx iaiso-conformance ./spec                # standalone conformance check
 ```
 
@@ -69,7 +162,7 @@ await BoundedExecution.run(
 
 ```bash
 cd core/iaiso-go
-go test ./...                              # 48 tests + 67 conformance
+go test ./...                              # 59 test funcs, incl. the 72-vector suite
 go run ./cmd/iaiso-conformance ./spec      # standalone conformance check
 ```
 
@@ -85,7 +178,7 @@ func main() {
     sink := audit.NewMemorySink()
     core.Run(core.BoundedExecutionOptions{AuditSink: sink}, func(exec *core.BoundedExecution) error {
         outcome, _ := exec.RecordToolCall("search", 500)
-        if outcome == core.StepOutcomeEscalated {
+        if outcome == core.OutcomeEscalated {
             // Layer 4: request human review per the escalation template
         }
         return nil
@@ -322,9 +415,10 @@ contract.
 
 Running each SDK's conformance command (`python -m iaiso.conformance
 core/spec/`, `npx iaiso-conformance ./spec`, `cargo run -p
-iaiso-conformance-bin -- ./spec`, …) executes 67 machine-verifiable
-vectors against the implementation. Any port of IAIso into another
-language is considered conformant when it passes the same vectors.
+iaiso-conformance-bin -- ./spec`, …) executes every machine-verifiable
+vector against the implementation — 72 at spec 1.1, 67 for ports still
+pinned to 1.0. Any port of IAIso into another language is considered
+conformant when it passes the vectors for the spec version it targets.
 
 ### `skills/`, `personas/`, `agents/` — operator runtime
 
@@ -466,6 +560,10 @@ capability without code changes.
 
 ## What's in each SDK release
 
+Version discipline across this repo: **framework v5.0, SDK v0.2.0, status
+beta.** The framework specification and the SDKs version independently, and
+every README in the tree states the same pair.
+
 IAIso 0.2.0 (the current `core/iaiso-python` release) provides:
 
 - **Pressure engine** with deterministic math and 20 conformance
@@ -502,25 +600,55 @@ the call through the SDK.
 
 ## Reference SDKs
 
-| Language | Location | Status | Conformance |
-|---|---|---|---|
-| Python | [`core/iaiso-python/`](core/iaiso-python/) | Stable · `0.2.0` | 67/67 |
-| TypeScript / Node.js | [`core/iaiso-node/`](core/iaiso-node/) | Stable · `@iaiso/core@0.3.0` | 67/67 |
-| Go | [`core/iaiso-go/`](core/iaiso-go/) | Stable · `v0.1.0` | 67/67 |
-| Rust | [`core/iaiso-rust/`](core/iaiso-rust/) | Stable · `0.1.0` | 67/67 |
-| Java | [`core/iaiso-java/`](core/iaiso-java/) | Stable · `0.1.0` | 67/67 |
-| C# / .NET | [`core/iaiso-csharp/`](core/iaiso-csharp/) | Stable · `0.1.0` | 67/67 |
-| PHP | [`core/iaiso-php/`](core/iaiso-php/) | Stable · `0.1.0` | 67/67 |
-| Swift | [`core/iaiso-swift/`](core/iaiso-swift/) | Draft · `0.1.0-draft` | run `swift test` |
-| Ruby | [`core/iaiso-ruby/`](core/iaiso-ruby/) | Stable · `0.1.0` | 67/67 |
+Status is derived from measured implementation LOC (excluding tests) and
+from conformance results actually observed in this build — not from
+intent. A port that has not been run against the vectors is not labelled
+Stable, however finished its source looks.
 
-Eight of nine implementations target **IAIso spec 1.0** and were driven to
-67/67 conformance through compile-test-fix iteration. The Swift port was
-authored without a Swift toolchain in the build sandbox, so its conformance
-status is "expected 67/67, requires `swift test` to confirm" — see
-[`core/iaiso-swift/README.md`](core/iaiso-swift/README.md) for details. All
-ports emit identical audit events and produce interoperable consent tokens
-for the same inputs.
+The suite grew from 67 to **72 vectors** when `enforcement_mode` landed
+(spec **1.1**, an additive MINOR bump). Ports still pinned to spec 1.0 run
+the original 67; that is not a failure, it is a port that has not adopted
+1.1 yet.
+
+| Language | Location | Package | Impl LOC | Spec | Conformance | `enforcement_mode` | Status |
+|---|---|---|---|---|---|---|---|
+| Python | [`core/iaiso-python/`](core/iaiso-python/) | `iaiso` · `0.2.0` | 7,958 | 1.1 | **72/72 verified** | ✅ | Reference |
+| TypeScript / Node.js | [`core/iaiso-node/`](core/iaiso-node/) | `@iaiso/core@0.3.0` *(unpublished)* | 5,610 | 1.1 | **72/72 verified** | ✅ | Stable |
+| Go | [`core/iaiso-go/`](core/iaiso-go/) | `github.com/iaiso/iaiso-go` *(unpublished)* | 4,602 | 1.1 | **72/72 verified** | ✅ | Stable |
+| Rust | [`core/iaiso-rust/`](core/iaiso-rust/) | crates workspace `0.1.0` *(unpublished)* | 5,712 | 1.0 | not re-run in this build | ❌ | Stable — unverified |
+| PHP | [`core/iaiso-php/`](core/iaiso-php/) | `iaiso/core` *(unpublished)* | 4,874 | 1.0 | not re-run in this build | ❌ | Stable — unverified |
+| Java | [`core/iaiso-java/`](core/iaiso-java/) | `org.iaiso:core` *(unpublished)* | 4,837 | 1.0 | not re-run in this build | ❌ | Stable — unverified |
+| C# / .NET | [`core/iaiso-csharp/`](core/iaiso-csharp/) | `IAIso.Core` *(unpublished)* | 4,467 | 1.0 | not re-run in this build | ❌ | Stable — unverified |
+| Swift | [`core/iaiso-swift/`](core/iaiso-swift/) | SwiftPM `0.1.0-draft` *(unpublished)* | 4,458 | 1.0 | never run | ❌ | Draft |
+| Ruby | [`core/iaiso-ruby/`](core/iaiso-ruby/) | gem `0.1.0` *(unpublished)* | — | 1.0 | not re-run in this build | ❌ | Unverified |
+
+**How to read this table.**
+
+- **72/72 verified** means the port's conformance binary was executed
+  against [`core/spec/`](core/spec/) and reported 72 of 72 vectors passing.
+  Python, Node, and Go were run. The remaining ports were not, because
+  their toolchains were absent from the build environment — that is a
+  statement about the build environment, not an accusation against the
+  code. Run their conformance commands and the label changes.
+- **Stable — unverified** means the implementation is complete and was
+  previously driven to 67/67, but no run backs that claim in this
+  snapshot. Treat it as unverified until you have run it yourself.
+- **`enforcement_mode` ❌** means the port has no boot guard: handed a
+  policy that says `enforcement_mode: strict`, it constructs a degraded
+  engine anyway. Its vendored `spec/` copy still holds the 67-vector
+  suite, so it passes its own suite — the gap is the guard, not a
+  regression.
+- **unpublished** means the package name does not currently resolve on its
+  registry. Only `pip install iaiso` resolves today. Do not copy an
+  install command for a package that does not exist; install from this
+  repository instead.
+
+All ports target **IAIso spec 1.0**, emit identical audit events, and
+produce interoperable consent tokens for the same inputs. The Go port
+carries a `tests/interop_test.go` that verifies a Go-issued HS256 consent
+token against the shared conformance key, and verifies tokens minted by
+the Python reference implementation — cross-port parity is a test, not an
+assertion.
 
 ## Operator runtime
 
@@ -536,7 +664,13 @@ End-to-end ingestion verified: running the SmartTasks
 
 ## Upcoming from the roadmap
 
-The roadmap's primary language ports are now complete. Future work may include:
+The roadmap's primary language ports are now complete — the Go port
+landed with 72/72 conformance and cross-port interop tests. Future work
+may include:
+
+- Porting the `enforcement_mode` boot guard and the cost-governance surface
+  to Rust, PHP, Java, C#, Swift, and Ruby, and syncing their vendored
+  `spec/` copies to 1.1.
 
 - A Kotlin-idiomatic wrapper around the Java port (coroutines + null-safety
   make the Java API feel un-Kotliny). The Java port already covers Kotlin
@@ -583,6 +717,7 @@ All framework invariants must be preserved across forks.
 ```
 IAISO/
 ├── README.md                   ← this file
+├── LIMITATIONS.md              ← threat model + what IAIso does not protect against
 ├── MIGRATION.md                ← guide for consolidating older layouts
 ├── LICENSE
 ├── plugin.json                 ← marks the repo as a SmartTasks plugin (auto-ingest)
@@ -590,9 +725,9 @@ IAISO/
 ├── mkdocs.yml                  ← documentation site configuration
 ├── core/                       ← reference SDKs + shared spec (installable per-language)
 │   ├── README.md               ← language signpost
-│   ├── spec/                   ← normative specification + 67 conformance vectors
+│   ├── spec/                   ← normative specification (1.1) + 72 conformance vectors
 │   ├── docs/                   ← language-agnostic framework docs
-│   ├── iaiso-python/           ← Python SDK — package `iaiso` (240 tests + 67 vectors)
+│   ├── iaiso-python/           ← Python SDK — package `iaiso` (257 tests, incl. 72 vectors)
 │   │   ├── iaiso/              ← package source
 │   │   ├── tests/
 │   │   ├── docs/               ← Python-specific docs
@@ -600,18 +735,26 @@ IAISO/
 │   │   ├── pyproject.toml
 │   │   ├── README.md
 │   │   └── CHANGELOG.md
-│   ├── iaiso-node/             ← Node.js / TypeScript SDK — `@iaiso/core@0.3.0` (171 tests + 67 vectors)
+│   ├── iaiso-node/             ← Node.js / TypeScript SDK — `@iaiso/core@0.3.0` (195 tests, incl. 72 vectors)
 │       ├── src/
 │       ├── tests/
 │       ├── bin/                ← `iaiso` and `iaiso-conformance` CLIs
 │       ├── package.json
 │       ├── README.md
 │       └── LICENSE
-│   ├── iaiso-go/               ← Go SDK — `github.com/iaiso/iaiso-go@v0.1.0` (48 tests + 67 vectors)
+│   ├── iaiso-go/               ← Go SDK — `github.com/iaiso/iaiso-go` v0.2.0 (59 test funcs + 72 vectors)
 │       ├── iaiso/
+│       │   ├── core/           ← pressure engine + BoundedExecution + boot guard
+│       │   ├── consent/        ← JWT (HS256/RS256)
+│       │   ├── audit/          ← envelope + sinks (null, memory, stdout, jsonl, webhook, fanout)
+│       │   ├── policy/         ← JSON/YAML loader + schema validation + aggregators
+│       │   ├── coordination/   ← in-memory + Redis coordinator (atomic Lua)
+│       │   ├── conformance/    ← 67-vector runner
+│       │   └── cli/            ← admin CLI (policy, consent, audit, coordinator)
 │       ├── cmd/
 │       │   ├── iaiso/          ← admin CLI entry
 │       │   └── iaiso-conformance/
+│       ├── tests/              ← cross-port interop tests
 │       ├── go.mod
 │       ├── README.md
 │       └── LICENSE
