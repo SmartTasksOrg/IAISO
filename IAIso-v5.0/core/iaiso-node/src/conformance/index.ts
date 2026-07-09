@@ -13,14 +13,31 @@ import { runPressureVectors, type VectorResult } from "./pressure.js";
 import { runEventsVectors } from "./events.js";
 import { runConsentVectors } from "./consent.js";
 import { runPolicyVectors } from "./policy.js";
+import { setWarnLogger, warnLogger, _resetWarnings } from "../core/engine.js";
+
+/**
+ * The vectors deliberately exercise degraded configurations (NullSink,
+ * post_release_lock=false, uncalibrated defaults). Their permissive-mode
+ * warnings are expected, and printing them would corrupt the suite's output.
+ */
+function silenceBootWarnings<T>(fn: () => T): T {
+  const previous = warnLogger;
+  setWarnLogger(() => {});
+  try {
+    return fn();
+  } finally {
+    setWarnLogger(previous);
+    _resetWarnings();
+  }
+}
 
 export function runAll(specRoot: string): Record<string, VectorResult[]> {
-  return {
+  return silenceBootWarnings(() => ({
     pressure: safeRun(() => runPressureVectors(specRoot), "pressure"),
     consent: safeRun(() => runConsentVectors(specRoot), "consent"),
     events: safeRun(() => runEventsVectors(specRoot), "events"),
     policy: safeRun(() => runPolicyVectors(specRoot), "policy"),
-  };
+  }));
 }
 
 function safeRun(fn: () => VectorResult[], section: string): VectorResult[] {
