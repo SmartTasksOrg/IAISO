@@ -1,12 +1,16 @@
 # IAIso Framework v5.0
 
-**Mechanical AI Safety Through Pressure-Control Governance**
+**Mechanical bounds for cooperative agents. Anchor externally for adversarial ones.**
 
-Stop AI overreach before it happens. IAIso treats AI systems like high-pressure
-engines — measuring compute accumulation and enforcing automatic safety
-releases when thresholds are breached.
+Bound what an agent spends and touches — and prove it afterward. IAIso treats
+AI systems like high-pressure engines — measuring compute accumulation and
+enforcing automatic safety releases when thresholds are breached.
 
-**No trust required. Only physics.**
+The bound is mechanical, but it is not coercive: it holds against a
+*cooperating* agent, one that calls the middleware and honors the lock. An
+agent executing arbitrary code in the same process can bypass any in-process
+check. For adversarial containment, anchor the thresholds out of process at
+Layer 0. See [`../LIMITATIONS.md`](../LIMITATIONS.md).
 
 > **Looking for running code?** The reference SDK lives in
 > [`../core/`](../core/). Install with `cd ../core && pip install -e .`

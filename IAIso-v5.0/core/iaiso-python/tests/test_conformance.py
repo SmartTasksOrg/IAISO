@@ -62,11 +62,37 @@ def test_policy_vector(result: VectorResult) -> None:
     assert result.passed, result.message
 
 
+# Bumped 1.0 -> 1.1 when `enforcement_mode` and its five policy vectors landed.
+# Additive change, so MINOR per spec/README.md. Pinned deliberately: a silent
+# spec drift is exactly what this test exists to catch.
+SPEC_VERSION = "1.1"
+
+
 def test_spec_has_version_file() -> None:
     version_path = SPEC_ROOT / "VERSION"
     assert version_path.exists(), f"spec/VERSION missing at {version_path}"
     version = version_path.read_text().strip()
-    assert version == "1.0", f"spec/VERSION should be 1.0, got {version!r}"
+    assert version == SPEC_VERSION, (
+        f"spec/VERSION should be {SPEC_VERSION}, got {version!r}"
+    )
+
+
+def test_vendored_specs_match_the_canonical_spec() -> None:
+    """Every port vendors a copy of core/spec. Ports that have adopted 1.1 must
+    match it byte for byte; ports still on 1.0 have not adopted it yet."""
+    import hashlib
+
+    canonical = (SPEC_ROOT / "policy" / "vectors.json").read_bytes()
+    digest = hashlib.sha256(canonical).hexdigest()
+    repo_root = SPEC_ROOT.parent.parent
+
+    for port in ("iaiso-go", "iaiso-node"):
+        vendored = repo_root / "core" / port / "spec" / "policy" / "vectors.json"
+        if not vendored.exists():
+            continue
+        assert hashlib.sha256(vendored.read_bytes()).hexdigest() == digest, (
+            f"{port} vendors a stale copy of spec/policy/vectors.json"
+        )
 
 
 def test_every_subsystem_has_a_readme() -> None:

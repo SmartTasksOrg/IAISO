@@ -5,28 +5,41 @@
 IAIso adds pressure-based rate limiting, scope-based authorization, and
 structured audit logging to LLM agent loops. This package is the Go
 implementation of the framework's runtime layer, conformant to **IAIso
-spec 1.0**.
+spec 1.1**.
 
-> Targets the normative specification shipped in [`./spec/`](./spec/).
-> Passes all 67 spec conformance vectors plus 48 unit tests. Built
-> alongside the [Python](../iaiso-python/) and [Node](../iaiso-node/)
-> reference SDKs; all three implementations produce identical event
-> streams and consent tokens for identical inputs.
+> **Framework 5.0 · SDK 0.2.0 · status: beta.**
+> Passes all **72 spec conformance vectors**, exercised by **59 test
+> functions** (the vector suite runs under `go test` too),
+> verified by `go test ./...` and `go run ./cmd/iaiso-conformance ./spec`.
+> Emits identical event streams and produces interoperable consent tokens
+> with the [Python](../iaiso-python/) and [Node](../iaiso-node/) SDKs;
+> `tests/interop_test.go` proves it against the shared conformance key
+> rather than asserting it.
+>
+> **Read [`../../LIMITATIONS.md`](../../LIMITATIONS.md) before putting this
+> in an enforcement path.** IAIso bounds a *cooperating* agent. An agent
+> that runs arbitrary code in this same process can disable any check in
+> this package.
 
 ## Install
 
+The module is **not published to a registry yet**. `go get
+github.com/iaiso/iaiso-go` will not resolve. Depend on it from a checkout:
+
 ```bash
-go get github.com/iaiso/iaiso-go
+# in your go.mod
+require github.com/iaiso/iaiso-go v0.2.0
+replace github.com/iaiso/iaiso-go => ../path/to/core/iaiso-go
 ```
 
 Requires Go **≥ 1.22**.
 
-This SDK uses only two transitive dependencies — `github.com/golang-jwt/jwt/v5`
-for consent tokens and `github.com/goccy/go-yaml` for YAML policy
-loading — so it has a small import graph. LLM provider clients,
-Prometheus, OpenTelemetry, and Redis libraries are all integrated via
-**structural interfaces**, so you can use the SDK with any compatible
-client without taking IAIso-side dependencies on those libraries.
+Three direct dependencies: `github.com/golang-jwt/jwt/v5` (consent
+tokens, HS256 + RS256), `github.com/goccy/go-yaml` (YAML policy files),
+and `github.com/redis/go-redis/v9` (the Redis coordinator). The Redis
+coordinator also accepts any client satisfying the structural
+`coordination.RedisClient` interface, so you are not forced onto
+`go-redis` if you already have a client.
 
 ## Quick start
 
@@ -47,243 +60,236 @@ func main() {
     }, func(exec *core.BoundedExecution) error {
         outcome, err := exec.RecordToolCall("search", 500)
         if err != nil {
-            return err
+            return err // ErrLocked once the execution is locked
         }
-        if outcome == core.StepOutcomeEscalated {
-            fmt.Println("agent escalated; request human review")
+        if outcome == core.OutcomeEscalated {
+            // Layer 4: request human review. ESCALATED does not stop
+            // execution — it is a signal. Only LOCKED refuses steps.
         }
         return nil
     })
     if err != nil {
-        fmt.Println("execution error:", err)
+        fmt.Println("execution ended:", err)
     }
-    for _, ev := range sink.Events() {
-        fmt.Printf("event: %s\n", ev.Kind)
-    }
+    fmt.Printf("%d audit events\n", sink.Len())
 }
 ```
 
-## LLM middleware
+`Run` closes the execution for you. Use `core.Start` when you need to own
+the lifecycle, and call `Close(errored bool)` yourself.
 
-The middleware packages wrap LLM provider clients so every call is
-accounted for in a `BoundedExecution`. Tokens come from the response's
-usage field; tool calls come from response content blocks. If the
-execution is locked or escalated (with raise-on-escalation enabled),
-calls fail fast before reaching the provider.
+## Pressure engine
 
-Provider packages live under `iaiso/middleware/<provider>/`:
+One scalar rises with tokens, tool calls, and planning depth, and decays
+over time:
+
+```
+delta    = (tokens/1000)*tokenCoefficient + toolCalls*toolCoefficient + depth*depthCoefficient
+decay    = dissipationPerStep + elapsed*dissipationPerSecond
+pressure = clamp(pressure + delta - decay, 0, 1)
+```
+
+The release check runs **before** the escalation check. On release the
+engine wipes pressure, and — with `PostReleaseLock` (the default) — moves
+to `LOCKED`, where every further step is rejected without mutating state
+until a human calls `Reset()`.
 
 ```go
-import (
-    "github.com/iaiso/iaiso-go/iaiso/middleware/anthropic"
-    "github.com/iaiso/iaiso-go/iaiso/middleware/openai"
-    "github.com/iaiso/iaiso-go/iaiso/middleware/gemini"
-    "github.com/iaiso/iaiso-go/iaiso/middleware/bedrock"
-    "github.com/iaiso/iaiso-go/iaiso/middleware/mistral"
-    "github.com/iaiso/iaiso-go/iaiso/middleware/cohere"
-    "github.com/iaiso/iaiso-go/iaiso/middleware/litellm"
-)
+cfg := core.DefaultConfig()   // esc 0.85, rel 0.95, post_release_lock true
+cfg.EscalationThreshold = 0.6
+engine, err := core.NewPressureEngine(cfg, core.EngineOptions{ExecutionID: "run-1"})
 ```
 
-Each provider exposes a structural `Client` interface. The pattern:
+`NewPressureEngine` returns an `error` rather than panicking. Engine state
+is guarded by a mutex that is **released before audit events are emitted**,
+so a sink that reads back from the engine cannot deadlock it.
+
+## Enforcement mode
+
+`permissive` (the default) logs a warning and proceeds. `strict` refuses
+to construct the engine, naming the failing condition:
 
 ```go
-// Adapter that satisfies anthropic.Client over the official Anthropic SDK.
-type myAdapter struct {
-    raw *officialAnthropicSDK.Client
-}
-
-func (a *myAdapter) MessagesCreate(ctx context.Context, params anthropic.MessagesCreateParams) (*anthropic.Response, error) {
-    out, err := a.raw.Messages.Create(ctx, params)
-    if err != nil {
-        return nil, err
-    }
-    // Map the official response into our structural shape.
-    return &anthropic.Response{
-        Model:   out.Model,
-        Usage:   anthropic.Usage{InputTokens: out.Usage.InputTokens, OutputTokens: out.Usage.OutputTokens},
-        Content: convertContent(out.Content),
-    }, nil
-}
-
-// Then wrap the adapter:
-client := anthropic.New(&myAdapter{raw: rawSDK}, exec, anthropic.Options{})
-resp, _ := client.MessagesCreate(ctx, params)
+_, err := core.NewPressureEngine(cfg, core.EngineOptions{
+    EnforcementMode:     core.EnforcementStrict,
+    AuditSink:           mySink,
+    CalibrationArtifact: "calibration/2026-07-01.json",
+})
 ```
 
-The adapter pattern keeps the SDK free of any specific provider library —
-plug in whichever Go LLM library you already use.
+Strict mode fails closed on: a `NullSink`-only audit path (escalations
+would be unobservable), `post_release_lock=false` (a released execution
+resumes immediately), uncalibrated default coefficients with no
+calibration artifact, and an auto-generated HS256 consent key (nothing
+else could verify what it signs).
+
+Route the permissive-mode warnings wherever you like:
+
+```go
+core.WarnLogger = log.New(os.Stderr, "iaiso ", log.LstdFlags)
+```
+
+## Consent tokens
+
+Signed, scoped, expiring JWTs. HS256 and RS256 are both first-class.
+
+```go
+issuer, _ := consent.NewIssuer(consent.IssuerOptions{
+    SigningKey: key, Algorithm: consent.RS256,
+})
+scope, _ := issuer.Issue(consent.IssueParams{
+    Subject: "user-42", Scopes: []string{"tools.search"},
+    ExecutionID: "run-1", TTLSeconds: 3600,
+})
+
+verifier, _ := consent.NewVerifier(consent.VerifierOptions{
+    VerificationKey: publicKeyPEM, Algorithm: consent.RS256,
+})
+granted, err := verifier.RequireScope(scope.Token, "run-1", "tools.search.web")
+```
+
+Grants match on segment boundaries: `tools` grants `tools.search`, but not
+`toolsbar`. Verification takes an injected `Clock`, so expiry is
+deterministic in tests. Under HS256 the verifier holds the signing secret
+and can forge tokens — prefer RS256 whenever the verifier is not the
+issuer.
+
+## Policy files
+
+```go
+p, err := policy.Load("policy.yaml")   // .json, .yaml, .yml
+```
+
+Validation reports the offending JSON path (`$.pressure.release_threshold:
+must exceed escalation_threshold`). Unknown keys are ignored, so a policy
+written for a newer IAIso still loads. Numeric *strings* are a type error,
+not a coercion: `token_coefficient: "0.015"` is a typo in a
+safety-critical file, and silently accepting it would hide the typo.
+
+Policy is **trusted input**. An operator who sets `token_coefficient: 0`
+has disabled the framework, and IAIso will not stop them.
 
 ## Distributed coordination
 
-```go
-import "github.com/iaiso/iaiso-go/iaiso/coordination"
-```
-
-In-memory coordinator:
+A per-agent cap does not bound a fleet: a hundred agents can each spend
+just under it. The coordinator aggregates pressure across workers.
 
 ```go
-c, _ := coordination.NewSharedPressureCoordinator(coordination.CoordinatorOptions{
-    EscalationThreshold: 5.0,
-    ReleaseThreshold:    8.0,
-    Callbacks: coordination.Callbacks{
-        OnEscalation: func(s coordination.Snapshot) {
-            // alert ops
-        },
-    },
+c, _ := coordination.NewRedisCoordinator(ctx, coordination.RedisCoordinatorOptions{
+    Redis:         coordination.FromGoRedis(rdb),
+    CoordinatorID: "prod",
+    Aggregator:    policy.SumAggregator{},
 })
-c.Register("worker-1")
-c.Update("worker-1", 0.4)
+snap, _ := c.Update(ctx, "worker-1", engine.Pressure())
 ```
 
-Redis-backed (interoperable with Python and Node references):
+`Update` runs `HSET` + `HGETALL` inside one Lua script, so no client
+observes the hash mid-write. The script source and the keyspace
+(`iaiso:coord:{id}:pressures`) are byte-identical across ports — a Go
+worker and a Python worker share the same namespace and the same
+`EVALSHA` cache entry.
 
-```go
-// RedisClient is a structural interface — any client satisfying
-// Eval / HSet / HKeys works (go-redis/v9, redigo, custom implementations).
-c, _ := coordination.NewRedisCoordinator(coordination.RedisCoordinatorOptions{
-    Redis: myRedisClient,  // your structural adapter
-    CoordinatorID: "prod-fleet",
-})
-ctx := context.Background()
-c.Register(ctx, "worker-" + os.Getenv("HOSTNAME"))
-```
-
-The Lua script used for atomic updates is exported as
-`coordination.UpdateAndFetchScript` and is verbatim from
-`spec/coordinator/README.md §1.2`.
+Callbacks fire on the process that observed the transition; they are not
+exactly-once across the fleet. For fan-out, subscribe to the audit stream.
 
 ## Audit sinks
 
-Six SIEM sinks plus the basic ones (memory, null, stdout, fanout,
-JSONL file, webhook):
-
 ```go
-import (
-    "github.com/iaiso/iaiso-go/iaiso/audit"
-    "github.com/iaiso/iaiso-go/iaiso/audit/sinks/splunk"
-    "github.com/iaiso/iaiso-go/iaiso/audit/sinks/datadog"
-    "github.com/iaiso/iaiso-go/iaiso/audit/sinks/loki"
-    "github.com/iaiso/iaiso-go/iaiso/audit/sinks/elastic"
-    "github.com/iaiso/iaiso-go/iaiso/audit/sinks/sumo"
-    "github.com/iaiso/iaiso-go/iaiso/audit/sinks/newrelic"
-)
-
-sink := audit.NewFanoutSink(
-    audit.NewJSONLFileSink("./audit.jsonl"),
-    splunk.New(splunk.Options{
-        URL:   "https://splunk.example.com:8088/services/collector/event",
-        Token: os.Getenv("SPLUNK_HEC_TOKEN"),
-        Index: "iaiso",
-    }),
-    datadog.New(datadog.Options{
-        URL:    "https://http-intake.logs.datadoghq.com/api/v2/logs",
-        APIKey: os.Getenv("DD_API_KEY"),
-        Service: "iaiso",
-    }),
-    loki.New(loki.Options{
-        URL:    "https://logs.grafana.net/loki/api/v1/push",
-        Labels: map[string]string{"job": "iaiso", "env": "prod"},
-    }),
-)
+audit.NewNullSink()                    // strict mode rejects this
+audit.NewMemorySink()                  // tests
+audit.NewStdoutSink()
+audit.NewJSONLFileSink("audit.jsonl")  // durable; no drops
+audit.NewWebhookSink(audit.WebhookOptions{URL: "..."})
+audit.NewFanoutSink(a, b, c)           // one panicking sink cannot starve its siblings
 ```
 
-Each SIEM package exports a pure `Payload` function so operators can
-validate the wire format without network I/O.
+`WebhookSink` uses a bounded queue and **drops under backpressure** rather
+than stalling the agent. Alert on `Dropped()`. For regulated workloads use
+`JSONLFileSink` plus a log shipper.
 
-## OIDC identity
+Every event is the same envelope: `{schema_version, execution_id, kind,
+timestamp, data}`.
+
+## Cost governance
+
+Configure prices and the engine reports spend. Pressure remains the safety
+control; spend is the readout.
 
 ```go
-import "github.com/iaiso/iaiso-go/iaiso/identity"
-
-verifier, _ := identity.NewVerifier(identity.OktaConfig("acme.okta.com", "api://iaiso"))
-issuer := consent.NewIssuer(consent.IssuerOptions{...})
-
-scope, err := identity.IssueFromOIDC(ctx, identity.IssueFromOIDCParams{
-    Verifier: verifier,
-    Issuer:   issuer,
-    Token:    incomingOIDCAccessToken,
-    Mapping: identity.ScopeMapping{
-        DirectClaims: []string{"scp", "permissions"},
-        GroupToScopes: map[string][]string{
-            "engineers": {"tools.search", "tools.fetch"},
-            "admins":    {"admin"},
-        },
-    },
-    TTLSeconds:  3600,
-    ExecutionID: execID,
-})
+cfg.ModelCosts = map[string]float64{"frontier": 15.0}  // USD per 1M tokens
+cfg.BudgetUSD  = 25.0
+outcome := engine.Step(core.StepInput{Tokens: 50_000, Model: "frontier", Tag: &tag})
 ```
 
-Preset factories: `OktaConfig`, `Auth0Config`, `AzureADConfig`. The
-generic `ProviderConfig` works against any conforming OIDC provider.
+`spend_usd` appears on `engine.step` **only** when `ModelCosts` is set, so
+existing consumers of the frozen 1.0 envelope never see a new key.
+Exceeding `BudgetUSD` reuses the existing lock path — it emits
+`engine.locked{reason:"budget_exceeded"}` and introduces no new lifecycle
+state.
 
-## Metrics and tracing
-
-`metrics.PrometheusSink` wires audit events into your Prometheus
-client (any client implementing the structural `Counter` /
-`CounterVec` / `Gauge` / `GaugeVec` / `Histogram` interfaces — the
-official `prometheus/client_golang` does, with a thin wrapper).
-
-`observability.OtelSpanSink` opens one OpenTelemetry span per execution
-and attaches every audit event as a span event.
+```bash
+iaiso audit spend audit.jsonl --group-by tag
+```
 
 ## Admin CLI
 
 ```bash
-go install github.com/iaiso/iaiso-go/cmd/iaiso@latest
-go install github.com/iaiso/iaiso-go/cmd/iaiso-conformance@latest
-```
+go run ./cmd/iaiso --help
 
-```
-iaiso policy validate ./iaiso.policy.json
-iaiso policy template ./iaiso.policy.json
-iaiso consent issue user-42 tools.search,tools.fetch 3600  # needs IAISO_HS256_SECRET
-iaiso consent verify <token>
-iaiso audit tail ./iaiso-audit.jsonl
-iaiso audit stats ./iaiso-audit.jsonl
+iaiso policy validate policy.yaml
+iaiso policy template > policy.json
+IAISO_HS256_SECRET=… iaiso consent issue user-42 tools.search 3600
+IAISO_HS256_SECRET=… iaiso consent verify <token>
+iaiso audit tail audit.jsonl 20
+iaiso audit stats audit.jsonl
+iaiso audit spend audit.jsonl --group-by execution_id
 iaiso coordinator demo
-iaiso conformance ./spec
-iaiso-conformance ./spec
 ```
 
 ## Conformance
 
 ```bash
 go run ./cmd/iaiso-conformance ./spec
-
-# Output:
 # [PASS] pressure: 20/20
 # [PASS] consent: 23/23
 # [PASS] events: 7/7
-# [PASS] policy: 17/17
+# [PASS] policy: 22/22
 #
-# conformance: 67/67 vectors passed
+# conformance: 72/72 vectors passed
 ```
 
-Or programmatically:
-
-```go
-results, _ := conformance.RunAll("./spec")
-pass, total := results.CountPassed()
-```
+The same 72 vectors also run under `go test ./tests/`, so a regression
+fails CI rather than waiting for someone to run the binary.
 
 ### Float tolerance
 
-Pressure math is specified to real-number semantics with a `1e-9`
-absolute tolerance for floating-point implementations
-(see `spec/README.md`). This port meets the tolerance with
-straightforward IEEE-754 evaluation.
+Vector files carry a `tolerance` (1e-9). The runner uses it. Comparing
+IEEE-754 doubles with `==` would fail vectors that are arithmetically
+correct.
 
 ### Cross-language parity
 
-Events emitted by this port validate against the same JSON Schemas
-(`spec/events/envelope.schema.json`, `spec/events/payloads.schema.json`)
-as the Python and Node references. Consent tokens issued by this port
-verify against the Python `ConsentVerifier` and Node `ConsentVerifier`
-(and vice versa) given the same key and algorithm. Redis coordinator
-state is interoperable across all three runtimes using the same
-`(key_prefix, coordinator_id)` tuple.
+`tests/interop_test.go` issues an HS256 token with the shared conformance
+key and verifies it, and verifies the `valid_tokens` vectors minted by the
+Python reference implementation. If the ports stop interoperating, this
+test says so.
+
+## Not implemented in this port
+
+The Python SDK ships surfaces this port does not. They are absent, not
+stubbed — nothing here pretends to work:
+
+| Surface | Status |
+|---|---|
+| LLM provider middleware (Anthropic, OpenAI, Gemini, Bedrock, Mistral, Cohere, LiteLLM) | Not implemented |
+| SIEM sinks (Splunk, Datadog, Loki, Elastic, Sumo, New Relic) | Not implemented — use `WebhookSink` or `JSONLFileSink` |
+| OIDC identity verifier | Not implemented |
+| Prometheus metrics sink | Not implemented — `Dropped()` and `Errors()` are exported for scraping |
+| OpenTelemetry tracing sink | Not implemented |
+
+The pressure engine, consent tokens, audit envelope, policy loader,
+coordinator, conformance runner, and admin CLI — everything the 72 vectors
+cover — are complete.
 
 ## Project layout
 
@@ -297,30 +303,14 @@ iaiso-go/
 ├── cmd/
 │   ├── iaiso/                         # admin CLI entry
 │   └── iaiso-conformance/             # conformance suite entry
+├── tests/
+│   └── interop_test.go                # cross-port parity + all 72 vectors
 └── iaiso/
-    ├── core/                          # engine, BoundedExecution
-    ├── consent/                       # JWT issuer/verifier
-    ├── audit/                         # event envelope + base sinks
-    │   └── sinks/
-    │       ├── splunk/
-    │       ├── datadog/
-    │       ├── loki/
-    │       ├── elastic/
-    │       ├── sumo/
-    │       └── newrelic/
-    ├── policy/                        # policy loader (JSON + YAML)
-    ├── coordination/                  # in-memory + Redis
-    ├── middleware/                    # 7 LLM providers
-    │   ├── anthropic/
-    │   ├── openai/
-    │   ├── gemini/
-    │   ├── bedrock/
-    │   ├── mistral/
-    │   ├── cohere/
-    │   └── litellm/
-    ├── identity/                      # OIDC verifier + scope mapping
-    ├── metrics/                       # Prometheus sink
-    ├── observability/                 # OpenTelemetry tracing sink
+    ├── core/                          # engine, BoundedExecution, boot guard, cost
+    ├── consent/                       # JWT issuer/verifier, scopes, revocation
+    ├── audit/                         # event envelope + sinks
+    ├── policy/                        # policy loader (JSON + YAML) + aggregators
+    ├── coordination/                  # in-memory + Redis coordinator
     ├── conformance/                   # vector runner
     └── cli/                           # admin CLI implementation
 ```
@@ -329,17 +319,22 @@ iaiso-go/
 
 ```bash
 go build ./...                     # compile all packages
-go test ./...                      # run unit tests + conformance
+go vet ./...                       # clean
+go test ./...                      # 59 test funcs, incl. the 72-vector suite
 go run ./cmd/iaiso-conformance ./spec
 ```
 
 ## Versioning
 
-- Module version tracks SDK features (`v0.1.0`, `v0.2.0`, …).
-- **Spec version** is `1.0`, defined in `./spec/VERSION`. A MINOR spec
-  bump never breaks existing vectors; a MAJOR spec bump ships a
-  migration guide.
+- Module version tracks SDK features; this is **v0.2.0**, matching the
+  Python SDK.
+- **Spec version** is `1.1`, defined in `./spec/VERSION`. 1.1 added
+  `enforcement_mode` and five policy vectors (67 → 72). A MINOR spec bump
+  never breaks existing vectors; a MAJOR spec bump ships a migration guide.
 - Breaking changes in the public API are signaled by a MAJOR module bump.
+- The wire-format strings (`init`, `running`, `escalated`, `released`,
+  `locked`; `ok`, `escalated`, `released`, `locked`) are frozen. They are
+  not Go identifiers to be prettified — they are the contract.
 
 ## License
 
@@ -348,8 +343,8 @@ Apache-2.0. See [LICENSE](LICENSE).
 ## Links
 
 - Main repository: https://github.com/SmartTasksOrg/IAISO
+- **Limitations and threat model: [`../../LIMITATIONS.md`](../../LIMITATIONS.md)**
 - Framework specification: `../../vision/README.md` in the repo
 - Python reference SDK: `../iaiso-python/README.md` in the repo
 - Node reference SDK: `../iaiso-node/README.md` in the repo
 - Conformance porting guide: `../docs/CONFORMANCE.md` in the repo
-- Normative specification: `../spec/` in the repo
