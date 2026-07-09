@@ -12,7 +12,7 @@
   4. If p(t) + Δp > threshold: HALT and trigger Layer 4 escalation
   5. Execute with magnification if BACK_PROPAGATION=true
   6. Log pressure metrics to audit trail
-  
+
   Release protocol:
   - Trigger: p(t) ≥ 0.95 (release_threshold)
   - Action: Reset state, wipe memory, notify Layer 4

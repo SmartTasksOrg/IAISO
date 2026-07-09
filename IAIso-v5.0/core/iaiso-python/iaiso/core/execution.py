@@ -35,6 +35,7 @@ from typing import Any, Iterator
 from iaiso.audit import AuditEvent, AuditSink, NullSink
 from iaiso.consent import ConsentScope, InsufficientScope
 from iaiso.core.engine import (
+    ENFORCEMENT_PERMISSIVE,
     Lifecycle,
     PressureConfig,
     PressureEngine,
@@ -71,12 +72,31 @@ class BoundedExecution:
         config: PressureConfig | None = None,
         consent: ConsentScope | None = None,
         audit_sink: AuditSink | None = None,
+        enforcement_mode: str = ENFORCEMENT_PERMISSIVE,
+        calibration_artifact: str | None = None,
+        consent_algorithm: str | None = None,
+        consent_key_auto_generated: bool = False,
     ) -> "BoundedExecution":
-        """Create a fresh BoundedExecution."""
+        """Create a fresh BoundedExecution.
+
+        `enforcement_mode` is forwarded to the engine's boot guard. Under
+        `"strict"` this raises `StrictModeError` rather than returning a
+        degraded execution — a policy that says strict must mean strict at the
+        entry point people actually use, not only when the engine is built by
+        hand.
+        """
         exec_id = execution_id or f"exec-{uuid.uuid4()}"
         cfg = config or PressureConfig()
         sink = audit_sink or NullSink()
-        engine = PressureEngine(cfg, execution_id=exec_id, audit_sink=sink)
+        engine = PressureEngine(
+            cfg,
+            execution_id=exec_id,
+            audit_sink=sink,
+            enforcement_mode=enforcement_mode,
+            calibration_artifact=calibration_artifact,
+            consent_algorithm=consent_algorithm,
+            consent_key_auto_generated=consent_key_auto_generated,
+        )
 
         instance = cls(engine=engine, consent=consent, audit_sink=sink)
         if consent is not None:
@@ -86,9 +106,14 @@ class BoundedExecution:
                            jti=consent.jti)
         return instance
 
-    def record_tokens(self, tokens: int, *, tag: str | None = None) -> StepOutcome:
-        """Account for generated tokens."""
-        return self._account(StepInput(tokens=tokens, tag=tag))
+    def record_tokens(
+        self, tokens: int, *, tag: str | None = None, model: str | None = None
+    ) -> StepOutcome:
+        """Account for generated tokens.
+
+        `model` prices those tokens against `PressureConfig.model_costs`.
+        """
+        return self._account(StepInput(tokens=tokens, tag=tag, model=model))
 
     def record_tool_call(
         self,
@@ -109,6 +134,7 @@ class BoundedExecution:
         tool_calls: int = 0,
         depth: int = 0,
         tag: str | None = None,
+        model: str | None = None,
     ) -> StepOutcome:
         """Account for a generic unit of work."""
         return self._account(StepInput(
@@ -116,7 +142,13 @@ class BoundedExecution:
             tool_calls=tool_calls,
             depth=depth,
             tag=tag,
+            model=model,
         ))
+
+    @property
+    def spend_usd(self) -> float:
+        """Cumulative USD spent by this execution, per `model_costs`."""
+        return self.engine.spend_usd
 
     def _account(self, work: StepInput) -> StepOutcome:
         outcome = self.engine.step(work)

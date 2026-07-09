@@ -22,6 +22,7 @@ interface PolicyVectorFile {
     expected_consent?: Record<string, unknown>;
     expected_metadata?: Record<string, unknown>;
     expected_aggregator_name?: string;
+    expected_enforcement_mode?: string;
     expect_loads?: boolean;
   }>;
   invalid: Array<{
@@ -157,6 +158,12 @@ function checkValidExpectations(
       }
     }
   }
+  if (vec.expected_enforcement_mode !== undefined) {
+    if (policy.enforcement_mode !== vec.expected_enforcement_mode) {
+      return `enforcement_mode: expected ${JSON.stringify(vec.expected_enforcement_mode)}, got ${JSON.stringify(policy.enforcement_mode)}`;
+    }
+  }
+
   if (vec.expected_aggregator_name !== undefined) {
     if (policy.aggregator.name !== vec.expected_aggregator_name) {
       return `aggregator.name: expected ${JSON.stringify(vec.expected_aggregator_name)}, got ${JSON.stringify(policy.aggregator.name)}`;

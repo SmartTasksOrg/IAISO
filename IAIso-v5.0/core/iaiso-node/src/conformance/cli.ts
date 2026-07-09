@@ -18,6 +18,7 @@ import {
   runPressureVectors,
   type VectorResult,
 } from "./index.js";
+import { setWarnLogger, warnLogger, _resetWarnings } from "../core/engine.js";
 
 function parseArgs(argv: string[]): {
   specDir: string;
@@ -64,6 +65,11 @@ export async function main(argv: string[] = process.argv.slice(2)): Promise<numb
   let total = 0;
   let failed = 0;
 
+  // The vectors deliberately exercise degraded configurations. Their
+  // permissive-mode warnings are expected and would corrupt suite output.
+  const previousWarnLogger = warnLogger;
+  setWarnLogger(() => {});
+
   for (const [name, runner] of selected) {
     let results: VectorResult[];
     try {
@@ -94,6 +100,9 @@ export async function main(argv: string[] = process.argv.slice(2)): Promise<numb
       }
     }
   }
+
+  setWarnLogger(previousWarnLogger);
+  _resetWarnings();
 
   process.stdout.write("\n");
   if (failed === 0) {
