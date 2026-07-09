@@ -57,6 +57,7 @@ tests/test_conformance.py
 tests/test_consent.py
 tests/test_consent_backends.py
 tests/test_coordination.py
+tests/test_enforcement_and_cost.py
 tests/test_engine.py
 tests/test_evaluation.py
 tests/test_execution.py

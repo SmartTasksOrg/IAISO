@@ -27,7 +27,7 @@ not answer questions itself; if it tries to, that is a bug.
    | "audit event", "kind", "envelope", "execution_id", `engine.*` | `iaiso-spec-audit-events`                    |
    | "policy.yaml", "policy.json", "version: 1"                    | `iaiso-spec-policy-files`                    |
    | "Redis", "coordinator", fleet pressure, Lua                   | `iaiso-spec-coordinator-protocol`            |
-   | "conformance", "67 vectors", `vectors.json`                   | `iaiso-spec-conformance-vectors`             |
+   | "conformance", "72 vectors", `vectors.json`                   | `iaiso-spec-conformance-vectors`             |
    | wrapping an agent, `BoundedExecution`, governed runtime       | `iaiso-runtime-governed-agent`               |
    | "escalation", Layer 4, multi-party auth                       | `iaiso-runtime-handle-escalation`            |
    | scope check before action                                     | `iaiso-runtime-consent-scope-check`          |
