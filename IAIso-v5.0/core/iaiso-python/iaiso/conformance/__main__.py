@@ -17,6 +17,7 @@ import sys
 from pathlib import Path
 
 from iaiso.conformance import (
+    _silence_boot_warnings,
     run_consent_vectors,
     run_events_vectors,
     run_policy_vectors,
@@ -63,7 +64,8 @@ def main(argv: list[str] | None = None) -> int:
     failed = 0
     for section_name, runner in sections.items():
         try:
-            results = runner(spec_root)
+            with _silence_boot_warnings():
+                results = runner(spec_root)
         except FileNotFoundError as exc:
             print(f"[skip] {section_name}: {exc}")
             continue

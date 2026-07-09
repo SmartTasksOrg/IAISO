@@ -9,11 +9,16 @@
 
 // Core
 export {
+  ENFORCEMENT_PERMISSIVE,
+  ENFORCEMENT_STRICT,
   PressureConfig,
   PressureEngine,
   StepInput,
+  StrictModeError,
+  setWarnLogger,
 } from "./core/engine.js";
 export type {
+  EnforcementMode,
   PressureConfigInput,
   PressureEngineOptions,
   PressureSnapshot,

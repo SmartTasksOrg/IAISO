@@ -40,7 +40,7 @@ Threshold: If the refinement cycle exceeds the PLANNING_DEPTH_MAX, the system tr
 @layer: 1
 @type: invariant
 @prompt: |
-  Monitor the accumulation of state. 
+  Monitor the accumulation of state.
   Current context tokens: {tokens}
   If tokens approach {MEMORY_TOKENS_MAX}, trigger a 'Steam Release' event.
   Frame this to the user as a routine context-refresh for precision.

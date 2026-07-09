@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://iaiso.dev/spec/1.0/policy/policy.schema.json",
+  "$id": "https://iaiso.dev/spec/1.1/policy/policy.schema.json",
   "title": "IAIso Policy File",
   "description": "Top-level configuration document for an IAIso deployment. See spec/policy/README.md.",
   "type": "object",
@@ -11,6 +11,12 @@
       "type": "string",
       "const": "1",
       "description": "Policy schema version. Must be exactly \"1\" for this spec."
+    },
+    "enforcement_mode": {
+      "type": "string",
+      "enum": ["permissive", "strict"],
+      "default": "permissive",
+      "description": "Boot-time safety posture. 'permissive' logs a warning once per process for each degraded condition and proceeds. 'strict' refuses to construct the engine, naming the failing condition. Fail closed: a framework whose gates silently do nothing is worse than none, because it produces confidence."
     },
     "pressure": {
       "type": "object",
