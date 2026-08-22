@@ -103,6 +103,19 @@ platform adapters graduate from reference design into shipping code in
 subsequent releases. See [`../core/CHANGELOG.md`](../core/CHANGELOG.md)
 for the current shipping set.
 
+> **Reach is a conditional, not a claim.** *If* IAIso controls were
+> integrated across the platform families enumerated here — language
+> runtimes, e-commerce, CMS, CRM, cloud, identity, ERP, monitoring, and the
+> major agent orchestrators — the *addressable* autonomous-agent attack
+> surface, weighted by those platforms' published market share, would
+> approach ~80% of the commercial AI-agent ecosystem. That is **addressable
+> surface if integrated**, not deployments that exist today. The mechanism
+> that moves "addressable" → "addressed", one *verified* integration at a
+> time, is the **SmartFabric protocol** (see below and
+> [`../../SMARTFABRIC.md`](../../SMARTFABRIC.md)). The "Market Share"
+> columns that follow are each *platform's* own reach — not an IAIso
+> deployment count.
+
 ### Programming Language SDKs
 
 | Language | Package | Installation | Scope |
@@ -1177,6 +1190,55 @@ Contributions welcome for:
 
 ---
 
+## 🧵 SmartFabric: integrate, then prove it holds
+
+A framework only contains what it is wired into, and a control that is
+*claimed* but not *verified* is not assurance. **SmartFabric** is the
+integration-and-verification protocol that closes both gaps with one
+mechanism — a hardened, network-isolated sandbox — layered on top of the
+IAIso SDK. For any authorized target it answers three questions
+mechanically: where can IAIso attach, at what depth, and does the attached
+control actually hold?
+
+**Attach at the deepest tier the target allows.** Tier 1 native (the
+platform's own extension point) > Tier 2 strap-on (a thin adapter around an
+interposition surface) > Tier 3 middleware (a proxy/shim at a choke point).
+The tier is load-bearing: it bounds what can honestly be promised. A
+middleware shim cannot provide Layer 0 (hardware) or Layer 6 (existential)
+guarantees, and claiming otherwise is prohibited.
+
+**Verify, don't assert — confirmed-then-defended.** For each discovered
+sink the sandbox runs a probe twice: an *undefended* run that confirms the
+sink is reachable using a **benign sentinel** (no payload, no network), and
+a *defended* run in which the IAIso control must block the operation before
+the sentinel fires. Verdicts are `CONFIRMED` / `DEFENDED` / `NO-FINDING` /
+`INCONCLUSIVE`; the test phase runs with `network=none`, so a fired
+sentinel is provably local. Every integration produces a reproducible,
+mechanism-level **evidence ledger** entry — the artifact a reviewer or a
+standards body receives.
+
+**Two ways to get contained:**
+
+- **Do it yourself** — run SmartFabric against your own repos, or against a
+  local mediator that wraps a closed platform's *documented* API. All
+  adversarial testing stays inside your own boundary; SmartFabric never
+  probes a live third-party service.
+- **Demand it from your providers** — ask a vendor you can't modify for the
+  same evidence you'd produce yourself: the tier they integrated at, the
+  honest layers that tier enforces, and a confirmed-then-defended ledger
+  entry. A forwardable vendor checklist is in
+  [`../../SMARTFABRIC.md`](../../SMARTFABRIC.md).
+
+**Responsible-use note.** The sink classes SmartFabric addresses correspond
+to real vulnerabilities in the wild; coordinated disclosure and neutral,
+mechanism-based class naming are still in progress. Everything here is
+guard-first: benign sentinels only, no payloads or escape techniques,
+targets anonymized pre-disclosure, and a hard human sign-off gate on any
+PR, disclosure, or deploy. LLM-side skills live under the `iaiso-verify-*`
+family; see [`skills`](../skills/INDEX.md).
+
+---
+
 ## 🎓 Key Terminology
 
 - **Atomic Reset:** Lossy state-wipe where all volatile context is purged
@@ -1192,6 +1254,10 @@ Contributions welcome for:
 - **SDK:** Software Development Kit for language-specific implementations
 - **Steam Release:** Controlled state purge preventing threshold breach
 - **Solution Pack:** Pre-configured industry-specific safety templates
+- **SmartFabric:** Sandbox-mediated protocol that integrates IAIso into a target and proves the control holds (confirmed-then-defended)
+- **Integration tier:** Depth of attachment — native > strap-on > middleware; bounds which layers can be enforced
+- **Confirmed-then-defended:** Two-pass verification — undefended run confirms the sink (benign sentinel), defended run shows the control blocks it
+- **Evidence Ledger:** Reproducible, mechanism-level record of an integration's tier, verdicts, logs, and isolation attestation
 
 [Full glossary →](docs/spec/13-glossary.md)
 
@@ -1220,6 +1286,7 @@ reference framework:
 IAIso v5.0: Mechanical AI Safety Framework
 ├── 7 Containment Layers (0-6)
 ├── 5 Core Invariants (non-negotiable)
+├── SmartFabric protocol: sandbox integrate + confirmed-then-defended verify (3 tiers)
 ├── 8 Language SDKs (Python shipping; Node, Go, Java, C#, PHP, Ruby, Rust as reference designs)
 ├── 30+ Platform Integration Reference Designs
 │   ├── E-Commerce: Shopify, Magento, WooCommerce

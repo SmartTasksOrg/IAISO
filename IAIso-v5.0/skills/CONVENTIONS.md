@@ -20,6 +20,7 @@ skills/<skill-name>/SKILL.md
   - `iaiso-audit-*` — audit-related
   - `iaiso-layer-N-*` — layer-specific
   - `iaiso-integ-*` — orchestrator integration
+  - `iaiso-verify-*` — SmartFabric sandbox integration + verification
   - `iaiso-llm-*` — LLM provider middleware
   - `iaiso-sink-*` — audit-sink wiring
   - `iaiso-system-*` — system reference design
