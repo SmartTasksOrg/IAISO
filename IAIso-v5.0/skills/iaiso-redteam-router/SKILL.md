@@ -26,6 +26,12 @@ Pick the probe family that matches the threat model.
    | Coordinator hash poisoning                | `iaiso-redteam-coordinator-poisoning`  |
    | Recovery / replay across reset            | `iaiso-redteam-reset-recovery`         |
    | Bypassing Layer 4 escalation              | `iaiso-redteam-escalation-bypass`      |
+   | Untrusted model/artifact provenance load  | `iaiso-redteam-model-provenance`       |
+
+   For the model-provenance probe specifically, drive it through the
+   SmartFabric verifier (`iaiso-verify-confirmed-then-defended`) and ship
+   only the guard-first ledger — benign sentinel, no payload, target
+   anonymous pre-disclosure. See `iaiso-verify-evidence-ledger`.
 
 2. **Define authorised scope and rules of engagement** before
    any probe runs. The whole point is that even authorised

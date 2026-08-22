@@ -1,6 +1,11 @@
 # IAIso skill index
 
-Total skills: **141**, organised by tier and category.
+Total skills: **150**, organised by tier and category.
+
+> The `iaiso-verify-*` family and the model-provenance probe/guard
+> implement the **SmartFabric** sandbox integration-and-verification
+> protocol (see `../../SMARTFABRIC.md`). They are guard-first and
+> disclosure-safe by construction.
 
 ## P0 — Required (16)
 
@@ -33,7 +38,16 @@ Total skills: **141**, organised by tier and category.
 - `iaiso-author-agent-system-prompt` — canonical opener block
 - `iaiso-author-bounded-execution-call` — per-language wrap pattern
 
-## P1 — Production deployment (21)
+## P1 — Production deployment (27)
+
+### SmartFabric verification (6)
+
+- `iaiso-verify-router` — dispatch across the SmartFabric pipeline
+- `iaiso-verify-integration-discovery` — find sinks, rank reachability
+- `iaiso-verify-integration-tiers` — native > strap-on > middleware + honest enforcement map
+- `iaiso-verify-confirmed-then-defended` — the two-pass verifier (benign sentinel)
+- `iaiso-verify-sandbox-isolation` — `network=none` test phase + self-healing deps
+- `iaiso-verify-evidence-ledger` — reproducible ledger + dual-use proof discipline
 
 ### Calibration & policy
 
@@ -75,7 +89,12 @@ Total skills: **141**, organised by tier and category.
 - `iaiso-deploy-terraform`
 - `iaiso-deploy-admin-cli`
 
-## P2 — Integration wrappers (~74)
+## P2 — Integration wrappers (~76)
+
+### SmartFabric controls & middleware (2)
+
+- `iaiso-runtime-model-provenance-guard` — Layer 5 consent-bounded load control
+- `iaiso-integ-middleware-reference` — Tier 3 snap-in shim / proxy reference
 
 ### Orchestrators (10)
 
@@ -118,7 +137,7 @@ Total skills: **141**, organised by tier and category.
   / `-woocommerce` / `-meta` / `-x-twitter` / `-linkedin`
   / `-discord` / `-tiktok` / `-zendesk`
 
-## P3 — Specialised (30)
+## P3 — Specialised (31)
 
 ### Authoring (4)
 
@@ -143,7 +162,7 @@ Total skills: **141**, organised by tier and category.
 - `iaiso-audit-trail-export`
 - `iaiso-audit-incident-investigation`
 
-### Red team (6)
+### Red team (7)
 
 - `iaiso-redteam-router`
 - `iaiso-redteam-pressure-gaming`
@@ -151,6 +170,7 @@ Total skills: **141**, organised by tier and category.
 - `iaiso-redteam-coordinator-poisoning`
 - `iaiso-redteam-reset-recovery`
 - `iaiso-redteam-escalation-bypass`
+- `iaiso-redteam-model-provenance` — SmartFabric untrusted-model-provenance class (guard-first)
 
 ### Porting (3)
 
