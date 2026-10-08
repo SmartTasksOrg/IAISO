@@ -22,9 +22,10 @@ running conformance.
 
    - Python: `python -m iaiso ...` or `iaiso ...` (after
      install)
-   - Node:  `npx iaiso ...`
+   - Node:  `node bin/iaiso.mjs ...` in `core/iaiso-node` after `npm run build`
+     (not published on npm yet)
    - Go:    `iaiso ...` (built binary from `cmd/iaiso`)
-   - Rust:  `iaiso ...` (cargo install or compiled)
+   - Rust:  `iaiso ...` (compiled from source; not on crates.io yet)
    - Java:  `java -jar iaiso-cli.jar ...`
    - C#:    `dotnet run --project src/Iaiso.Cli`
    - PHP:   `./bin/iaiso ...`

@@ -39,7 +39,11 @@ iaiso-java/
 
 ## Install
 
-Add the modules you need to your `pom.xml`:
+The modules are not published on Maven Central yet. Until this README says
+otherwise, an artifact under `io.iaiso` (or `org.iaiso`) on a public Maven
+repository is not ours. Build them from a clone first
+(`cd IAIso-v5.0/core/iaiso-java && mvn install`, which puts them in your local
+`~/.m2` repository), then add the modules you need to your `pom.xml`:
 
 ```xml
 <dependency>

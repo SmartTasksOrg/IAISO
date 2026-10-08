@@ -156,7 +156,7 @@ class OIDCVerifier:
 
     Thread-safe. Caches JWKS responses and periodically refreshes.
 
-    Requires: pip install iaiso[oidc] (for PyJWT with cryptography extra)
+    Requires: `pip install iaiso[oidc]` (for PyJWT with cryptography extra)
     """
 
     def __init__(

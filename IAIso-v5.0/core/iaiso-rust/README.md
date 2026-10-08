@@ -42,13 +42,15 @@ iaiso-rust/
 
 ## Install
 
-Add the crates you need to your `Cargo.toml`:
+The crates are not published on crates.io yet. Until this README says
+otherwise, a crate called `iaiso` or `iaiso-*` on crates.io is not ours.
+Depend on them from a clone by path in your `Cargo.toml`:
 
 ```toml
 [dependencies]
-iaiso-core = "0.1"
-iaiso-consent = "0.1"
-iaiso-audit = "0.1"
+iaiso-core = { path = "../path/to/IAISO/IAIso-v5.0/core/iaiso-rust/crates/core" }
+iaiso-consent = { path = "../path/to/IAISO/IAIso-v5.0/core/iaiso-rust/crates/consent" }
+iaiso-audit = { path = "../path/to/IAISO/IAIso-v5.0/core/iaiso-rust/crates/audit" }
 # ... etc
 ```
 
