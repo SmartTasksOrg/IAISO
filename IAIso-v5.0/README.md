@@ -141,7 +141,7 @@ with BoundedExecution.start(config=PressureConfig()) as execution:
 cd core/iaiso-node
 npm install
 npm test                                    # 195 tests (123 unit + 72 conformance)
-npx iaiso-conformance ./spec                # standalone conformance check
+npm run build && node bin/iaiso-conformance.mjs ./spec   # standalone conformance check (not published on npm yet)
 ```
 
 ```typescript
@@ -414,7 +414,7 @@ Schema and test vectors in [`core/spec/`](core/spec/) that define the
 contract.
 
 Running each SDK's conformance command (`python -m iaiso.conformance
-core/spec/`, `npx iaiso-conformance ./spec`, `cargo run -p
+core/spec/`, `node bin/iaiso-conformance.mjs ./spec` in `core/iaiso-node` after `npm run build`, `cargo run -p
 iaiso-conformance-bin -- ./spec`, …) executes every machine-verifiable
 vector against the implementation — 72 at spec 1.1, 67 for ports still
 pinned to 1.0. Any port of IAIso into another language is considered

@@ -1,6 +1,6 @@
 ---
 name: iaiso-spec-conformance-vectors
-description: "Use this skill when porting IAIso to a new language, validating an implementation, or debugging a failing vector. Triggers on `vectors.json`, `python -m iaiso.conformance`, `npx iaiso-conformance`, `67/67`. Do not use it to learn the spec itself — load the matching contract skill first."
+description: "Use this skill when porting IAIso to a new language, validating an implementation, or debugging a failing vector. Triggers on `vectors.json`, `python -m iaiso.conformance`, `iaiso-conformance`, `67/67`. Do not use it to learn the spec itself — load the matching contract skill first."
 version: 1.0.0
 tier: P0
 category: spec
@@ -22,7 +22,7 @@ machine-checkable contract every port must pass.
 
    ```
    python -m iaiso.conformance core/spec/                 # Python
-   npx iaiso-conformance ./spec                            # Node
+   node bin/iaiso-conformance.mjs ./spec                   # Node (after npm run build; not on npm yet)
    go run ./cmd/iaiso-conformance ./spec                   # Go
    cargo run -p iaiso-conformance-bin -- ./spec            # Rust
    ./build.sh test  (or mvn clean test)                    # Java
