@@ -1,6 +1,6 @@
 ---
 name: iaiso-verify-integration-tiers
-description: "Use this skill to choose the deepest IAIso integration tier a target permits (native > strap-on > middleware) and to record the honest set of layers/invariants that tier can enforce. Do not use it to find sinks (see iaiso-verify-integration-discovery) or to claim enforcement the achieved tier does not support."
+description: "Use this skill to choose the deepest IAIso integration tier a target permits (native, then strap-on, then middleware) and to record the honest set of layers/invariants that tier can enforce. Do not use it to find sinks (see iaiso-verify-integration-discovery) or to claim enforcement the achieved tier does not support."
 version: 1.0.0
 tier: P1
 category: verify

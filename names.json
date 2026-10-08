@@ -1,0 +1,134 @@
+{
+  "schema": 1,
+  "repo": "SmartTasksOrg/IAISO",
+  "checked_on": "2026-10-08",
+  "names": [
+    {
+      "registry": "pypi",
+      "name": "iaiso",
+      "registered": true,
+      "workflow": "release.yml",
+      "note": "0.2.0 on PyPI; ownership confirmed by the maintainers 2026-10-08"
+    },
+    {
+      "registry": "npm",
+      "name": "@iaiso/core",
+      "registered": false
+    },
+    {
+      "registry": "npm",
+      "name": "@iaiso/shopify",
+      "registered": false
+    },
+    {
+      "registry": "npm",
+      "name": "iaiso",
+      "registered": false
+    },
+    {
+      "registry": "npm",
+      "name": "iaiso-conformance",
+      "registered": false
+    },
+    {
+      "registry": "pypi",
+      "name": "iaiso-crm-shield",
+      "registered": false
+    },
+    {
+      "registry": "packagist",
+      "name": "iaiso/iaiso",
+      "registered": false
+    },
+    {
+      "registry": "packagist",
+      "name": "iaiso/core",
+      "registered": false
+    },
+    {
+      "registry": "packagist",
+      "name": "iaiso/wordpress-plugin",
+      "registered": false
+    },
+    {
+      "registry": "nuget",
+      "name": "IAIso.Core",
+      "registered": false
+    },
+    {
+      "registry": "nuget",
+      "name": "Iaiso.Core",
+      "registered": false
+    },
+    {
+      "registry": "nuget",
+      "name": "Iaiso.Consent",
+      "registered": false
+    },
+    {
+      "registry": "rubygems",
+      "name": "iaiso",
+      "registered": false
+    },
+    {
+      "registry": "crates",
+      "name": "iaiso",
+      "registered": false
+    },
+    {
+      "registry": "maven",
+      "name": "io.iaiso:iaiso-core",
+      "registered": false
+    },
+    {
+      "registry": "maven",
+      "name": "org.iaiso:core",
+      "registered": false
+    },
+    {
+      "registry": "go",
+      "name": "github.com/iaiso/go",
+      "registered": false
+    },
+    {
+      "registry": "go",
+      "name": "github.com/iaiso/iaiso-go",
+      "registered": false
+    }
+  ],
+  "third_party": {
+    "pypi": [
+      "pip",
+      "build",
+      "pytest",
+      "openai",
+      "anthropic",
+      "pyjwt",
+      "cryptography",
+      "redis",
+      "vllm"
+    ],
+    "npm": [
+      "openai",
+      "@anthropic-ai/sdk",
+      "@langchain/core",
+      "ioredis",
+      "jose",
+      "prom-client",
+      "js-yaml",
+      "cohere-ai",
+      "@mistralai/mistralai",
+      "@google/generative-ai",
+      "@aws-sdk/client-bedrock-runtime",
+      "@opentelemetry/api",
+      "typescript"
+    ]
+  },
+  "local_images": [
+    "iaiso"
+  ],
+  "git_owners": [
+    "SmartTasksOrg"
+  ],
+  "exclude_paths": []
+}
