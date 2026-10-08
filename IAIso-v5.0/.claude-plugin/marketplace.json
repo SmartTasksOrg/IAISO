@@ -76,6 +76,7 @@
         "./skills/iaiso-integ-langchain",
         "./skills/iaiso-integ-llamaindex",
         "./skills/iaiso-integ-microsoft-copilot",
+        "./skills/iaiso-integ-middleware-reference",
         "./skills/iaiso-integ-openai-swarm",
         "./skills/iaiso-layer-0-hardware-anchor",
         "./skills/iaiso-layer-4-escalation-bridge",
@@ -111,6 +112,7 @@
         "./skills/iaiso-redteam-consent-confusion",
         "./skills/iaiso-redteam-coordinator-poisoning",
         "./skills/iaiso-redteam-escalation-bypass",
+        "./skills/iaiso-redteam-model-provenance",
         "./skills/iaiso-redteam-pressure-gaming",
         "./skills/iaiso-redteam-reset-recovery",
         "./skills/iaiso-redteam-router",
@@ -121,6 +123,7 @@
         "./skills/iaiso-runtime-cost-governance",
         "./skills/iaiso-runtime-governed-agent",
         "./skills/iaiso-runtime-handle-escalation",
+        "./skills/iaiso-runtime-model-provenance-guard",
         "./skills/iaiso-runtime-multi-agent-coordination",
         "./skills/iaiso-runtime-regime-shift-detection",
         "./skills/iaiso-sink-datadog",
@@ -167,7 +170,13 @@
         "./skills/iaiso-system-splunk",
         "./skills/iaiso-system-teams",
         "./skills/iaiso-system-workday",
-        "./skills/iaiso-system-zoom"
+        "./skills/iaiso-system-zoom",
+        "./skills/iaiso-verify-confirmed-then-defended",
+        "./skills/iaiso-verify-evidence-ledger",
+        "./skills/iaiso-verify-integration-discovery",
+        "./skills/iaiso-verify-integration-tiers",
+        "./skills/iaiso-verify-router",
+        "./skills/iaiso-verify-sandbox-isolation"
       ]
     }
   ]
