@@ -1,0 +1,43 @@
+# CI: tests and the install-line check on every push to the default branch and
+# every pull request. Actions are pinned to commits (comment: tag, date read).
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: IAIso-v5.0/core/iaiso-python
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1, read 2026-10-08
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7.0.0, read 2026-10-08
+        with:
+          python-version: '3.12'
+      - name: Install the package and the test runner
+        run: python -m pip install -e ".[dev]"
+      - name: Tests
+        run: python -m pytest -q
+
+  install-lines:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1, read 2026-10-08
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7.0.0, read 2026-10-08
+        with:
+          python-version: '3.12'
+      - name: No document names a package the maintainers do not hold
+        run: python scripts/check_install_lines.py
