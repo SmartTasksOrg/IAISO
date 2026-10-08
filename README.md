@@ -5,7 +5,7 @@
 
 **No trust required. Only physics.**
 
-[![Version](https://img.shields.io/badge/version-5.0.0-blue)](https://IAIso.org) [![Status](https://img.shields.io/badge/status-production-green)](https://IAIso.org) [![License](https://img.shields.io/badge/license-Community_Forking_v2.0-lightgrey)](LICENSE)
+[![Version](https://img.shields.io/badge/version-5.0.0-blue)](https://IAIso.org) [![Status](https://img.shields.io/badge/status-preview-lightgrey)](https://IAIso.org) [![License](https://img.shields.io/badge/license-Community_Forking_v2.0-lightgrey)](LICENSE)
 
 ---
 
@@ -26,16 +26,7 @@ safe_agent.run("Your task here")  # Mechanically contained
 ```
 
 ### Option 2: Platform-Specific Integration (30 seconds)
-```bash
-# E-Commerce (Shopify)
-npm install @iaiso/shopify
-# CMS (WordPress/Drupal)  
-composer require iaiso/wordpress-plugin
-# CRM (Salesforce/HubSpot)
-pip install iaiso-crm-shield
-# Enterprise (.NET/Azure)
-dotnet add package IAIso.Core
-```
+Platform packages (Shopify, WordPress, CRM, .NET) are not published on any registry yet. The source is in `IAIso-v5.0/`.
 
 ### Option 3: Industry Template (30 seconds)
 ```bash
@@ -83,21 +74,21 @@ Traditional AI safety relies on **hoping** models behave. IAIso uses **physics**
 
 ## 🌐 Universal SDK Coverage (80% Market Penetration)
 
-IAIso v5.0 ships with **production-ready integrations** for the world's most-used platforms:
+IAIso v5.0 contains SDK source and integration designs for the world's most-used platforms. Only the packages marked as published below are on a registry; everything else is installed from source in this repository.
 
 ### Programming Language SDKs
 
-| Language | Package | Installation | Status |
+| Language | Package (planned name where not published) | Installation | Status |
 |----------|---------|--------------|--------|
-| **Python** | `iaiso` | `pip install iaiso` | ✅ Production |
-| **JavaScript/Node.js** | `@iaiso/core` | `npm install @iaiso/core` | ✅ Production |
-| **Go** | `github.com/iaiso/go` | `go get github.com/iaiso/go` | ✅ Production |
-| **Java** | `org.iaiso:core` | Maven/Gradle | ✅ Production |
-| **C#/.NET** | `IAIso.Core` | `dotnet add package IAIso.Core` | ✅ Production |
-| **PHP** | `iaiso/core` | `composer require iaiso/core` | ✅ Production |
-| **Ruby** | `iaiso-ruby` | `gem install iaiso` | 🟡 Beta |
-| **Rust** | `iaiso-rs` | `cargo add iaiso` | 🟡 Beta |
-| **Swift** | `IAIsoCore` | SwiftPM | 🟡 Draft |
+| **Python** | `iaiso` | `pip install iaiso` | published on PyPI (0.2.0) |
+| **JavaScript/Node.js** | `@iaiso/core` | from source: `IAIso-v5.0/core/iaiso-node` | source only, not published |
+| **Go** | `github.com/iaiso/go` | from source: `IAIso-v5.0/core/iaiso-go` | source only, not published |
+| **Java** | `org.iaiso:core` | from source: `IAIso-v5.0/core/iaiso-java` | source only, not published |
+| **C#/.NET** | `IAIso.Core` | from source: `IAIso-v5.0/core/iaiso-csharp` | source only, not published |
+| **PHP** | `iaiso/core` | from source: `IAIso-v5.0/core/iaiso-php` | source only, not published |
+| **Ruby** | `iaiso-ruby` | from source: `IAIso-v5.0/core/iaiso-ruby` | source only, not published |
+| **Rust** | `iaiso-rs` | from source: `IAIso-v5.0/core/iaiso-rust` | source only, not published |
+| **Swift** | `IAIsoCore` | from source: `IAIso-v5.0/core/iaiso-swift` | source only, not published |
 
 ### E-Commerce & CMS Platforms
 

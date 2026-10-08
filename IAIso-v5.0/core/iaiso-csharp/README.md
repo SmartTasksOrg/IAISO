@@ -43,20 +43,16 @@ iaiso-csharp/
 
 ## Install
 
-Add the assemblies you need from NuGet:
+The packages are not published on NuGet yet. Until this README says
+otherwise, a package called `Iaiso.Core` (or `IAIso.Core`) on NuGet is not
+ours. Reference the projects in `IAIso-v5.0/core/iaiso-csharp/src` from a
+clone:
 
 ```xml
 <ItemGroup>
-    <PackageReference Include="Iaiso.Core" Version="0.1.0" />
-    <PackageReference Include="Iaiso.Consent" Version="0.1.0" />
+    <ProjectReference Include="../path/to/IAISO/IAIso-v5.0/core/iaiso-csharp/src/Iaiso.Core/Iaiso.Core.csproj" />
+    <ProjectReference Include="../path/to/IAISO/IAIso-v5.0/core/iaiso-csharp/src/Iaiso.Consent/Iaiso.Consent.csproj" />
 </ItemGroup>
-```
-
-Or via the .NET CLI:
-
-```bash
-dotnet add package Iaiso.Core
-dotnet add package Iaiso.Consent
 ```
 
 Targets **net8.0** (LTS).
