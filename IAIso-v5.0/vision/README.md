@@ -45,16 +45,7 @@ its exact import paths.
 
 ### Option 2: Platform-Specific Integration
 
-```bash
-# E-Commerce (Shopify)
-npm install @iaiso/shopify
-# CMS (WordPress/Drupal)
-composer require iaiso/wordpress-plugin
-# CRM (Salesforce/HubSpot)
-pip install iaiso-crm-shield
-# Enterprise (.NET/Azure)
-dotnet add package IAIso.Core
-```
+Platform packages (Shopify, WordPress, CRM, .NET) are not published on any registry yet. The source is in `IAIso-v5.0/`.
 
 Platform integration reference designs are catalogued below and in
 [`systems/`](systems/), [`integrations/`](integrations/), and
@@ -118,16 +109,16 @@ for the current shipping set.
 
 ### Programming Language SDKs
 
-| Language | Package | Installation | Scope |
+| Language | Package (planned name where not published) | Installation | Scope |
 |---|---|---|---|
-| Python | `iaiso` | `pip install iaiso` | Reference SDK (shipping today in `../core/`) |
-| JavaScript/Node.js | `@iaiso/core` | `npm install @iaiso/core` | Reference design; conformance-driven port planned |
-| Go | `github.com/iaiso/go` | `go get github.com/iaiso/go` | Reference design; conformance-driven port planned |
-| Java | `org.iaiso:core` | Maven/Gradle | Reference design; conformance-driven port planned |
-| C#/.NET | `IAIso.Core` | `dotnet add package IAIso.Core` | Reference design; conformance-driven port planned |
-| PHP | `iaiso/core` | `composer require iaiso/core` | Reference design; conformance-driven port planned |
-| Ruby | `iaiso-ruby` | `gem install iaiso` | Reference design |
-| Rust | `iaiso-rs` | `cargo add iaiso` | Reference design; conformance-driven port planned |
+| Python | `iaiso` | `pip install iaiso` | Reference SDK (shipping today in `../core/`); published on PyPI (0.2.0) |
+| JavaScript/Node.js | `@iaiso/core` | from source: `core/iaiso-node` | Reference design; conformance-driven port planned; source only, not published |
+| Go | `github.com/iaiso/go` | from source: `core/iaiso-go` | Reference design; conformance-driven port planned; source only, not published |
+| Java | `org.iaiso:core` | from source: `core/iaiso-java` | Reference design; conformance-driven port planned; source only, not published |
+| C#/.NET | `IAIso.Core` | from source: `core/iaiso-csharp` | Reference design; conformance-driven port planned; source only, not published |
+| PHP | `iaiso/core` | from source: `core/iaiso-php` | Reference design; conformance-driven port planned; source only, not published |
+| Ruby | `iaiso-ruby` | from source: `core/iaiso-ruby` | Reference design; source only, not published |
+| Rust | `iaiso-rs` | from source: `core/iaiso-rust` | Reference design; conformance-driven port planned; source only, not published |
 
 The porting workflow lives in
 [`../core/docs/CONFORMANCE.md`](../core/docs/CONFORMANCE.md). Each

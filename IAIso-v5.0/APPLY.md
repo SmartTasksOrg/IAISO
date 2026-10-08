@@ -30,7 +30,7 @@ and `core/iaiso-node/bin/` last time.
 cd core/iaiso-go     && go build ./... && go vet ./... && go test ./... \
                      && go run ./cmd/iaiso-conformance ./spec     # 72/72
 cd ../iaiso-python   && pytest -q                                 # 257 passed
-cd ../iaiso-node     && npx tsc --noEmit && npm test              # 195 passed
+cd ../iaiso-node     && npm exec -- tsc --noEmit && npm test              # 195 passed
 ```
 
 `tests/test_redis_coordinator.py` fails 8 tests with `unknown command 'evalsha'`.
