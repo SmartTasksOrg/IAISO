@@ -44,14 +44,14 @@ iaiso-ruby/
 
 ## Install
 
-```bash
-gem install iaiso
-```
+The gem `iaiso` is not published on RubyGems yet. Until this README says
+otherwise, a gem of that name is not ours. Use the source in
+`IAIso-v5.0/core/iaiso-ruby` of a clone.
 
-Or in your `Gemfile`:
+In your `Gemfile`:
 
 ```ruby
-gem "iaiso", "~> 0.1.0"
+gem "iaiso", path: "../path/to/IAISO/IAIso-v5.0/core/iaiso-ruby"
 ```
 
 Requires **Ruby 3.0** or later. The SDK uses only built-in standard

@@ -14,8 +14,14 @@ the framework's runtime layer, conformant to **IAIso spec 1.0**.
 
 ## Install
 
+`@iaiso/core` is not published on npm yet. Until this README says otherwise, a
+package of that name on any registry is not ours. Build it from a clone:
+
 ```bash
-npm install @iaiso/core
+git clone https://github.com/SmartTasksOrg/IAISO
+cd IAISO/IAIso-v5.0/core/iaiso-node
+npm install
+npm run build
 ```
 
 Requires Node.js **≥ 20**.
@@ -553,8 +559,8 @@ This package ships the IAIso specification at `./spec/` and a conformance runner
 that validates this implementation against it.
 
 ```bash
-# From the package directory
-npx iaiso-conformance
+# From the package directory, after npm run build (not published on npm yet)
+node bin/iaiso-conformance.mjs
 
 # Output:
 # [PASS] pressure: 20/20

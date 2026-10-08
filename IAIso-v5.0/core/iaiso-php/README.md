@@ -47,16 +47,20 @@ iaiso-php/
 
 ## Install
 
-```bash
-composer require iaiso/iaiso
-```
+`iaiso/iaiso` is not published on Packagist yet. Until this README says
+otherwise, a package of that name is not ours. Use the source in
+`IAIso-v5.0/core/iaiso-php` of a clone (for example a Composer `path`
+repository pointing at that folder).
 
-Or in `composer.json`:
+In `composer.json`:
 
 ```json
 {
+    "repositories": [
+        { "type": "path", "url": "../path/to/IAISO/IAIso-v5.0/core/iaiso-php" }
+    ],
     "require": {
-        "iaiso/iaiso": "^0.1.0"
+        "iaiso/iaiso": "*"
     }
 }
 ```
@@ -227,7 +231,7 @@ iaiso coordinator demo
 iaiso conformance ./spec
 ```
 
-When the package is installed via `composer require iaiso/iaiso`, the
+When the package is installed with Composer (from source, see "Install"), the
 CLI is available as `vendor/bin/iaiso` automatically.
 
 ## Conformance
