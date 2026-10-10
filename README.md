@@ -80,7 +80,7 @@ IAIso v5.0 contains SDK source and integration designs for the world's most-used
 
 | Language | Package (planned name where not published) | Installation | Status |
 |----------|---------|--------------|--------|
-| **Python** | `iaiso` | `pip install iaiso` | published on PyPI (0.2.0) |
+| **Python** | `iaiso` | `pip install iaiso` | published on PyPI (0.3.0, with provenance) |
 | **JavaScript/Node.js** | `@iaiso/core` | from source: `IAIso-v5.0/core/iaiso-node` | source only, not published |
 | **Go** | `github.com/iaiso/go` | from source: `IAIso-v5.0/core/iaiso-go` | source only, not published |
 | **Java** | `org.iaiso:core` | from source: `IAIso-v5.0/core/iaiso-java` | source only, not published |
