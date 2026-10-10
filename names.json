@@ -8,7 +8,7 @@
       "name": "iaiso",
       "registered": true,
       "workflow": "release.yml",
-      "note": "0.2.0 on PyPI; ownership confirmed by the maintainers 2026-10-08"
+      "note": "0.2.0 uploaded 2026-04-28 with a token; from 0.3.0 published by release.yml (tags python-v*, PyPI trusted publishing) with provenance attestations"
     },
     {
       "registry": "npm",
