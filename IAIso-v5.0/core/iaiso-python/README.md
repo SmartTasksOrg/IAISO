@@ -6,9 +6,9 @@ authorization, and structured audit logging to LLM agent loops. It is
 the runtime layer of the broader IAIso framework; see
 [`../../vision/`](../../vision/) for the full framework specification.
 
-> **Framework 5.0 · SDK 0.2.0 · status: beta.** This release ships a
+> **Framework 5.0 · SDK 0.3.0 · status: beta.** This release ships a
 > normative specification with 72 machine-checkable conformance vectors
-> (verified 72/72 against spec 1.1), 257 passing tests, and
+> (verified 72/72 against spec 1.1), 1,323 passing tests, and
 > primitives for pressure
 > accounting, consent tokens, audit events, and cross-execution
 > coordination. Calibrate coefficients against your workload before
@@ -74,7 +74,15 @@ pytest tests/test_conformance.py -v
 
 ```bash
 pip install iaiso
+iaiso doctor        # checks that this build has the enforcement_mode boot guard and that it fires
 ```
+
+From 0.3.0, every file of `iaiso` on PyPI is built and published by this
+repository's release workflow (`.github/workflows/release.yml`, PyPI trusted
+publishing) and carries a provenance attestation that names
+`SmartTasksOrg/IAISO` and that workflow; PyPI shows it under "Verified
+details". The source is https://github.com/SmartTasksOrg/IAISO. Links in
+0.2.0's PyPI page to `github.com/iaiso/iaiso` do not point to this project.
 
 Optional extras for LLM SDK integrations and backends:
 

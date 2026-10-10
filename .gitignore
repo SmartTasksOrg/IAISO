@@ -4,6 +4,7 @@ __pycache__/
 l.env
 .DS_Store
 dist/
+*.egg-info/
 build/
 /archive
 bootstrap-1-init-repo.py

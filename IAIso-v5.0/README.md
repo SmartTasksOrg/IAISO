@@ -7,9 +7,9 @@ Bound what an agent spends and touches — and prove it afterward. IAIso
 measures compute accumulation in an agent loop and enforces an automatic
 safety release when a threshold is crossed.
 
-> **Framework 5.0 · SDK 0.2.0 · status: beta.** The framework
-> specification is at 5.0; the SDKs that implement it are at 0.2.0 and are
-> beta software. No named production deployment exists yet. The version
+> **Framework 5.0 · Python SDK 0.3.0 · status: beta.** The framework
+> specification is at 5.0; the reference Python SDK is at 0.3.0, and the
+> SDKs that implement the framework are beta software. No named production deployment exists yet. The version
 > numbers differ on purpose — the design and the code version separately.
 >
 > **Before you deploy this in an enforcement path, read
@@ -560,11 +560,17 @@ capability without code changes.
 
 ## What's in each SDK release
 
-Version discipline across this repo: **framework v5.0, SDK v0.2.0, status
+Version discipline across this repo: **framework v5.0, Python SDK v0.3.0, status
 beta.** The framework specification and the SDKs version independently, and
 every README in the tree states the same pair.
 
-IAIso 0.2.0 (the current `core/iaiso-python` release) provides:
+IAIso 0.3.0 (the current `core/iaiso-python` release) provides:
+
+- **`enforcement_mode` boot guard** (new in 0.3.0): `strict` refuses to start
+  a degraded execution (`StrictModeError`); `permissive` logs one warning per
+  condition. `iaiso doctor` checks that an installed build has it.
+- **Cost governance** (new in 0.3.0): `PressureConfig.model_costs` and
+  `budget_usd`; when prices are set, step events carry `spend_usd`.
 
 - **Pressure engine** with deterministic math and 20 conformance
   vectors.
@@ -612,7 +618,7 @@ the original 67; that is not a failure, it is a port that has not adopted
 
 | Language | Location | Package | Impl LOC | Spec | Conformance | `enforcement_mode` | Status |
 |---|---|---|---|---|---|---|---|
-| Python | [`core/iaiso-python/`](core/iaiso-python/) | `iaiso` · `0.2.0` | 7,958 | 1.1 | **72/72 verified** | ✅ | Reference |
+| Python | [`core/iaiso-python/`](core/iaiso-python/) | `iaiso` · `0.3.0` | 7,958 | 1.1 | **72/72 verified** | ✅ | Reference |
 | TypeScript / Node.js | [`core/iaiso-node/`](core/iaiso-node/) | `@iaiso/core@0.3.0` *(unpublished)* | 5,610 | 1.1 | **72/72 verified** | ✅ | Stable |
 | Go | [`core/iaiso-go/`](core/iaiso-go/) | `github.com/iaiso/iaiso-go` *(unpublished)* | 4,602 | 1.1 | **72/72 verified** | ✅ | Stable |
 | Rust | [`core/iaiso-rust/`](core/iaiso-rust/) | crates workspace `0.1.0` *(unpublished)* | 5,712 | 1.0 | not re-run in this build | ❌ | Stable — unverified |
