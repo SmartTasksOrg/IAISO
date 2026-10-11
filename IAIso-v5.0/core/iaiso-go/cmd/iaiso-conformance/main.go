@@ -11,7 +11,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/iaiso/iaiso-go/iaiso/conformance"
+	"github.com/SmartTasksOrg/IAISO/IAIso-v5.0/core/iaiso-go/iaiso/conformance"
 )
 
 func main() {

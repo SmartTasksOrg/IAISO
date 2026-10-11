@@ -1,4 +1,4 @@
-module github.com/iaiso/iaiso-go
+module github.com/SmartTasksOrg/IAISO/IAIso-v5.0/core/iaiso-go
 
 go 1.22.2
 
