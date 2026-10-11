@@ -9,7 +9,7 @@ conformance vectors.
 
 | Language | Directory | Package | Status |
 |---|---|---|---|
-| **Python** | [`iaiso-python/`](iaiso-python/) | `iaiso` (PyPI) | Stable · `0.2.0` · 67/67 conformance · 240 tests |
+| **Python** | [`iaiso-python/`](iaiso-python/) | `iaiso` (PyPI) | Stable · `0.3.0` · 72/72 conformance · 1,323 tests |
 | **Node.js / TypeScript** | [`iaiso-node/`](iaiso-node/) | `@iaiso/core` (npm) | Stable · `0.3.0` · 67/67 conformance · 171 tests |
 | **Go** | [`iaiso-go/`](iaiso-go/) | `github.com/iaiso/iaiso-go` | Stable · `v0.1.0` · 67/67 conformance · 48 tests |
 | **Rust** | [`iaiso-rust/`](iaiso-rust/) | Cargo workspace (`iaiso-core`, `iaiso-consent`, …) | Stable · `0.1.0` · 67/67 conformance · 47 tests |

@@ -599,6 +599,31 @@ Prior Node releases (`0.2.0`: middleware + Redis + basic SIEM;
 
 All additional dependencies are peer dependencies. Requires Node.js ≥ 20.
 
+## [0.3.0] — Python SDK (`iaiso` on PyPI)
+
+### Added
+- **`enforcement_mode` boot guard.** `PressureEngine`, `BoundedExecution.start()` and policy files take
+  `enforcement_mode` (`"permissive"`, the default, or `"strict"`). Before any state exists, the engine checks
+  for degraded setups: an HS256 consent key that was auto-generated, a `NullSink` (or no) audit sink,
+  `post_release_lock=False`, and coefficients left at the library defaults with no calibration artifact.
+  Under `strict` each one raises `StrictModeError`; under `permissive` each logs one warning per process
+  (logger `iaiso`). New exports: `ENFORCEMENT_PERMISSIVE`, `ENFORCEMENT_STRICT`, `StrictModeError`.
+- **Cost governance.** `PressureConfig.model_costs` (USD per 1M tokens, by model) and `budget_usd` (a spend
+  ceiling; 0 disables it). `record_tokens(..., model=...)` prices tokens; step events carry `spend_usd` when
+  prices are set; reaching the budget uses the existing lock path, so no new lifecycle state and no wire change.
+- **`iaiso doctor`.** Checks that the installed build has the boot guard and cost fields, and that the guard
+  actually fires.
+
+### Changed
+- Permissive mode now logs the warnings above once each; the conformance runner silences them while it runs
+  vectors that use degraded setups on purpose.
+- The wheel and sdist now include the Apache-2.0 `LICENSE` (the same text as the other SDKs in `IAIso-v5.0/core/`);
+  `pyproject.toml` declares it as an SPDX expression. 0.2.0 declared Apache-2.0 but shipped no licence file.
+- Package metadata points to https://github.com/SmartTasksOrg/IAISO. The 0.2.0 metadata pointed to
+  `github.com/iaiso/iaiso`, which is not this project.
+- Released by `.github/workflows/release.yml` from a `python-v*` tag through PyPI trusted publishing, after a
+  second maintainer approves, with PyPI and GitHub provenance attestations. 0.2.0 was uploaded with a token.
+
 ## [0.2.0] — 2026-04-24
 
 This release extracts IAIso's contracts from implicit-in-Python-code
