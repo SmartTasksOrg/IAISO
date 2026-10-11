@@ -23,14 +23,18 @@ spec 1.1**.
 
 ## Install
 
-The module is **not published to a registry yet**. `go get
-github.com/iaiso/iaiso-go` will not resolve. Depend on it from a checkout:
+The module path is `github.com/SmartTasksOrg/IAISO/IAIso-v5.0/core/iaiso-go`
+(this repository, this folder). No Go release is tagged yet, so depend on it
+from a checkout:
 
 ```bash
 # in your go.mod
-require github.com/iaiso/iaiso-go v0.2.0
-replace github.com/iaiso/iaiso-go => ../path/to/core/iaiso-go
+require github.com/SmartTasksOrg/IAISO/IAIso-v5.0/core/iaiso-go v0.2.0
+replace github.com/SmartTasksOrg/IAISO/IAIso-v5.0/core/iaiso-go => ../path/to/IAIso-v5.0/core/iaiso-go
 ```
+
+Earlier documents named `github.com/iaiso/iaiso-go`. That path belongs to another GitHub
+account, not to this project: never depend on it.
 
 Requires Go **≥ 1.22**.
 
@@ -49,8 +53,8 @@ package main
 import (
     "fmt"
 
-    "github.com/iaiso/iaiso-go/iaiso/audit"
-    "github.com/iaiso/iaiso-go/iaiso/core"
+    "github.com/SmartTasksOrg/IAISO/IAIso-v5.0/core/iaiso-go/iaiso/audit"
+    "github.com/SmartTasksOrg/IAISO/IAIso-v5.0/core/iaiso-go/iaiso/core"
 )
 
 func main() {

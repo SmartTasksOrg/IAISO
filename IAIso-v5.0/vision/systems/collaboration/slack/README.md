@@ -272,7 +272,7 @@ See [Section 12: Regulatory Mapping](../../docs/spec/12-regulatory.md) for full 
 For Slack integration support:
 - **Email**: support@iaiso.org
 - **Docs**: https://iaiso.org/systems/slack
-- **Issues**: https://github.com/iaiso/iaiso/issues
+- **Issues**: https://github.com/SmartTasksOrg/IAISO/issues
 
 ---
 
