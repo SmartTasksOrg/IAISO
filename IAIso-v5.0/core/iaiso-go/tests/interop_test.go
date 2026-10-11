@@ -12,8 +12,8 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/iaiso/iaiso-go/iaiso/conformance"
-	"github.com/iaiso/iaiso-go/iaiso/consent"
+	"github.com/SmartTasksOrg/IAISO/IAIso-v5.0/core/iaiso-go/iaiso/conformance"
+	"github.com/SmartTasksOrg/IAISO/IAIso-v5.0/core/iaiso-go/iaiso/consent"
 )
 
 func specRoot() string { return filepath.Join("..", "spec") }

@@ -10,7 +10,7 @@ package main
 import (
 	"os"
 
-	"github.com/iaiso/iaiso-go/iaiso/cli"
+	"github.com/SmartTasksOrg/IAISO/IAIso-v5.0/core/iaiso-go/iaiso/cli"
 )
 
 func main() {

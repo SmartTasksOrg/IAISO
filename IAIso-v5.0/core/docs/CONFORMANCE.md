@@ -33,7 +33,7 @@ spec wins**. File a bug against the reference.
 |---|---|---|---|---|
 | Python | [`core/iaiso-python/`](../iaiso-python/) | `iaiso` | 67/67 | 1.0 |
 | TypeScript / Node.js | [`core/iaiso-node/`](../iaiso-node/) | `@iaiso/core@0.3.0` | 67/67 | 1.0 |
-| Go | [`core/iaiso-go/`](../iaiso-go/) | `github.com/iaiso/iaiso-go@v0.1.0` | 67/67 | 1.0 |
+| Go | [`core/iaiso-go/`](../iaiso-go/) | `github.com/SmartTasksOrg/IAISO/IAIso-v5.0/core/iaiso-go` (v0.2.0, untagged) | 72/72 | 1.1 |
 | Rust | [`core/iaiso-rust/`](../iaiso-rust/) | Cargo workspace `iaiso-*@0.1.0` | 67/67 | 1.0 |
 | Java | [`core/iaiso-java/`](../iaiso-java/) | Maven `io.iaiso:iaiso-*@0.1.0` | 67/67 | 1.0 |
 | C# / .NET | [`core/iaiso-csharp/`](../iaiso-csharp/) | NuGet `Iaiso.*@0.1.0` | 67/67 | 1.0 |

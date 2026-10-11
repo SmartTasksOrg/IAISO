@@ -170,8 +170,8 @@ go run ./cmd/iaiso-conformance ./spec      # standalone conformance check
 package main
 
 import (
-    "github.com/iaiso/iaiso-go/iaiso/audit"
-    "github.com/iaiso/iaiso-go/iaiso/core"
+    "github.com/SmartTasksOrg/IAISO/IAIso-v5.0/core/iaiso-go/iaiso/audit"
+    "github.com/SmartTasksOrg/IAISO/IAIso-v5.0/core/iaiso-go/iaiso/core"
 )
 
 func main() {
@@ -620,7 +620,7 @@ the original 67; that is not a failure, it is a port that has not adopted
 |---|---|---|---|---|---|---|---|
 | Python | [`core/iaiso-python/`](core/iaiso-python/) | `iaiso` · `0.3.0` | 7,958 | 1.1 | **72/72 verified** | ✅ | Reference |
 | TypeScript / Node.js | [`core/iaiso-node/`](core/iaiso-node/) | `@iaiso/core@0.3.0` *(unpublished)* | 5,610 | 1.1 | **72/72 verified** | ✅ | Stable |
-| Go | [`core/iaiso-go/`](core/iaiso-go/) | `github.com/iaiso/iaiso-go` *(unpublished)* | 4,602 | 1.1 | **72/72 verified** | ✅ | Stable |
+| Go | [`core/iaiso-go/`](core/iaiso-go/) | `github.com/SmartTasksOrg/IAISO/IAIso-v5.0/core/iaiso-go` *(unpublished)* | 4,602 | 1.1 | **72/72 verified** | ✅ | Stable |
 | Rust | [`core/iaiso-rust/`](core/iaiso-rust/) | crates workspace `0.1.0` *(unpublished)* | 5,712 | 1.0 | not re-run in this build | ❌ | Stable — unverified |
 | PHP | [`core/iaiso-php/`](core/iaiso-php/) | `iaiso/core` *(unpublished)* | 4,874 | 1.0 | not re-run in this build | ❌ | Stable — unverified |
 | Java | [`core/iaiso-java/`](core/iaiso-java/) | `org.iaiso:core` *(unpublished)* | 4,837 | 1.0 | not re-run in this build | ❌ | Stable — unverified |
@@ -748,7 +748,7 @@ IAISO/
 │       ├── package.json
 │       ├── README.md
 │       └── LICENSE
-│   ├── iaiso-go/               ← Go SDK — `github.com/iaiso/iaiso-go` v0.2.0 (59 test funcs + 72 vectors)
+│   ├── iaiso-go/               ← Go SDK — `github.com/SmartTasksOrg/IAISO/IAIso-v5.0/core/iaiso-go` v0.2.0 (59 test funcs + 72 vectors)
 │       ├── iaiso/
 │       │   ├── core/           ← pressure engine + BoundedExecution + boot guard
 │       │   ├── consent/        ← JWT (HS256/RS256)

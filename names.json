@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "repo": "SmartTasksOrg/IAISO",
-  "checked_on": "2026-10-08",
+  "checked_on": "2026-10-11",
   "names": [
     {
       "registry": "pypi",
@@ -88,12 +88,20 @@
     {
       "registry": "go",
       "name": "github.com/iaiso/go",
-      "registered": false
+      "registered": false,
+      "note": "github.com/iaiso is another GitHub account, not this project; named by earlier documents; never use it"
     },
     {
       "registry": "go",
       "name": "github.com/iaiso/iaiso-go",
-      "registered": false
+      "registered": false,
+      "note": "github.com/iaiso is another GitHub account, not this project; named by earlier documents; never use it"
+    },
+    {
+      "registry": "go",
+      "name": "github.com/SmartTasksOrg/IAISO/IAIso-v5.0/core/iaiso-go",
+      "registered": false,
+      "note": "the Go SDK module path (this repository); source only, no Go release tagged yet"
     }
   ],
   "third_party": {
