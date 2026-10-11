@@ -1,6 +1,6 @@
-# Binaries
+# Binaries. Build them into bin/ (go build -o bin/ ./cmd/...). There is no "/iaiso" entry:
+# it also matched the iaiso/ package directory, which kept the library out of git.
 /bin/
-/iaiso
 /iaiso-conformance
 /cmd/*/iaiso
 /cmd/*/iaiso-conformance
