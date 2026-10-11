@@ -2,7 +2,7 @@
   "name": "iaiso",
   "owner": {
     "name": "IAIso Contributors",
-    "url": "https://github.com/iaiso/iaiso"
+    "url": "https://github.com/SmartTasksOrg/IAISO"
   },
   "metadata": {
     "description": "Agent Skills for the IAIso bounded-agent-execution framework.",
@@ -23,7 +23,7 @@
         "audit",
         "governance"
       ],
-      "homepage": "https://github.com/iaiso/iaiso",
+      "homepage": "https://github.com/SmartTasksOrg/IAISO",
       "source": "./",
       "strict": false,
       "skills": [
