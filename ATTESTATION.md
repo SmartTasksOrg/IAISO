@@ -20,8 +20,11 @@ held on this code at this time.
 
 ## Verify it yourself
 
+The attestation is a standard DSSE/in-toto envelope, so it verifies with any
+DSSE verifier (for example `cosign`), or with the `assure` tool that produced
+it (obtained from its own project — it is not an IAIso package):
+
 ```bash
-pip install assure
 assure verify --attestation .assure/attestation.dsse.json \
               --pubkey attestation/iaiso-release.pub \
               --report .assure/report.json \
@@ -65,7 +68,7 @@ READMEs: `core/` is real and tested; `vision/` is design intent.
 ## Reproduce
 
 ```bash
-pip install assure
+# using the assure tool that produced this (obtained from its own project):
 ./tools/install-scanners.sh          # pinned, checksum-verified scanners
 assure scan                          # networked CI: evaluates every control
 assure scan --skip trivy,grype       # air-gapped: as attested here
