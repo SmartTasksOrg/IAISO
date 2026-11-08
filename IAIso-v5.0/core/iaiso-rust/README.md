@@ -54,7 +54,7 @@ iaiso-audit = { path = "../path/to/IAISO/IAIso-v5.0/core/iaiso-rust/crates/audit
 # ... etc
 ```
 
-Requires Rust **≥ 1.75** (workspace MSRV).
+Requires Rust **≥ 1.88** (workspace MSRV).
 
 The SDK takes a small set of direct dependencies: `serde`, `serde_json`,
 `serde_yaml`, `thiserror`, `parking_lot`, `chrono`, `jsonwebtoken`,
@@ -266,11 +266,12 @@ cargo run -p iaiso-conformance-bin -- ./spec
 
 ### MSRV pinning
 
-The `consent` and `identity` crates pin `simple_asn1 = "=0.6.2"`,
-`time = "=0.3.36"`, and `indexmap = "=2.6.0"` to keep the workspace
-buildable on Rust 1.75. Newer minor releases of those crates require
-edition2024 (Rust 1.85+). When the workspace MSRV is bumped, those
-pins can be removed.
+The workspace used to pin `simple_asn1 = "=0.6.2"` and `time = "=0.3.36"`
+to stay buildable on Rust 1.75. `time` 0.3.36 has RUSTSEC-2026-0009 (stack
+exhaustion DoS); the first fixed release (0.3.47) needs Rust 1.88, so the
+pins were removed and the MSRV raised to 1.88. `jsonwebtoken` moved from 8
+to 9, which drops `ring` 0.16 (RUSTSEC-2025-0009/-0010). `cargo audit` is
+clean apart from `unsafe-libyaml` being unmaintained (via `serde_yaml`).
 
 ## Versioning
 

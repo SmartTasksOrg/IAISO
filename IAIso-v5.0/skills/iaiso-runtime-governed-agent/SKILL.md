@@ -59,13 +59,7 @@ and reference it on every step decision.
    intended mental model. Resists deceptive-alignment dynamics
    where a model treats safety triggers as adversarial.
 
-5. **Use back-prop magnification when configured.** If
-   `BACK_PROPAGATION=true` (env or policy), pass final outputs
-   and high-stakes tool arguments through the magnification
-   loop before emitting. See
-   `iaiso-runtime-back-prop-magnification`.
-
-6. **Surface execution_id on every external call.** It is the
+5. **Surface execution_id on every external call.** It is the
    audit-trail correlator that makes investigations tractable.
    Pass it as a header (`X-IAIso-Execution-Id`), a metadata
    field, or whatever the integration documents.

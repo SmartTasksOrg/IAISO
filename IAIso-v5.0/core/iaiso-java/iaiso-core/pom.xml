@@ -9,7 +9,7 @@
     </parent>
 
     <artifactId>iaiso-core</artifactId>
-    <n>IAIso :: Core</n>
+    <name>IAIso :: Core</name>
     <description>IAIso pressure engine and bounded execution facade</description>
 
     <dependencies>

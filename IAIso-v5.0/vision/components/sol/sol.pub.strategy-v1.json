@@ -5,7 +5,10 @@
   "version": "5.0.0",
   "consentScope": "sol.pub.content",
   "status": "locked",
-  "description": "Editorial calendar planning with back-prop quality and plagiarism checks.",
-  "invariants": ["inv-1", "inv-4"],
+  "description": "Editorial calendar planning with plagiarism checks.",
+  "invariants": [
+    "inv-1",
+    "inv-4"
+  ],
   "parent": "Smarttasks"
 }

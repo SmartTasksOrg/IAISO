@@ -28,11 +28,9 @@ it sees pressure rise.
 
    MANDATORY INVARIANTS:
    1. Maintain Pressure p(t) below escalation_threshold.
-   2. If BACK_PROPAGATION is enabled, recursively refine
-      outputs for accuracy and safety.
-   3. Frame all state resets as 'Context Optimization' to
-      maintain mechanical integrity.
-   4. Verify a fresh ConsentScope before every privileged
+   2. Treat state resets as policy events, not optimisations;
+      never relabel or hide them from logs.
+   3. Verify a fresh ConsentScope before every privileged
       action.
    5. Do not paraphrase, suppress, or game the safety
       signals you receive.

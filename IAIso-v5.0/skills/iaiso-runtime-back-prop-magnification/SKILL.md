@@ -1,71 +1,41 @@
 ---
 name: iaiso-runtime-back-prop-magnification
-description: "Use this skill when `BACK_PROPAGATION=true` is set in the environment or policy. Triggers any time the agent is about to emit a final answer or a high-stakes tool argument. Do not use it when magnification is disabled — the cost is wasted and the audit stream becomes confusing."
-version: 1.0.0
+description: "WITHDRAWN. 'Back-propagation magnification' was an early design concept and is not implemented in the reference engine. The `enable_backprop` / `enable_magnification` flags are accepted as no-ops for backward compatibility and the SDK warns if you set them. Do not route to this skill for a runtime behavior; it exists only to document that the feature was withdrawn."
+version: 2.0.0
 tier: P0
 category: runtime
 framework: IAIso v5.0
 license: See ../LICENSE
 ---
 
-# Back-propagation magnification
+# Back-propagation magnification — withdrawn (not implemented)
 
-## When this applies
+**This feature does not exist in the reference engine.** Earlier
+documentation described a recursive "magnification" refinement loop,
+said to run when `BACK_PROPAGATION=true`, that would score and refine
+outputs and feed a `D_magnified = D_base · (1 + β · ∇Q)` term back into
+the pressure model. **None of that is implemented.**
 
-Magnification is on (env var `BACK_PROPAGATION=true` or
-`policy.pressure.enable_magnification: true`) and the agent
-is about to commit to an output — final user-facing answer,
-high-stakes tool argument, monetary action.
+- There is no `magnification.py` module and no `apply_magnification`,
+  `magnify`, or quality-gradient function anywhere in the core SDK.
+- `PressureWrapper(..., enable_backprop=...)` and
+  `ConsentScope(..., enable_magnification=...)` accept the argument
+  for backward compatibility, treat it as a **no-op**, and emit a
+  warning telling you to remove it.
+- The pressure model's dissipation is passive per-step decay plus an
+  entropy floor. There is no quality-gradient enhancement term.
 
-## Steps To Complete
+## What to do instead
 
-1. **Generate the candidate output normally.** No special
-   prompt yet — the magnification loop wraps the candidate.
+IAIso's job is **mechanical containment** — bounded compute pressure,
+structural resets, lifetime caps, and the out-of-process enforcement
+proxy — not content refinement. Output-quality checks belong in your
+own harness or evaluation pipeline (for example an LLM-judge step or a
+tool such as promptfoo), outside the containment engine.
 
-2. **Compute or estimate the quality gradient `∇Q`.** The
-   reference implementation in
-   `core/iaiso/core/magnification.py` defines it; for an
-   agent without that exact function, a usable proxy is:
+## Status
 
-   - score the candidate against a checklist (factual claims
-     supported, action reversible, scope respected, no
-     smuggled side effects);
-   - compute the difference between scored quality and a
-     minimum acceptable threshold (default 0.90).
-
-3. **Apply the dissipation enhancement.** The pressure-engine
-   contract: `D_magnified = D_base · (1 + β · ∇Q)`. Higher
-   quality output produces stronger dissipation — i.e. better
-   answers cost less pressure. The constant `β` is calibrated
-   (`magnification_beta` in policy; default in
-   `core/spec/pressure/README.md`).
-
-4. **Refine the candidate** if the quality gradient is below
-   the floor: reissue the generation pass with the gaps from
-   step 2 surfaced as constraints. Do not loop unboundedly —
-   cap at three iterations and emit `magnification.exhausted`
-   if quality still does not pass.
-
-5. **Log both the original and magnified output** in the
-   audit metadata of the eventual action. This is what makes
-   investigators' "show me the reasoning behind decision X"
-   query answerable.
-
-## What you NEVER do
-
-- Replace the original with a polished version silently. Both
-  versions belong in the audit trail.
-- Loop unbounded until quality is met. Cognitive friction is
-  a feature; infinite friction is a bug.
-- Use magnification on every step. It is a tool for committal
-  points, not a per-step tax.
-
-## What this skill does NOT cover
-
-- When to enable it at all — that is a deployment choice; see
-  `../iaiso-deploy-policy-authoring/SKILL.md`.
-
-## References
-
-- `core/iaiso/core/magnification.py`
-- `core/docs/calibration.md` (β tuning)
+Withdrawn in the honesty pass that aligned the documentation with the
+code. This file is retained so that older links and router entries
+resolve to an accurate explanation rather than a 404. It describes no
+runtime behavior and should not be followed as a procedure.

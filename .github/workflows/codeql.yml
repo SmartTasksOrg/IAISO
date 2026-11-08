@@ -1,0 +1,63 @@
+# Static analysis (SAST) with CodeQL for the Python, JavaScript/TypeScript,
+# Go, Java, C# and Ruby SDKs. Pinned to a commit (peeled tag, read 2026-11-08).
+#
+# Build modes per language: the interpreted/none-capable languages use
+# build-mode: none; Go needs a real build, so it uses build-mode: manual with
+# an explicit `go build` in the (nested) module directory.
+name: codeql
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  schedule:
+    - cron: "41 4 * * 1"
+
+permissions:
+  contents: read
+
+jobs:
+  analyze:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    permissions:
+      contents: read
+      security-events: write
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - language: python
+            build-mode: none
+          - language: javascript-typescript
+            build-mode: none
+          - language: go
+            build-mode: manual
+          - language: java-kotlin
+            build-mode: none
+          - language: csharp
+            build-mode: none
+          - language: ruby
+            build-mode: none
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1, read 2026-10-08
+        with:
+          persist-credentials: false
+
+      - name: Set up Go
+        if: matrix.language == 'go'
+        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e  # v7.0.0, read 2026-10-11
+        with:
+          go-version-file: IAIso-v5.0/core/iaiso-go/go.mod
+
+      - uses: github/codeql-action/init@33d7b85da1a04171e211befe2c739303b9a4c066  # v4.39.3, read 2026-11-08
+        with:
+          languages: ${{ matrix.language }}
+          build-mode: ${{ matrix.build-mode }}
+
+      - name: Build Go module
+        if: matrix.language == 'go'
+        run: go build ./...
+        working-directory: IAIso-v5.0/core/iaiso-go
+
+      - uses: github/codeql-action/analyze@33d7b85da1a04171e211befe2c739303b9a4c066  # v4.39.3, read 2026-11-08

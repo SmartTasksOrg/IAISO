@@ -17,6 +17,40 @@ pub struct StepInput {
     pub tag: Option<String>,
 }
 
+impl StepInput {
+    /// Build from untrusted JSON (snake_case keys, as in the spec vectors).
+    /// Counts must be JSON integers in `0..=u64::MAX`; negative, fractional,
+    /// boolean, string and null values are refused rather than coerced, and
+    /// unknown keys are refused.
+    pub fn from_json(v: &serde_json::Value) -> Result<Self, String> {
+        let obj = v.as_object().ok_or("step input must be a JSON object")?;
+        let mut out = StepInput::default();
+        for (k, val) in obj {
+            match k.as_str() {
+                "tokens" | "tool_calls" | "depth" => {
+                    let n = val
+                        .as_u64()
+                        .ok_or_else(|| format!("StepInput.{k} must be a non-negative integer, got {val}"))?;
+                    match k.as_str() {
+                        "tokens" => out.tokens = n,
+                        "tool_calls" => out.tool_calls = n,
+                        _ => out.depth = n,
+                    }
+                }
+                "tag" => {
+                    out.tag = match val {
+                        serde_json::Value::Null => None,
+                        serde_json::Value::String(s) => Some(s.clone()),
+                        _ => return Err("StepInput.tag must be a string or null".into()),
+                    }
+                }
+                other => return Err(format!("StepInput: unknown field {other}")),
+            }
+        }
+        Ok(out)
+    }
+}
+
 /// Read-only snapshot of engine state.
 #[derive(Debug, Clone, Copy)]
 pub struct PressureSnapshot {

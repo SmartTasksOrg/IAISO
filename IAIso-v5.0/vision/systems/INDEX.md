@@ -2,7 +2,7 @@
 
 **Framework Version**: 5.0.0
 **Release Date**: December 30, 2025
-**License**: Community Forking License v2.0
+**License**: Apache License 2.0
 
 ---
 
@@ -16,7 +16,7 @@ All systems operate under the **Coin-Pusher Safety Model**:
 
 - **Intelligence** = accumulating coins
 - **Pressure** = pile height: `p(t+1) = p(t) + Σ(input) - dissipation - release`
-- **Friction** = Entropy Floor + Back-Propagation Magnification
+- **Friction** = Entropy Floor + passive per-step decay
 - **Release** = controlled reset at threshold
 - **Hard Edge** = irreversible containment (Layer 0)
 
@@ -96,7 +96,7 @@ All integrations support four organizational scales with adaptive configurations
 Every integration implements all applicable layers:
 
 - **Layer 0**: Physical Boundaries (compute caps, timeouts, kill switches)
-- **Layer 1**: Optimization Bounds (entropy floor, gradient clipping, back-prop)
+- **Layer 1**: Optimization Bounds (entropy floor, gradient clipping)
 - **Layer 2**: Memory & Planning (depth gates, tool limits, consent scopes)
 - **Layer 3**: Ecosystem Coupling (multi-agent coordination, resource fairness)
 - **Layer 3.5**: Regime Shift Detection (phase transition monitoring)

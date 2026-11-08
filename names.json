@@ -114,7 +114,8 @@
       "pyjwt",
       "cryptography",
       "redis",
-      "vllm"
+      "vllm",
+      "mutmut"
     ],
     "npm": [
       "openai",
@@ -129,7 +130,8 @@
       "@google/generative-ai",
       "@aws-sdk/client-bedrock-runtime",
       "@opentelemetry/api",
-      "typescript"
+      "typescript",
+      "vitest"
     ]
   },
   "local_images": [

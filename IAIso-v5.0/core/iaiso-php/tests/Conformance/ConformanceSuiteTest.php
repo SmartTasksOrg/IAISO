@@ -22,7 +22,7 @@ final class ConformanceSuiteTest extends TestCase
         }
         $passed = $r->countPassed();
         $total = $r->countTotal();
-        self::assertSame(67, $total, 'expected 67 total vectors');
+        self::assertSame(72, $total, 'expected 72 total vectors (spec 1.1)');
         self::assertSame(0, $total - $passed,
             "conformance $passed/$total — failures:" . $failures);
     }

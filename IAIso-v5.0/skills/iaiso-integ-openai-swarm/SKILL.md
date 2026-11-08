@@ -36,7 +36,6 @@ exactly which call boundary to wrap and what records to attach.
    safe = IAIsoSwarmRunner(
        your_orchestrator,
        pressure_threshold=0.85,
-       enable_magnification=True,
    )
    ```
 

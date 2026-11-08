@@ -9,7 +9,7 @@
     </parent>
 
     <artifactId>iaiso-consent</artifactId>
-    <n>IAIso :: Consent</n>
+    <name>IAIso :: Consent</name>
     <description>IAIso JWT consent token issuer and verifier (HS256/RS256)</description>
 
     <dependencies>

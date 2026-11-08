@@ -1,3 +1,7 @@
+# Helper dependencies for the vision/ reference scripts (e.g. l.env loading).
+# NOT the installable SDK's requirements — that is core/iaiso-python
+# (runtime deps: pyjwt[crypto], pydantic).
+
 pydantic
 pyyaml
 requests

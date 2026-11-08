@@ -88,9 +88,10 @@ class VectorResult:
         return f"{icon} {self.section}/{self.name}{': ' + self.message if self.message else ''}"
 
 
-def load_vectors(spec_root: Path, section: str) -> dict[str, Any]:
-    """Load `spec/<section>/vectors.json`."""
-    path = Path(spec_root) / section / "vectors.json"
+def load_vectors(spec_root: Path, section: str,
+                 filename: str = "vectors.json") -> dict[str, Any]:
+    """Load `spec/<section>/<filename>` (default `vectors.json`)."""
+    path = Path(spec_root) / section / filename
     if not path.exists():
         raise FileNotFoundError(f"No vectors file at {path}")
     with path.open("r", encoding="utf-8") as f:
@@ -99,11 +100,13 @@ def load_vectors(spec_root: Path, section: str) -> dict[str, Any]:
 
 # --- Pressure vectors ---
 
-def run_pressure_vectors(spec_root: Path) -> list[VectorResult]:
-    """Run every pressure vector against `iaiso.core.engine.PressureEngine`."""
+def run_pressure_vectors(spec_root: Path,
+                         filename: str = "vectors.json") -> list[VectorResult]:
+    """Run every pressure vector against `iaiso.core.engine.PressureEngine`.
+    A 1.x file replays under `PressureConfig.v1`; a 2.x file under 2.0 defaults."""
     from iaiso.core.engine import PressureConfig, PressureEngine, StepInput
 
-    data = load_vectors(spec_root, "pressure")
+    data = load_vectors(spec_root, "pressure", filename)
     tolerance = float(data.get("tolerance", 1e-9))
     results: list[VectorResult] = []
 
@@ -118,7 +121,8 @@ def run_pressure_vectors(spec_root: Path) -> list[VectorResult]:
 
         try:
             results.append(_run_pressure_trajectory(
-                name, vec, tolerance, PressureConfig, PressureEngine, StepInput,
+                name, vec, tolerance, _profile_for(data, PressureConfig),
+                PressureEngine, StepInput,
             ))
         except Exception as exc:  # noqa: BLE001
             results.append(VectorResult(
@@ -129,6 +133,15 @@ def run_pressure_vectors(spec_root: Path) -> list[VectorResult]:
             ))
 
     return results
+
+
+def _profile_for(data: dict, PressureConfig: type) -> Any:
+    """1.x vector files pin 1.x semantics, so they replay under
+    `PressureConfig.v1`; 2.x files use the 2.0 defaults."""
+    version = str(data.get("version", "1"))
+    if version.split(".")[0] == "1" and hasattr(PressureConfig, "v1"):
+        return PressureConfig.v1
+    return PressureConfig
 
 
 def _run_config_error_vector(
@@ -194,8 +207,21 @@ def _run_pressure_trajectory(
             tool_calls=step_input.get("tool_calls", 0),
             depth=step_input.get("depth", 0),
             tag=step_input.get("tag"),
+            model=step_input.get("model"),
         ))
         expected = expected_steps[i]
+
+        if "totals" in expected and engine.totals != expected["totals"]:
+            return VectorResult(
+                section="pressure", name=name, passed=False,
+                message=f"step {i+1}: totals expected {expected['totals']!r}, got {engine.totals!r}",
+            )
+        if "spend_usd" in expected and not _approx_equal(
+                engine.spend_usd, expected["spend_usd"], tolerance):
+            return VectorResult(
+                section="pressure", name=name, passed=False,
+                message=f"step {i+1}: spend_usd expected {expected['spend_usd']!r}, got {engine.spend_usd!r}",
+            )
 
         # Check pressure
         if "pressure" in expected:
@@ -278,6 +304,57 @@ def _approx_equal(actual: Any, expected: Any, tolerance: float) -> bool:
     if isinstance(actual, (int, float)) and isinstance(expected, (int, float)):
         return abs(float(actual) - float(expected)) <= tolerance
     return actual == expected
+
+
+def run_pressure_v2_vectors(spec_root: Path) -> list[VectorResult]:
+    """2.0 semantics: `spec/pressure/vectors-2.json`."""
+    results = run_pressure_vectors(spec_root, "vectors-2.json")
+    for r in results:
+        r.section = "pressure-v2"
+    return results
+
+
+def run_hostile_vectors(spec_root: Path) -> list[VectorResult]:
+    """`spec/pressure/hostile.json`: inputs that must be refused, and extreme
+    inputs that must be handled without overflow or NaN. Shared by all ports."""
+    from iaiso.audit import MemorySink
+    from iaiso.core.engine import PressureConfig, PressureEngine, StepInput
+
+    data = load_vectors(spec_root, "pressure", "hostile.json")
+    out: list[VectorResult] = []
+    for vec in data["reject"]:
+        name = vec["name"]
+        try:
+            work = StepInput(**{vec["field"]: vec["value"]})
+            engine = PressureEngine(PressureConfig.v1(), execution_id="hostile",
+                                    audit_sink=MemorySink(), clock=lambda: 0.0)
+            engine.step(work)
+        except (ValueError, TypeError):
+            out.append(VectorResult("hostile", name, True))
+            continue
+        out.append(VectorResult("hostile", name, False,
+                                message=f"{vec['field']}={vec['value']!r} was accepted"))
+    for vec in data["accept"]:
+        name = vec["name"]
+        try:
+            engine = PressureEngine(PressureConfig.v1(**vec.get("config", {})),
+                                    execution_id="hostile", audit_sink=MemorySink(),
+                                    clock=lambda: 0.0)
+            outcome = engine.step(StepInput(**vec["step"]))
+        except Exception as exc:  # noqa: BLE001
+            out.append(VectorResult("hostile", name, False,
+                                    message=f"raised {type(exc).__name__}: {exc}"))
+            continue
+        exp = vec["expect"]
+        problems = []
+        if not _approx_equal(engine.pressure, exp["pressure"], 1e-9):
+            problems.append(f"pressure {engine.pressure!r} != {exp['pressure']!r}")
+        if outcome.value != exp["outcome"]:
+            problems.append(f"outcome {outcome.value!r} != {exp['outcome']!r}")
+        if engine.lifecycle.value != exp["lifecycle"]:
+            problems.append(f"lifecycle {engine.lifecycle.value!r} != {exp['lifecycle']!r}")
+        out.append(VectorResult("hostile", name, not problems, message="; ".join(problems)))
+    return out
 
 
 # --- Consent vectors (implemented later in this package) ---

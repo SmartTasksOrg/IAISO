@@ -1,0 +1,144 @@
+# Adversarial suite: hostile vectors in every port, 2.0 vectors, property
+# fuzzing, the out-of-process proxy tests and targeted mutation testing.
+# Runs on every push/PR and nightly with a deeper fuzz profile.
+# Only actions already pinned in ci.yml are used; other toolchains are the
+# ones preinstalled on ubuntu-latest.
+name: adversarial
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  schedule:
+    - cron: "17 3 * * *"
+
+permissions:
+  contents: read
+
+jobs:
+  python:
+    name: Python (2.0 + hostile vectors, fuzz, proxy, mutation)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: IAIso-v5.0/core/iaiso-python
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1, read 2026-10-08
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7.0.0, read 2026-10-08
+        with:
+          python-version: '3.12'
+      - run: python -m pip install ".[dev]"   # non-editable, so mutation_smoke's scratch copy is what imports
+      - name: Conformance (1.x, 2.0, hostile)
+        run: |
+          python -m iaiso.conformance ../spec
+          python -m iaiso.conformance ../spec --section pressure-v2
+          python -m iaiso.conformance ../spec --section hostile
+      - name: Security, proxy and fuzz tests
+        env:
+          HYPOTHESIS_PROFILE: ${{ github.event_name == 'schedule' && 'deep' || 'ci' }}
+        run: python -m pytest -q tests/test_v2_semantics.py tests/test_hardening.py tests/test_proxy.py tests/test_fuzz.py
+      - name: Targeted mutation testing (every mutant must be killed)
+        run: |
+          python -m pip uninstall -y iaiso
+          python tools/mutation_smoke.py --json mutation.json
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1, read 2026-10-08
+        if: always()
+        with:
+          name: mutation-report
+          path: IAIso-v5.0/core/iaiso-python/mutation.json
+
+  go:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: IAIso-v5.0/core/iaiso-go
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1, read 2026-10-08
+        with:
+          persist-credentials: false
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e  # v7.0.0, read 2026-10-11
+        with:
+          go-version-file: IAIso-v5.0/core/iaiso-go/go.mod
+      - run: go test -run 'Hostile|DecodeStepInput' -v ./iaiso/core/
+
+  node:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: IAIso-v5.0/core/iaiso-node
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1, read 2026-10-08
+        with:
+          persist-credentials: false
+      - run: npm ci --no-audit --no-fund && npx vitest run src/core/hostile.test.ts
+
+  java:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: IAIso-v5.0/core/iaiso-java
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1, read 2026-10-08
+        with:
+          persist-credentials: false
+      - run: mvn -q -B test -pl iaiso-core,iaiso-policy,iaiso-conformance -am
+
+  rust:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: IAIso-v5.0/core/iaiso-rust
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1, read 2026-10-08
+        with:
+          persist-credentials: false
+      - run: cargo test -q -p iaiso-core --test hostile
+
+  php-ruby:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: IAIso-v5.0/core
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1, read 2026-10-08
+        with:
+          persist-credentials: false
+      - name: PHP hostile vectors (no Composer needed)
+        run: php iaiso-php/tests/standalone/hostile.php
+      - name: Ruby hostile vectors
+        run: cd iaiso-ruby && ruby -Ilib -Itest test/hostile_test.rb
+
+  csharp:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: IAIso-v5.0/core/iaiso-csharp
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1, read 2026-10-08
+        with:
+          persist-credentials: false
+      - run: dotnet run --project tests/Iaiso.Tests   # 53 tests incl. hostile vectors + spec 1.1
+
+  swift:
+    # Swift fixes were written without a toolchain; this job is the first place
+    # they compile. Keep it non-blocking until it has passed once.
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    continue-on-error: true
+    defaults:
+      run:
+        working-directory: IAIso-v5.0/core/iaiso-swift
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1, read 2026-10-08
+        with:
+          persist-credentials: false
+      - run: swift test

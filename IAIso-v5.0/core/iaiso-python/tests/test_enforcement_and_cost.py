@@ -23,7 +23,7 @@ from iaiso.core.engine import Lifecycle, StepInput, StepOutcome
 
 def calibrated(**overrides) -> PressureConfig:
     """A config that has been moved off library defaults."""
-    base = dict(token_coefficient=0.011)
+    base = dict(token_coefficient=0.011, max_total_tokens=1_000_000)  # 2.0: strict needs a lifetime cap
     base.update(overrides)
     return PressureConfig(**base)
 
@@ -72,14 +72,21 @@ def test_strict_refuses_post_release_lock_disabled():
 
 def test_strict_refuses_uncalibrated_defaults():
     with pytest.raises(StrictModeError) as exc:
-        PressureEngine(PressureConfig(), execution_id="t",
+        PressureEngine(PressureConfig(max_total_tokens=1_000_000), execution_id="t",
                        audit_sink=MemorySink(),
                        enforcement_mode=ENFORCEMENT_STRICT)
     assert "calibrat" in str(exc.value)
 
 
+def test_strict_refuses_no_lifetime_cap():  # 2.0
+    with pytest.raises(StrictModeError) as exc:
+        PressureEngine(PressureConfig(token_coefficient=0.011), execution_id="t",
+                       audit_sink=MemorySink(), enforcement_mode=ENFORCEMENT_STRICT)
+    assert "lifetime cap" in str(exc.value)
+
+
 def test_strict_accepts_defaults_with_calibration_artifact():
-    engine = PressureEngine(PressureConfig(), execution_id="t",
+    engine = PressureEngine(PressureConfig(max_total_tokens=1_000_000), execution_id="t",
                             audit_sink=MemorySink(),
                             enforcement_mode=ENFORCEMENT_STRICT,
                             calibration_artifact="calibration/2026-07-01.json")
@@ -165,11 +172,20 @@ def test_spend_field_absent_without_model_costs():
     assert steps and "spend_usd" not in steps[0].data
 
 
-def test_unknown_model_costs_nothing():
-    engine = PressureEngine(cost_config(), execution_id="t",
+def test_unknown_model_costs_nothing_under_v1():
+    engine = PressureEngine(PressureConfig.v1(dissipation_per_step=0.0,
+                                              model_costs={"frontier": 15.0, "small": 0.5}),
+                            execution_id="t",
                             audit_sink=MemorySink(), clock=scripted([0.0, 1.0]))
     engine.step(StepInput(tokens=1_000_000, model="unpriced"))
     assert engine.spend_usd == 0.0
+
+
+def test_unknown_model_charged_highest_price_by_default():  # 2.0
+    engine = PressureEngine(cost_config(), execution_id="t",
+                            audit_sink=MemorySink(), clock=scripted([0.0, 1.0]))
+    engine.step(StepInput(tokens=1_000_000, model="unpriced"))
+    assert engine.spend_usd == pytest.approx(15.0)
 
 
 def test_budget_exceeded_reuses_the_lock_path():

@@ -64,7 +64,7 @@ def test_consent_issue_and_verify(
         "--scope", "tools.search",
         "--ttl", "60",
         "--issuer", "test",
-        "--key", str(key_file),
+        "--key", str(key_file), "--algorithm", "HS256", "--audience", "svc",
         capsys_pair=capsys,
     )
     assert rc == 0
@@ -73,7 +73,7 @@ def test_consent_issue_and_verify(
 
     rc, out, err = run_cli(
         "consent", "verify", token,
-        "--key", str(key_file),
+        "--key", str(key_file), "--algorithm", "HS256", "--audience", "svc",
         "--issuer", "test",
         capsys_pair=capsys,
     )
@@ -89,7 +89,7 @@ def test_consent_verify_rejects_bad_token(
     key_file.write_bytes(b"y" * 32)
     rc, out, err = run_cli(
         "consent", "verify", "not.a.token",
-        "--key", str(key_file),
+        "--key", str(key_file), "--algorithm", "HS256", "--audience", "svc",
         capsys_pair=capsys,
     )
     assert rc == 1
@@ -147,3 +147,28 @@ def test_python_m_iaiso_entry(tmp_path: Path) -> None:
     )
     assert result.returncode == 0
     assert "usage: iaiso" in result.stdout
+
+
+def test_consent_keygen_issue_verify_eddsa(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:  # 2.0 default path: Ed25519, audience, execution binding
+    prefix = str(tmp_path / "k")
+    rc, _, _ = run_cli("consent", "keygen", "--out", prefix, capsys_pair=capsys)
+    assert rc == 0
+    assert (tmp_path / "k.key").stat().st_mode & 0o077 == 0
+    rc, out, _ = run_cli("consent", "issue", "bob", "--scope", "tools",
+                         "--key", prefix + ".key", "--audience", "proxy",
+                         "--execution-id", "e1", capsys_pair=capsys)
+    assert rc == 0
+    token = out.strip()
+    rc, out, _ = run_cli("consent", "verify", token, "--key", prefix + ".pub",
+                         "--audience", "proxy", "--execution-id", "e1", capsys_pair=capsys)
+    assert rc == 0 and "bob" in out
+    rc, _, err = run_cli("consent", "verify", token, "--key", prefix + ".pub",
+                         "--audience", "other", capsys_pair=capsys)
+    assert rc == 1 and "INVALID" in err
+
+
+def test_consent_issue_refuses_without_key(capsys: pytest.CaptureFixture[str]) -> None:
+    rc, _, err = run_cli("consent", "issue", "x", "--audience", "svc", capsys_pair=capsys)
+    assert rc == 2 and "--key" in err
