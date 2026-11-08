@@ -35,6 +35,17 @@ public static class PolicyLoader
             var got = root["version"]?.ToJsonString() ?? "null";
             throw new PolicyException($"$.version: must be exactly \"1\", got {got}");
         }
+        if (root.ContainsKey("enforcement_mode"))
+        {
+            // An unknown mode must not silently degrade to permissive (spec 1.1).
+            // Verified with .NET SDK 8.0.133 (policy vectors 22/22).
+            if (root["enforcement_mode"] is not JsonValue mNode || !mNode.TryGetValue<string>(out var ms)
+                || (ms != "permissive" && ms != "strict"))
+            {
+                var got = root["enforcement_mode"]?.ToJsonString() ?? "null";
+                throw new PolicyException($"$.enforcement_mode: must be \"permissive\" or \"strict\", got {got}");
+            }
+        }
 
         if (root["pressure"] is JsonNode pressureNode)
         {

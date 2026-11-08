@@ -16,10 +16,20 @@ from iaiso.core.execution import (
     ExecutionLocked,
     ScopeRequired,
 )
+from iaiso.core.wrapper import (
+    IAIsoPressureWrapper,
+    PressureEscalated,
+    PressureWrapper,
+    extract_usage,
+)
 
 __all__ = [
     "BoundedExecution",
     "ExecutionLocked",
+    "IAIsoPressureWrapper",
+    "PressureEscalated",
+    "PressureWrapper",
+    "extract_usage",
     "Lifecycle",
     "ENFORCEMENT_PERMISSIVE",
     "ENFORCEMENT_STRICT",

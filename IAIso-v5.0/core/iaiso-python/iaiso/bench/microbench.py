@@ -141,8 +141,8 @@ def bench_consent_verify_hs256(iterations: int) -> None:
     from iaiso import ConsentIssuer, ConsentVerifier
 
     secret = b"x" * 32
-    issuer = ConsentIssuer(signing_key=secret, issuer="bench")
-    verifier = ConsentVerifier(verification_key=secret, issuer="bench")
+    issuer = ConsentIssuer.v1(signing_key=secret, issuer="bench")
+    verifier = ConsentVerifier.v1(verification_key=secret, issuer="bench")
     token = issuer.issue(subject="u", scopes=["s"], ttl_seconds=3600).token
     for _ in range(iterations):
         verifier.verify(token)

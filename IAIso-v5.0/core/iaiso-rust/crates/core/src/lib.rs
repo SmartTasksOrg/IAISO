@@ -1,7 +1,7 @@
 //! IAIso pressure engine and bounded execution facade.
 //!
 //! This is the core runtime crate of the IAIso Rust reference SDK. It
-//! conforms to the IAIso specification at `../spec/` and passes all 67
+//! conforms to the IAIso specification at `../spec/` and passes all 72
 //! conformance vectors.
 
 pub mod config;

@@ -11,6 +11,27 @@ module IAIso
   module Core
     # A single step's worth of work.
     StepInput = Data.define(:tokens, :tool_calls, :depth, :tag) do
+      # Negative, fractional, boolean, string or nil counts would lower or
+      # poison pressure. Work is a non-negative Integer.
+      def initialize(tokens: 0, tool_calls: 0, depth: 0, tag: nil)
+        { tokens: tokens, tool_calls: tool_calls, depth: depth }.each do |name, v|
+          unless v.is_a?(Integer) && v >= 0
+            raise ArgumentError, "StepInput.#{name} must be a non-negative Integer, got #{v.inspect}"
+          end
+        end
+        raise ArgumentError, "StepInput.tag must be a String or nil" unless tag.nil? || tag.is_a?(String)
+
+        super
+      end
+
+      # Build from untrusted decoded JSON (snake_case keys); unknown keys are refused.
+      def self.from_hash(h)
+        unknown = h.keys.map(&:to_s) - %w[tokens tool_calls depth tag]
+        raise ArgumentError, "StepInput: unknown field #{unknown.first}" unless unknown.empty?
+
+        new(**h.transform_keys(&:to_sym))
+      end
+
       def self.empty = new(tokens: 0, tool_calls: 0, depth: 0, tag: nil)
       def self.build(tokens: 0, tool_calls: 0, depth: 0, tag: nil)
         new(tokens: tokens, tool_calls: tool_calls, depth: depth, tag: tag)

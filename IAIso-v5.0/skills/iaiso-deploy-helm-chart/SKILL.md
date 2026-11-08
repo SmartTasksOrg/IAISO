@@ -57,7 +57,7 @@ A Kubernetes deployment is adopting IAIso. The chart in
 5. **Set resource limits.** IAIso itself is sub-millisecond
    per step; the limits matter for the agent's LLM calls,
    not for IAIso. Reserve enough headroom that the agent
-   does not OOM during a magnification refinement loop.
+   does not OOM under peak concurrent BoundedExecution load.
 
 6. **Set up the metrics service**. The chart ships a
    `ServiceMonitor` for Prometheus Operator; enable it.

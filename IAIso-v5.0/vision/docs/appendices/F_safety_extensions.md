@@ -10,9 +10,9 @@ Logic: If the input entropy is too high, the system denies execution before $I(t
 
 Use Case: Critical control systems where "guessing" is prohibited.
 
-Layer 0.75: Back-Prop Magnifier (Enhanced)
+Layer 0.75: Back-Prop Magnifier (Enhanced) — design concept, *not implemented*
 
-A high-intensity version of the standard Magnification logic.
+Described an enhanced magnification pass. **Not implemented** in the reference engine; retained here only as design history.
 
 Logic: Increases the recursive depth of refinement loops beyond the default PLANNING_DEPTH_MAX.
 

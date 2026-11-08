@@ -105,3 +105,25 @@ def test_every_subsystem_with_vectors_has_them() -> None:
     for subsystem in ("pressure", "consent", "events", "policy"):
         vectors = SPEC_ROOT / subsystem / "vectors.json"
         assert vectors.exists(), f"{subsystem} missing vectors.json"
+
+
+# --- 2.0 and hostile vectors (shared with every port) -----------------------
+
+from iaiso.conformance import run_hostile_vectors, run_pressure_v2_vectors  # noqa: E402
+
+_V2_RESULTS = run_pressure_v2_vectors(SPEC_ROOT)
+_HOSTILE_RESULTS = run_hostile_vectors(SPEC_ROOT)
+
+
+@pytest.mark.parametrize("result", _V2_RESULTS, ids=_ids(_V2_RESULTS))
+def test_pressure_v2_vector(result: VectorResult) -> None:
+    assert result.passed, str(result)
+
+
+@pytest.mark.parametrize("result", _HOSTILE_RESULTS, ids=_ids(_HOSTILE_RESULTS))
+def test_hostile_vector(result: VectorResult) -> None:
+    assert result.passed, str(result)
+
+
+def test_v2_and_hostile_files_are_not_empty() -> None:
+    assert len(_V2_RESULTS) >= 13 and len(_HOSTILE_RESULTS) >= 22

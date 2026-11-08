@@ -5,7 +5,10 @@
   "version": "5.0.0",
   "consentScope": "sol.legal.audit",
   "status": "locked",
-  "description": "Automated contract review with back-prop quality checks for regulatory alignment.",
-  "invariants": ["inv-1", "inv-4"],
+  "description": "Automated contract review with audit-trail logging for regulatory alignment.",
+  "invariants": [
+    "inv-1",
+    "inv-4"
+  ],
   "parent": "Smarttasks"
 }

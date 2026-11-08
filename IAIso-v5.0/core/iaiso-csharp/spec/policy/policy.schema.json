@@ -1,10 +1,12 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://iaiso.dev/spec/1.0/policy/policy.schema.json",
+  "$id": "https://iaiso.dev/spec/1.1/policy/policy.schema.json",
   "title": "IAIso Policy File",
   "description": "Top-level configuration document for an IAIso deployment. See spec/policy/README.md.",
   "type": "object",
-  "required": ["version"],
+  "required": [
+    "version"
+  ],
   "additionalProperties": true,
   "properties": {
     "version": {
@@ -12,44 +14,148 @@
       "const": "1",
       "description": "Policy schema version. Must be exactly \"1\" for this spec."
     },
+    "enforcement_mode": {
+      "type": "string",
+      "enum": [
+        "permissive",
+        "strict"
+      ],
+      "default": "permissive",
+      "description": "Boot-time safety posture. 'permissive' logs a warning once per process for each degraded condition and proceeds. 'strict' refuses to construct the engine, naming the failing condition. Fail closed: a framework whose gates silently do nothing is worse than none, because it produces confidence."
+    },
     "pressure": {
       "type": "object",
       "additionalProperties": true,
       "properties": {
-        "token_coefficient":      {"type": "number", "minimum": 0},
-        "tool_coefficient":       {"type": "number", "minimum": 0},
-        "depth_coefficient":      {"type": "number", "minimum": 0},
-        "dissipation_per_step":   {"type": "number", "minimum": 0},
-        "dissipation_per_second": {"type": "number", "minimum": 0},
-        "escalation_threshold":   {"type": "number", "minimum": 0, "maximum": 1},
-        "release_threshold":      {"type": "number", "minimum": 0, "maximum": 1},
-        "post_release_lock":      {"type": "boolean"}
+        "token_coefficient": {
+          "type": "number",
+          "minimum": 0
+        },
+        "tool_coefficient": {
+          "type": "number",
+          "minimum": 0
+        },
+        "depth_coefficient": {
+          "type": "number",
+          "minimum": 0
+        },
+        "dissipation_per_step": {
+          "type": "number",
+          "minimum": 0
+        },
+        "dissipation_per_second": {
+          "type": "number",
+          "minimum": 0
+        },
+        "escalation_threshold": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "release_threshold": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "post_release_lock": {
+          "type": "boolean"
+        },
+        "max_total_tokens": {
+          "type": "integer",
+          "minimum": 0,
+          "default": 0,
+          "description": "2.0: lifetime allowance; 0 disables. Never decays; a release does not refill it. 1.x implementations ignore it (unknown keys are ignored), so it is only enforced by 2.0 engines."
+        },
+        "max_total_tool_calls": {
+          "type": "integer",
+          "minimum": 0,
+          "default": 0,
+          "description": "2.0: lifetime allowance; 0 disables. Never decays; a release does not refill it. 1.x implementations ignore it (unknown keys are ignored), so it is only enforced by 2.0 engines."
+        },
+        "max_total_steps": {
+          "type": "integer",
+          "minimum": 0,
+          "default": 0,
+          "description": "2.0: lifetime allowance; 0 disables. Never decays; a release does not refill it. 1.x implementations ignore it (unknown keys are ignored), so it is only enforced by 2.0 engines."
+        },
+        "empty_step_dissipation": {
+          "type": "boolean",
+          "default": false,
+          "description": "2.0 default false: per-step dissipation applies only to steps that carry work. 1.x behaviour is true."
+        },
+        "budget_usd": {
+          "type": "number",
+          "minimum": 0,
+          "default": 0,
+          "description": "Hard spend ceiling in USD; 0 disables. Requires model_costs."
+        },
+        "model_costs": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "number",
+            "minimum": 0
+          },
+          "description": "USD per 1M tokens by model name."
+        },
+        "unpriced_model_usd_per_million": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "minimum": 0,
+          "default": null,
+          "description": "Price for a model missing from model_costs. 2.0 default null = the highest listed price (fail closed); 0 = free (1.x)."
+        }
       }
     },
     "coordinator": {
       "type": "object",
       "additionalProperties": true,
       "properties": {
-        "escalation_threshold":    {"type": "number", "minimum": 0},
-        "release_threshold":       {"type": "number", "minimum": 0},
-        "notify_cooldown_seconds": {"type": "number", "minimum": 0},
+        "escalation_threshold": {
+          "type": "number",
+          "minimum": 0
+        },
+        "release_threshold": {
+          "type": "number",
+          "minimum": 0
+        },
+        "notify_cooldown_seconds": {
+          "type": "number",
+          "minimum": 0
+        },
         "aggregator": {
           "type": "string",
-          "enum": ["sum", "mean", "max", "weighted_sum"]
+          "enum": [
+            "sum",
+            "mean",
+            "max",
+            "weighted_sum"
+          ]
         },
         "weights": {
           "type": "object",
-          "additionalProperties": {"type": "number"}
+          "additionalProperties": {
+            "type": "number"
+          }
         },
-        "default_weight": {"type": "number"}
+        "default_weight": {
+          "type": "number"
+        }
       }
     },
     "consent": {
       "type": "object",
       "additionalProperties": true,
       "properties": {
-        "issuer": {"type": "string", "minLength": 1},
-        "default_ttl_seconds": {"type": "number", "minimum": 0},
+        "issuer": {
+          "type": "string",
+          "minLength": 1
+        },
+        "default_ttl_seconds": {
+          "type": "number",
+          "minimum": 0
+        },
         "required_scopes": {
           "type": "array",
           "items": {
@@ -59,7 +165,9 @@
         },
         "allowed_algorithms": {
           "type": "array",
-          "items": {"type": "string"}
+          "items": {
+            "type": "string"
+          }
         }
       }
     },

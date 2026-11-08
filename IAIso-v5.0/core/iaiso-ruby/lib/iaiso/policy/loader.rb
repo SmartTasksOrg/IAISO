@@ -27,6 +27,13 @@ module IAIso
         unless v.is_a?(String) && v == "1"
           raise PolicyError, "$.version: must be exactly \"1\", got #{repr(v)}"
         end
+        if doc.key?("enforcement_mode")
+          # An unknown mode must not silently degrade to permissive (spec 1.1).
+          m = doc["enforcement_mode"]
+          unless m.is_a?(String) && %w[permissive strict].include?(m)
+            raise PolicyError, "$.enforcement_mode: must be \"permissive\" or \"strict\", got #{repr(m)}"
+          end
+        end
 
         if doc.key?("pressure")
           p = doc["pressure"]

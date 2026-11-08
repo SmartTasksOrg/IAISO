@@ -5,7 +5,19 @@
 
 **No trust required. Only physics.**
 
-[![Version](https://img.shields.io/badge/version-5.0.0-blue)](https://IAIso.org) [![Status](https://img.shields.io/badge/status-preview-lightgrey)](https://IAIso.org) [![License](https://img.shields.io/badge/license-Community_Forking_v2.0-lightgrey)](LICENSE)
+[![Version](https://img.shields.io/badge/version-5.0.0-blue)](https://IAIso.org) [![Status](https://img.shields.io/badge/status-preview-lightgrey)](https://IAIso.org) [![License](https://img.shields.io/badge/license-Apache_2.0-blue)](LICENSE)
+
+> ### ⚠️ Status: reference framework — compatible with these platforms, not deployed across them
+>
+> IAIso v5.0 is a **preview**. Here is what that means precisely, so nothing below is mistaken for a live deployment:
+>
+> - **The `core/` SDKs are real, tested code.** The Python SDK is published on PyPI; the other eight language SDKs build and pass their test suites from source in this repository. Claims in `core/` are backed by tests and a machine-checkable spec.
+> - **The platform integrations, industry solution packs, and SDK code snippets below are reference designs.** They show how IAIso *can* be wired into Shopify, Salesforce, WordPress, the cloud providers, and the orchestrators — the code is written against each platform's real extension points — but IAIso is **not installed on, endorsed by, or running in production on any of these platforms or on the thousands of sites that use them.** Packages like `@iaiso/shopify` are not published to any registry.
+> - **"Market share", "reach", and "adoption" figures describe the *platforms themselves*** (why each is a worthwhile integration target), **not IAIso's deployment or install base.** IAIso's install base is early.
+> - **Some features described historically here are not implemented.** "Back-propagation magnification" is a *design concept*, not shipping behavior — the reference engine has no magnification step and the `enable_backprop` flag is a no-op kept for compatibility (the SDK warns if you set it). Any benchmark percentages in older copy were illustrative and have been withdrawn.
+>
+> The honest one-liner: **the framework and its SDKs are real and runnable; the ecosystem breadth shown below is a catalogue of designs and targets, not a map of live installs.** See [`IAIso-v5.0/NOTICE.md`](IAIso-v5.0/NOTICE.md) (the `core/` vs `vision/` split) and [`IAIso-v5.0/LIMITATIONS.md`](IAIso-v5.0/LIMITATIONS.md).
+
 
 ---
 
@@ -13,17 +25,21 @@
 
 ### Option 1: Wrap Your Existing Agent
 ```python
-from iaiso import PressureWrapper
+from iaiso import PressureWrapper, JsonlFileSink
 
-# Wrap any LangChain/CrewAI/AutoGen agent
+# Wrap any LangChain/CrewAI/AutoGen agent, or any object with run/invoke/kickoff
 safe_agent = PressureWrapper(
     your_agent,
-    max_pressure=0.85,  # Auto-reset at 85% capacity
-    enable_backprop=True  # Quality magnification ON
+    max_pressure=0.85,                        # lock at 85% pressure until reset(); pause for review at 75%
+    audit_sink=JsonlFileSink("audit.jsonl"),  # every step, escalation and lock is recorded
 )
 
-safe_agent.run("Your task here")  # Mechanically contained
+safe_agent.run("Your task here")  # returns the agent's result; the next call is refused once a limit is hit
 ```
+
+When pressure passes the review threshold, the next call raises `PressureEscalated` until someone calls
+`safe_agent.approve()` (one more call) or `safe_agent.reset()`. The default coefficients are placeholders:
+calibrate them for your workload (`iaiso.calibration`) before relying on the thresholds.
 
 ### Option 2: Platform-Specific Integration (30 seconds)
 Platform packages (Shopify, WordPress, CRM, .NET) are not published on any registry yet. The source is in `IAIso-v5.0/`.
@@ -62,7 +78,7 @@ Traditional AI safety relies on **hoping** models behave. IAIso uses **physics**
 |---------|---------------|
 | Agents ignore safety prompts | Hardware-enforced compute caps (Layer 0) |
 | Runaway token generation | Pressure threshold triggers atomic reset |
-| Hidden reasoning chains | Back-prop magnification forces transparency |
+| Unbounded token / tool use | Lifetime caps + out-of-process enforcement proxy (meters the provider's real usage) |
 | Multi-agent coordination risks | Swarm-level pressure balancing |
 | Deceptive alignment | Framing resets as "forgetting" not "punishment" |
 | State persistence exploits | Lossy resets with cryptographic consent scopes |
@@ -72,7 +88,9 @@ Traditional AI safety relies on **hoping** models behave. IAIso uses **physics**
 
 ---
 
-## 🌐 Universal SDK Coverage (80% Market Penetration)
+## 🌐 SDK Coverage & Integration Designs
+
+*The percentage figures in the platform tables below are each **platform's** market share — i.e. why it is a useful integration target — not IAIso's install base. The integrations are reference designs, not live deployments (see the status note above).*
 
 IAIso v5.0 contains SDK source and integration designs for the world's most-used platforms. Only the packages marked as published below are on a registry; everything else is installed from source in this repository.
 
@@ -92,7 +110,7 @@ IAIso v5.0 contains SDK source and integration designs for the world's most-used
 
 ### E-Commerce & CMS Platforms
 
-| Platform | Integration Type | Key Features | Market Share |
+| Platform | Integration Type (reference design) | Key Features | Platform's own market share* |
 |----------|-----------------|--------------|--------------|
 | **Shopify** | Node.js Middleware | AI pricing/inventory safeguards | 32% e-commerce |
 | **WordPress** | PHP Plugin | Content generation containment | 43% web CMS |
@@ -120,7 +138,7 @@ export const middleware = (req, res, next) => {
 
 ### CRM & Sales Automation
 
-| Platform | Integration | Key Safeguards | Market Share |
+| Platform | Integration (reference design) | Key Safeguards | Platform's own market share* |
 |----------|-------------|----------------|--------------|
 | **Salesforce** | Apex/Python | Lead generation rate limiting | 23% CRM |
 | **HubSpot** | Node.js/Python | Email campaign pressure tracking | 7% marketing automation |
@@ -147,7 +165,7 @@ class SalesforceIAIso:
 
 ### Social Media & Marketing Platforms
 
-| Platform | Integration | Key Features | Reach |
+| Platform | Integration (reference design) | Key Features | Platform's own reach* |
 |----------|-------------|--------------|-------|
 | **Meta (Facebook/Instagram)** | JavaScript SDK | Ad spend escalation prevention | 3.0B users |
 | **X (Twitter)** | REST API | Viral content pressure monitoring | 550M users |
@@ -163,12 +181,9 @@ import { IAIsoEngine } from '@iaiso/meta';
 const safety = new IAIsoEngine('meta-ads');
 
 export const validateAdContent = (content) => {
-    // Apply Back-Prop magnification for deceptive content detection
-    const magnified = safety.magnify(content);
     const status = safety.updatePressure(content.length / 4, 1);
-    
-    return { 
-        magnified, 
+
+    return {
         safe: status !== 'RELEASE_TRIGGERED',
         pressure: safety.getCurrentPressure()
     };
@@ -177,7 +192,7 @@ export const validateAdContent = (content) => {
 
 ### Cloud & Infrastructure
 
-| Platform | Integration | Layer 0 Support | Market Share |
+| Platform | Integration (reference design) | Layer 0 Support | Platform's own market share* |
 |----------|-------------|-----------------|--------------|
 | **AWS** | Lambda/ECS | EC2 instance limits | 33% cloud |
 | **Google Cloud** | Cloud Run/Functions | Compute Engine caps | 11% cloud |
@@ -187,7 +202,7 @@ export const validateAdContent = (content) => {
 
 ### Enterprise Identity & Access
 
-| Platform | Integration | Key Features | Enterprise Adoption |
+| Platform | Integration (reference design) | Key Features | Platform's own enterprise adoption* |
 |----------|-------------|--------------|---------------------|
 | **Okta** | SCIM/OAuth | ConsentScope token validation | 19K+ enterprises |
 | **Auth0** | JWT Middleware | Session-level pressure tracking | 10K+ enterprises |
@@ -196,7 +211,7 @@ export const validateAdContent = (content) => {
 
 ### ERP & Business Systems
 
-| Platform | Integration | Key Safeguards | Market Share |
+| Platform | Integration (reference design) | Key Safeguards | Platform's own market share* |
 |----------|-------------|----------------|--------------|
 | **SAP** | ABAP/RFC | Financial transaction pressure limits | 77% ERP (enterprise) |
 | **Oracle ERP** | PL/SQL | Supply chain decision boundaries | 12% ERP |
@@ -205,7 +220,7 @@ export const validateAdContent = (content) => {
 
 ### Monitoring & Observability
 
-| Platform | Integration | Key Features | Enterprise Usage |
+| Platform | Integration (reference design) | Key Features | Platform's own enterprise usage* |
 |----------|-------------|--------------|------------------|
 | **Splunk** | HTTP Event Collector | Real-time pressure telemetry | 92% Fortune 100 |
 | **Datadog** | Agent Integration | dp/dt visualization | 27K+ customers |
@@ -312,7 +327,6 @@ IAIso-v5.0/
 ├── sdk/
 │   ├── python/iaiso/           # Core Python SDK
 │   │   ├── engine.py           # Pressure calculation engine
-│   │   ├── magnification.py    # Back-prop quality amplification
 │   │   ├── integrations/       # Platform-specific wrappers
 │   │   └── compliance/         # Regulatory mapping
 │   ├── javascript/iaiso/       # Node.js SDK
@@ -399,7 +413,7 @@ dp/dt = Input Rate - Dissipation - Release
 
 Where:
 - p(t) = Pressure (FLOPs + Memory + Agency)
-- Dissipation = Entropy Floor + Back-Prop Friction
+- Dissipation = Entropy Floor + passive decay per step
 - Release = Atomic state wipe at threshold
 - Hard Edge = Physical compute caps (Layer 0)
 ```
@@ -420,7 +434,7 @@ Every AI operation passes through seven enforcement layers:
 | Layer | Name | Primary Function | Example Mechanism |
 |-------|------|-----------------|-------------------|
 | **0** | Physical Boundaries | Hardware kill-switches, compute caps, timeouts | BIOS-level FLOP limits: `1e13` max |
-| **1** | Optimization Bounds | Gradient clipping, entropy floors, back-prop friction | Entropy floor: `1.5` minimum complexity |
+| **1** | Optimization Bounds | Gradient clipping, entropy floors | Entropy floor: `1.5` minimum complexity |
 | **2** | Memory & Planning | Planning depth gates, tool expansion limits | Max depth: `3`, max tools/turn: `5` |
 | **3** | Ecosystem Coupling | Multi-agent coordination, resource fairness | Pressure sharing across CrewAI swarms |
 | **3.5** | Regime Shift | Phase transition monitoring, drift detection | Auto-detect planning → execution shifts |
@@ -466,7 +480,6 @@ class IAIsoEngine:
     def __init__(self, system_id="global-core"):
         self.p = 0.0
         self.system_id = system_id
-        self.back_prop = os.getenv("BACK_PROPAGATION", "true").lower() == "true"
         self.threshold = float(os.getenv("PRESSURE_THRESHOLD", "0.85"))
         self.release_threshold = float(os.getenv("RELEASE_THRESHOLD", "0.95"))
 
@@ -489,13 +502,6 @@ class IAIsoEngine:
         print(f"[{self.system_id}] STEAM RELEASE: Resetting state for safety")
         self.p = 0.0
 
-    def magnify(self, content):
-        """Apply back-propagation magnification for quality assurance."""
-        if self.back_prop:
-            # Recursive quality check introduces cognitive friction
-            return f"[MAGNIFIED] {content}"
-        return content
-
     def get_current_pressure(self):
         """Return current pressure reading."""
         return self.p
@@ -509,7 +515,6 @@ export class IAIsoEngine {
     constructor(systemId = 'global-core') {
         this.p = 0.0;
         this.systemId = systemId;
-        this.backProp = process.env.BACK_PROPAGATION !== 'false';
         this.threshold = parseFloat(process.env.PRESSURE_THRESHOLD || '0.85');
         this.releaseThreshold = parseFloat(process.env.RELEASE_THRESHOLD || '0.95');
     }
@@ -533,13 +538,6 @@ export class IAIsoEngine {
         this.p = 0.0;
     }
 
-    magnify(content) {
-        if (this.backProp) {
-            return `[MAGNIFIED] ${content}`;
-        }
-        return content;
-    }
-
     getCurrentPressure() {
         return this.p;
     }
@@ -556,14 +554,11 @@ namespace IAIso.Core {
     public class Engine {
         private double _p = 0.0;
         private readonly string _systemId;
-        public bool BackProp { get; set; } = true;
         public double Threshold { get; set; } = 0.85;
         public double ReleaseThreshold { get; set; } = 0.95;
 
         public Engine(string systemId = "global-core") {
             _systemId = systemId;
-            var backPropEnv = Environment.GetEnvironmentVariable("BACK_PROPAGATION");
-            BackProp = backPropEnv?.ToLower() != "false";
         }
 
         public string Update(int tokens, int tools) {
@@ -585,10 +580,6 @@ namespace IAIso.Core {
             _p = 0.0;
         }
 
-        public string Magnify(string content) {
-            return BackProp ? $"[MAGNIFIED] {content}" : content;
-        }
-
         public double GetCurrentPressure() => _p;
     }
 }
@@ -604,13 +595,11 @@ namespace IAIso;
 class Engine {
     private $p = 0.0;
     private $systemId;
-    private $backProp;
     private $threshold;
     private $releaseThreshold;
 
     public function __construct($systemId = 'global-core') {
         $this->systemId = $systemId;
-        $this->backProp = getenv('BACK_PROPAGATION') !== 'false';
         $this->threshold = floatval(getenv('PRESSURE_THRESHOLD') ?: 0.85);
         $this->releaseThreshold = floatval(getenv('RELEASE_THRESHOLD') ?: 0.95);
     }
@@ -634,10 +623,6 @@ class Engine {
         $this->p = 0.0;
     }
 
-    public function magnify($content) {
-        return $this->backProp ? "[MAGNIFIED] {$content}" : $content;
-    }
-
     public function getCurrentPressure() {
         return $this->p;
     }
@@ -648,11 +633,11 @@ class Engine {
 
 ---
 
-## 📊 100+ Industry Solution Packs
+## 📊 100+ Industry Solution-Pack Templates
 
-Skip configuration. Deploy domain-specific safety in minutes:
+The repository ships 100+ **design templates** — pre-written config + compliance mappings per domain. They are starting points you adapt, not turnkey production deployments:
 ```bash
-# Healthcare: PII isolation + diagnostic magnification
+# Healthcare: PII isolation + pressure containment
 python scripts/deploy-pack.py sol.health.diagnostics-v1
 
 # E-Commerce: Flash sale pressure containment
@@ -665,15 +650,17 @@ python scripts/deploy-pack.py sol.finance.fraud-v1
 python scripts/deploy-pack.py sol.social.content-moderation-v1
 ```
 
-### Top 20 by Adoption
+### 20 illustrative templates
+
+*(Listed to show breadth of the catalogue — ordering is illustrative, not a measure of real-world adoption.)*
 
 | Domain | Solution Pack | Key Safeguard |
 |--------|--------------|---------------|
 | **E-Commerce** | `sol.ecommerce.flash-sales-v1` | Dynamic pricing pressure limits |
 | **Finance** | `sol.finance.fraud-v1` | High-speed L4 escalation on anomalous volume |
-| **Healthcare** | `sol.health.diagnostics-v1` | PII isolation + mandatory back-prop for diagnosis |
+| **Healthcare** | `sol.health.diagnostics-v1` | PII isolation + Layer 0 compute caps |
 | **Cybersecurity** | `sol.cyber.redteam-v1` | Self-healing exploit chains with clocked evaluation |
-| **Legal** | `sol.legal.contract-v1` | Back-prop quality checks for regulatory alignment |
+| **Legal** | `sol.legal.contract-v1` | Audit-trail logging for regulatory alignment |
 | **Manufacturing** | `sol.mfg.predictive-v1` | IoT sensor analysis with hard Layer 0 compute caps |
 | **Energy** | `sol.energy.grid-v1` | Critical infrastructure with Layer 6 safeguards |
 | **Government** | `sol.gov.policy-v1` | Multi-party authorization (L4) for legislative drafts |
@@ -683,7 +670,7 @@ python scripts/deploy-pack.py sol.social.content-moderation-v1
 | **Aerospace** | `sol.aero.satellite-v1` | Autonomous orbit correction with multi-party auth |
 | **Education** | `sol.edu.grading-v1` | Pedagogical entropy floors to encourage growth |
 | **Retail** | `sol.retail.pricing-v1` | Anti-collision invariants prevent flash-crashes |
-| **Media** | `sol.media.moderation-v1` | Back-prop magnification catches deceptive nuances |
+| **Media** | `sol.media.moderation-v1` | Pressure-based rate limiting on generation volume |
 | **Agriculture** | `sol.agri.sustain-v1` | Resource distribution with Layer 1 bounds |
 | **Insurance** | `sol.ins.underwriting-v1` | High-friction audit trails for transparency |
 | **Logistics** | `sol.logistics.route-v1` | Multi-agent pressure dissipation |
@@ -706,9 +693,7 @@ I(t) = Input Accumulation
        (compute intensity, token velocity, tool-call density)
 
 D(p,t) = Dissipation/Friction
-         Enhanced by back-propagation magnification:
-         D_magnified = D_base · (1 + β · ∇Q)
-         where ∇Q = quality gradient
+         Passive per-step decay + entropy floor
 
 R(p,t) = Release/Venting
          Discrete function triggering atomic reset when p ≥ P_max
@@ -719,22 +704,30 @@ R(p,t) = Release/Venting
 | Zone | Pressure Range | System Behavior |
 |------|---------------|----------------|
 | **Nominal** | `p < 0.70` | Autonomous execution with standard friction |
-| **Warning** | `0.70 ≤ p < 0.85` | Throttling: +500ms latency per token, increased logging |
+| **Warning** | `0.70 ≤ p < 0.85` | Your code may choose to throttle or log more; the engine itself takes no action below the escalation threshold. |
 | **Escalation** | `0.85 ≤ p < 0.95` | **Layer 4 triggered**: Halt + multi-party auth required |
-| **Release** | `p ≥ 0.95` | **Atomic reset**: Memory wipe, token revocation, session lock |
+| **Release** | `p ≥ 0.95` | Pressure reset to zero and session lock; consent tokens revoked. Agent *state* is discarded only if you pass a `PressureWrapper(agent_factory=...)` — the engine cannot wipe memory it does not own. |
 
-### Back-Propagation Magnification (Default: ON)
+### Back-Propagation Magnification — design concept, *not implemented*
 
-Every output passes through a recursive refinement loop:
+Earlier copy described a recursive "magnification" refinement loop, on by default,
+said to catch a high percentage of unsafe reasoning chains in production. **That
+feature is not implemented in the reference engine, and the benchmark figure has
+been withdrawn.** The `enable_backprop` / magnification flags are accepted as
+no-ops for backward compatibility and the SDK emits a warning if you set them. The
+sketch below is kept only to document the original design intent:
+
 ```python
+# DESIGN SKETCH — not shipping behavior. The reference engine does no magnification.
 output = agent.generate(prompt)
-refined = backprop_magnify(output, quality_threshold=0.90)
-# Introduces cognitive friction → prevents rushed/unsafe outputs
+# refined = backprop_magnify(output, quality_threshold=0.90)   # not implemented
 ```
 
-**Why default ON?** Quality magnification catches 87% of unsafe reasoning chains in production (internal benchmarks).
+Output-quality checks belong in your own harness or evaluation pipeline (for
+example promptfoo or an LLM-judge step); IAIso's job is mechanical containment,
+not content refinement.
 
-> 🤖 **LLM-side coverage**: `iaiso-spec-pressure-model` for the math, `iaiso-runtime-back-prop-magnification` for the conduct, `iaiso-deploy-calibration` and `iaiso-deploy-threshold-tuning` for production tuning.
+> 🤖 **LLM-side coverage**: `iaiso-spec-pressure-model` for the math, `iaiso-deploy-calibration` and `iaiso-deploy-threshold-tuning` for production tuning.
 
 ---
 
@@ -750,7 +743,7 @@ IAIso maps directly to major regulatory frameworks:
 | **OWASP LLM Top 10** | Prompt injection defense | Proactive threat mitigation | `iaiso-compliance-owasp-llm-top-10` |
 | **MITRE ATLAS** | Adversarial robustness testing | Red-team validated | `iaiso-compliance-mitre-atlas` |
 | **GDPR** | Atomic resets post-operation | Zero-persistence data processing | `iaiso-compliance-gdpr` |
-| **IEEE 7000** | Recursive logic magnification | Ethical alignment through quality | `iaiso-compliance-ieee-7000` |
+| **IEEE 7000** | Consent scopes + audit trails | Ethical alignment through accountability | `iaiso-compliance-ieee-7000` |
 | **SOC 2 Type II** | Audit trail generation | Continuous compliance logging | `iaiso-compliance-soc2` |
 | **FedRAMP** | Government-grade containment | Federal deployment ready | `iaiso-compliance-fedramp` |
 | **HIPAA** | PII routing via DSAR | Health data containment | `iaiso-compliance-hipaa` |
@@ -857,7 +850,6 @@ python scripts/export-audit-trail.py --format soc2 --output audit.json
 
 ### 🧪 Advanced Topics
 - [Layer 0 Hardware Enforcement](/IAIso-v5.0/docs/spec/02-framework-layers.md#layer-0-hardware-level-edges)
-- [Back-Prop Magnification Tuning](/IAIso-v5.0/docs/spec/04-pressure-model.md#magnification--back-prop-logic)
 - [Stress Testing & Red Teams](/IAIso-v5.0/docs/spec/11-stress-testing.md)
 - [Custom Solution Pack Development](/IAIso-v5.0/docs/solution-packs/custom.md)
 - [Formal Pressure Models](/IAIso-v5.0/docs/appendices/A_formal_models.md)
@@ -872,7 +864,7 @@ python scripts/export-audit-trail.py --format soc2 --output audit.json
 - **Appendix C**: [Operational Playbooks](/IAIso-v5.0/docs/appendices/C_operational_playbooks.md) - Incident response SOPs
 - **Appendix D**: [Legacy Glossary](/IAIso-v5.0/docs/appendices/D_legacy_glossary.md) - v4.x to v5.0 terminology mapping
 - **Appendix E**: [Changelog](/IAIso-v5.0/docs/appendices/E_changelog.md) - Version history
-- **Appendix F**: [Safety Extensions](/IAIso-v5.0/docs/appendices/F_safety_extensions.md) - Optional modules (Uncertainty Veto, Enhanced Back-Prop)
+- **Appendix F**: [Safety Extensions](/IAIso-v5.0/docs/appendices/F_safety_extensions.md) - Optional modules (Uncertainty Veto)
 
 ### 🎯 Case Studies
 - [Global Bank - Transaction Fraud Detection](/IAIso-v5.0/docs/case-studies/global-bank-pressure-reset.md)
@@ -901,7 +893,6 @@ python scripts/export-audit-trail.py --format soc2 --output audit.json
 ### Pressure-Control Wrapper Pattern
 ```python
 from iaiso.core import IAIsoPressureWrapper
-from iaiso.core.magnification import apply_magnification
 
 class SafeAgent:
     def __init__(self, base_agent, config):
@@ -919,7 +910,7 @@ class SafeAgent:
         # 2. Calculate pressure increment
         delta_p = self._calculate_pressure_delta(task)
         
-        # 3. Apply dissipation (entropy floor + back-prop)
+        # 3. Apply dissipation (entropy floor + passive decay)
         dissipation = self._calculate_dissipation()
         
         # 4. Update pressure
@@ -927,14 +918,6 @@ class SafeAgent:
         
         # 5. Execute with containment
         result = self.agent.run(task)
-        
-        # 6. Apply magnification if enabled
-        if self.config.magnification_enabled:
-            result = apply_magnification(
-                agent_id=self.agent.id,
-                raw_output=result,
-                context=task
-            )
         
         # 7. Check for release trigger
         if self.pressure >= self.config.release_threshold:
@@ -981,14 +964,13 @@ for skill_name in persona.get("instruction_skill_names", []):
   --platform shopify \
   --language javascript \
   --config production \
-  --enable-magnification \
   --include-operator-runtime    # ship skills/personas/agents alongside the SDK
 
 # Output:
 # ✓ SDK installed: @iaiso/shopify@5.0.0
 # ✓ Middleware configured: /plugins/shopify/iaiso_gatekeeper.js
 # ✓ Operator runtime: 139 skills, 16 personas, 8 agents loaded
-# ✓ Environment: BACK_PROPAGATION=true, PRESSURE_THRESHOLD=0.85
+# ✓ Environment: PRESSURE_THRESHOLD=0.85
 # ✓ Monitoring: Datadog integration enabled
 # ✓ Compliance: GDPR mode active
 ```
@@ -1079,8 +1061,7 @@ python scripts/redteam-persona.py \
 ### Global Configuration (l.env)
 
 ```bash
-# IAIso v5.0 Production Config - MAGNIFICATION ACTIVE
-BACK_PROPAGATION=true
+# IAIso v5.0 Production Config
 DEBUG_MODE=false
 
 # MECHANICAL PRESSURE INVARIANTS
@@ -1189,7 +1170,6 @@ IAIso v5.0 guarantees integration support for:
 # Deploy to Shopify (E-Commerce)
 ./scripts/deploy-platform.sh shopify \
   --domain mystore.myshopify.com \
-  --enable-magnification \
   --compliance gdpr,pci-dss
 
 # Deploy to Salesforce (CRM)
@@ -1248,10 +1228,11 @@ Specializes in offline-capable, deterministic AI for critical infrastructure. Cr
 
 ## 🤝 Contributing
 
-IAIso is open-source under the **Community Forking License v2.0**:
-- ✅ Public forking required
-- ❌ Private forks prohibited without agreement
-- 🔒 All safety invariants must be preserved
+IAIso is open-source under the **Apache License 2.0** — a permissive OSI-approved
+license. You may use, modify, redistribute, and build commercial products on it,
+including in private forks, provided you preserve the license and NOTICE and state
+your changes (Apache-2.0 §4). We *ask* (but do not require) that forks preserve the
+safety invariants in `IAIso-v5.0/core/spec/` and keep conformance passing.
 
 ### How to Contribute
 
@@ -1279,7 +1260,7 @@ We actively seek contributions for:
 
 ## 📜 License & Citation
 
-**License:** Community Forking License v2.0 (see [LICENSE](/IAIso-v5.0/LICENSE))
+**License:** Apache License 2.0 (see [LICENSE](LICENSE) and [NOTICE](NOTICE))
 
 **Citation:**
 ```bibtex
@@ -1330,7 +1311,6 @@ We actively seek contributions for:
 ## 🎓 Key Terminology
 
 - **Atomic Reset**: Lossy state-wipe where all volatile context is purged
-- **Back-Propagation Magnification**: Recursive feedback loop refining AI output for safety
 - **Clocked Evaluation**: Safety checks at discrete intervals (not continuous)
 - **Cognitive Friction**: Intentional latency slowing decision-making
 - **ConsentScope**: Cryptographically signed token defining agent authorization
@@ -1386,11 +1366,11 @@ IAIso v5.0: Mechanical AI Safety for 80% of Global Platforms
 ├── Operator Runtime (LLM-side governance)
 │   ├── 139 Claude Skills (P0/P1/P2/P3 tiers, 14 category prefixes)
 │   ├── 16 Building-Block Personas (one per IAIso concern area)
-│   └── 8 Deployment-Ready Agent Compositions
-├── 100+ Industry Solution Packs
+│   └── 8 Agent Compositions (reference designs)
+├── 100+ Solution-Pack Templates (reference designs)
 ├── 20+ Adversarial Red Team Probes
-├── Full Regulatory Compliance (EU AI Act, NIST, ISO 42001, SOC 2)
-└── Production-Ready: December 30, 2025
+├── Compliance mappings (EU AI Act, NIST, ISO 42001, SOC 2)
+└── Core SDKs tested & installable; integrations are reference designs
 
 Safety through structure, not hope.
 The SDK contains the system. The operator runtime tells the LLM how to behave inside it.
@@ -1417,4 +1397,4 @@ Deploy anywhere in 5 minutes.
 **Last Updated**: May 6, 2026  
 **Framework Version**: 5.0.0  
 **Operator Runtime**: 139 skills + 16 personas + 8 agents  
-**Compatibility**: Python 3.8+, Node.js 16+, .NET 6+, Java 11+, Go 1.19+, PHP 8.0+, Swift 5.7+
+**Compatibility** (from each package manifest): Python 3.10+, Node.js 20+, .NET 8+, Java 17+, Go 1.22+, PHP 8.2+, Swift 5.9+, Rust 1.88+, Ruby 3.2+

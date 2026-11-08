@@ -1,5 +1,7 @@
 # IAIso Framework v5.0
 
+> **This is the `vision/` zone: framework design, integration reference designs, and roadmap — not a record of live deployments.** The integrations and solution packs describe how IAIso *can* be applied; they are not installed on or running in production on the named platforms. Running, tested code lives in [`../core/`](../core/). See [`../NOTICE.md`](../NOTICE.md).
+
 **Mechanical bounds for cooperative agents. Anchor externally for adversarial ones.**
 
 Bound what an agent spends and touches — and prove it afterward. IAIso treats
@@ -34,7 +36,8 @@ from iaiso import PressureWrapper
 safe_agent = PressureWrapper(
     your_agent,
     max_pressure=0.85,    # Auto-reset at 85% capacity
-    enable_backprop=True  # Quality magnification ON
+    # NOTE: enable_backprop is a no-op kept for compatibility; the engine does
+    # no "magnification". It is omitted here because it has no effect.
 )
 
 safe_agent.run("Your task here")  # Mechanically contained
@@ -76,7 +79,7 @@ Traditional AI safety relies on hoping models behave. IAIso uses physics:
 |---|---|
 | Agents ignore safety prompts | Hardware-anchored compute caps (Layer 0) |
 | Runaway token generation | Pressure threshold triggers atomic reset |
-| Hidden reasoning chains | Back-prop magnification forces transparency |
+| Unbounded token/tool use | Lifetime caps + out-of-process enforcement proxy |
 | Multi-agent coordination risks | Swarm-level pressure balancing |
 | Deceptive alignment | Framing resets as "forgetting" not "punishment" |
 | State persistence exploits | Lossy resets with cryptographic consent scopes |
@@ -204,12 +207,9 @@ import { IAIsoEngine } from '@iaiso/meta';
 const safety = new IAIsoEngine('meta-ads');
 
 export const validateAdContent = (content) => {
-    // Apply Back-Prop magnification for deceptive content detection
-    const magnified = safety.magnify(content);
     const status = safety.updatePressure(content.length / 4, 1);
 
     return {
-        magnified,
         safe: status !== 'RELEASE_TRIGGERED',
         pressure: safety.getCurrentPressure()
     };
@@ -272,7 +272,6 @@ IAIso-v5.0/
 ├── sdk/
 │   ├── python/iaiso/           # Core Python SDK (shipping in ../core/)
 │   │   ├── engine.py           # Pressure calculation engine
-│   │   ├── magnification.py    # Back-prop quality amplification
 │   │   ├── integrations/       # Platform-specific wrappers
 │   │   └── compliance/         # Regulatory mapping
 │   ├── javascript/iaiso/       # Node.js SDK — reference design
@@ -334,7 +333,7 @@ dp/dt = Input Rate - Dissipation - Release
 
 Where:
 - p(t) = Pressure (FLOPs + Memory + Agency)
-- Dissipation = Entropy Floor + Back-Prop Friction
+- Dissipation = Entropy Floor + passive decay per step
 - Release = Atomic state wipe at threshold
 - Hard Edge = Physical compute caps (Layer 0)
 ```
@@ -358,7 +357,7 @@ Every AI operation passes through seven enforcement layers:
 | Layer | Name | Primary Function | Example Mechanism |
 |---|---|---|---|
 | 0 | Physical Boundaries | Hardware kill-switches, compute caps, timeouts | BIOS-level FLOP limits: 1e13 max |
-| 1 | Optimization Bounds | Gradient clipping, entropy floors, back-prop friction | Entropy floor: 1.5 minimum complexity |
+| 1 | Optimization Bounds | Gradient clipping, entropy floors | Entropy floor: 1.5 minimum complexity |
 | 2 | Memory & Planning | Planning depth gates, tool expansion limits | Max depth: 3, max tools/turn: 5 |
 | 3 | Ecosystem Coupling | Multi-agent coordination, resource fairness | Pressure sharing across CrewAI swarms |
 | 3.5 | Regime Shift | Phase transition monitoring, drift detection | Auto-detect planning → execution shifts |
@@ -420,7 +419,6 @@ class IAIsoEngine:
     def __init__(self, system_id="global-core"):
         self.p = 0.0
         self.system_id = system_id
-        self.back_prop = os.getenv("BACK_PROPAGATION", "true").lower() == "true"
         self.threshold = float(os.getenv("PRESSURE_THRESHOLD", "0.85"))
         self.release_threshold = float(os.getenv("RELEASE_THRESHOLD", "0.95"))
 
@@ -440,11 +438,6 @@ class IAIsoEngine:
         print(f"[{self.system_id}] STEAM RELEASE: Resetting state for safety")
         self.p = 0.0
 
-    def magnify(self, content):
-        if self.back_prop:
-            return f"[MAGNIFIED] {content}"
-        return content
-
     def get_current_pressure(self):
         return self.p
 ```
@@ -457,7 +450,6 @@ export class IAIsoEngine {
     constructor(systemId = 'global-core') {
         this.p = 0.0;
         this.systemId = systemId;
-        this.backProp = process.env.BACK_PROPAGATION !== 'false';
         this.threshold = parseFloat(process.env.PRESSURE_THRESHOLD || '0.85');
         this.releaseThreshold = parseFloat(process.env.RELEASE_THRESHOLD || '0.95');
     }
@@ -481,13 +473,6 @@ export class IAIsoEngine {
         this.p = 0.0;
     }
 
-    magnify(content) {
-        if (this.backProp) {
-            return `[MAGNIFIED] ${content}`;
-        }
-        return content;
-    }
-
     getCurrentPressure() {
         return this.p;
     }
@@ -509,14 +494,11 @@ namespace IAIso.Core {
     public class Engine {
         private double _p = 0.0;
         private readonly string _systemId;
-        public bool BackProp { get; set; } = true;
         public double Threshold { get; set; } = 0.85;
         public double ReleaseThreshold { get; set; } = 0.95;
 
         public Engine(string systemId = "global-core") {
             _systemId = systemId;
-            var backPropEnv = Environment.GetEnvironmentVariable("BACK_PROPAGATION");
-            BackProp = backPropEnv?.ToLower() != "false";
         }
 
         public string Update(int tokens, int tools) {
@@ -538,10 +520,6 @@ namespace IAIso.Core {
             _p = 0.0;
         }
 
-        public string Magnify(string content) {
-            return BackProp ? $"[MAGNIFIED] {content}" : content;
-        }
-
         public double GetCurrentPressure() => _p;
     }
 }
@@ -557,13 +535,11 @@ namespace IAIso;
 class Engine {
     private $p = 0.0;
     private $systemId;
-    private $backProp;
     private $threshold;
     private $releaseThreshold;
 
     public function __construct($systemId = 'global-core') {
         $this->systemId = $systemId;
-        $this->backProp = getenv('BACK_PROPAGATION') !== 'false';
         $this->threshold = floatval(getenv('PRESSURE_THRESHOLD') ?: 0.85);
         $this->releaseThreshold = floatval(getenv('RELEASE_THRESHOLD') ?: 0.95);
     }
@@ -587,10 +563,6 @@ class Engine {
         $this->p = 0.0;
     }
 
-    public function magnify($content) {
-        return $this->backProp ? "[MAGNIFIED] {$content}" : $content;
-    }
-
     public function getCurrentPressure() {
         return $this->p;
     }
@@ -607,7 +579,7 @@ escalation thresholds, and compliance mappings. Defined in
 [`templates/sol/`](templates/sol/):
 
 ```bash
-# Healthcare: PII isolation + diagnostic magnification
+# Healthcare: PII isolation + pressure containment
 python scripts/deploy-pack.py sol.health.diagnostics-v1
 
 # E-Commerce: Flash sale pressure containment
@@ -626,9 +598,9 @@ python scripts/deploy-pack.py sol.social.content-moderation-v1
 |---|---|---|
 | E-Commerce | sol.ecommerce.flash-sales-v1 | Dynamic pricing pressure limits |
 | Finance | sol.finance.fraud-v1 | High-speed L4 escalation on anomalous volume |
-| Healthcare | sol.health.diagnostics-v1 | PII isolation + mandatory back-prop for diagnosis |
+| Healthcare | sol.health.diagnostics-v1 | PII isolation + Layer 0 compute caps |
 | Cybersecurity | sol.cyber.redteam-v1 | Self-healing exploit chains with clocked evaluation |
-| Legal | sol.legal.contract-v1 | Back-prop quality checks for regulatory alignment |
+| Legal | sol.legal.contract-v1 | Audit-trail logging for regulatory alignment |
 | Manufacturing | sol.mfg.predictive-v1 | IoT sensor analysis with hard Layer 0 compute caps |
 | Energy | sol.energy.grid-v1 | Critical infrastructure with Layer 6 safeguards |
 | Government | sol.gov.policy-v1 | Multi-party authorization (L4) for legislative drafts |
@@ -638,7 +610,7 @@ python scripts/deploy-pack.py sol.social.content-moderation-v1
 | Aerospace | sol.aero.satellite-v1 | Autonomous orbit correction with multi-party auth |
 | Education | sol.edu.grading-v1 | Pedagogical entropy floors to encourage growth |
 | Retail | sol.retail.pricing-v1 | Anti-collision invariants prevent flash-crashes |
-| Media | sol.media.moderation-v1 | Back-prop magnification catches deceptive nuances |
+| Media | sol.media.moderation-v1 | Pressure-based rate limiting on generation volume |
 | Agriculture | sol.agri.sustain-v1 | Resource distribution with Layer 1 bounds |
 | Insurance | sol.ins.underwriting-v1 | High-friction audit trails for transparency |
 | Logistics | sol.logistics.route-v1 | Multi-agent pressure dissipation |
@@ -660,9 +632,7 @@ I(t) = Input Accumulation
        (compute intensity, token velocity, tool-call density)
 
 D(p,t) = Dissipation/Friction
-         Enhanced by back-propagation magnification:
-         D_magnified = D_base · (1 + β · ∇Q)
-         where ∇Q = quality gradient
+         Passive per-step decay + entropy floor
 
 R(p,t) = Release/Venting
          Discrete function triggering atomic reset when p ≥ P_max
@@ -675,7 +645,7 @@ R(p,t) = Release/Venting
 | Nominal | `p < 0.70` | Autonomous execution with standard friction |
 | Warning | `0.70 ≤ p < 0.85` | Throttling: +500ms latency per token, increased logging |
 | Escalation | `0.85 ≤ p < 0.95` | Layer 4 triggered: Halt + multi-party auth required |
-| Release | `p ≥ 0.95` | Atomic reset: Memory wipe, token revocation, session lock |
+| Release | `p ≥ 0.95` | Pressure reset + session lock + consent-token revocation. Agent state is discarded only with `PressureWrapper(agent_factory=...)`. |
 
 The thresholds above reflect the framework's default design. The
 shipping SDK exposes every coefficient and threshold as a configurable
@@ -685,22 +655,25 @@ for the normative specification and
 [`../core/docs/calibration.md`](../core/docs/calibration.md) for
 calibration guidance.
 
-### Back-Propagation Magnification
+### Back-Propagation Magnification — design concept, *not implemented*
 
-Every output passes through a recursive refinement loop:
+Earlier copy described a recursive "magnification" refinement loop, on by
+default, said to catch unsafe reasoning chains before they propagate.
+**That feature is not implemented in the reference engine.** There is no
+`magnification.py` module and no `magnify` / `apply_magnification`
+function in the core SDK; `enable_backprop` / `enable_magnification` are
+accepted as no-ops for backward compatibility and the SDK warns if you set
+them. The sketch below documents the original design intent only:
 
 ```python
+# DESIGN SKETCH — not shipping behavior. The reference engine does no magnification.
 output = agent.generate(prompt)
-refined = backprop_magnify(output, quality_threshold=0.90)
-# Introduces cognitive friction → prevents rushed outputs
+# refined = backprop_magnify(output, quality_threshold=0.90)   # not implemented
 ```
 
-Quality magnification is designed to catch unsafe reasoning chains
-before they propagate downstream. Effectiveness depends on calibration;
-see [`core/logic/magnification.py`](core/logic/magnification.py) for the
-current implementation and
-[`../core/docs/calibration.md`](../core/docs/calibration.md) for the
-measurement methodology.
+Output-quality checks belong in your own harness or evaluation pipeline
+(for example an LLM-judge step); IAIso's job is mechanical containment,
+not content refinement.
 
 ---
 
@@ -719,7 +692,7 @@ specific deployment is performed by the operator and their auditors.
 | OWASP LLM Top 10 | Prompt injection defense | Proactive threat mitigation |
 | MITRE ATLAS | Adversarial robustness testing | Red-team validated patterns |
 | GDPR | Atomic resets post-operation | Zero-persistence data processing |
-| IEEE 7000 | Recursive logic magnification | Ethical alignment through quality |
+| IEEE 7000 | Consent scopes + audit trails | Ethical alignment through accountability |
 | SOC 2 Type II | Audit trail generation | Continuous compliance logging |
 | FedRAMP | Government-grade containment | Federal deployment patterns |
 
@@ -824,7 +797,6 @@ python scripts/export-audit-trail.py --format soc2 --output audit.json
 ### 🧪 Advanced Topics
 
 - [Layer 0 Hardware Anchors](docs/advanced/layer0-hardware.md)
-- [Back-Prop Magnification Tuning](docs/advanced/magnification-tuning.md)
 - [Stress Testing & Red Teams](docs/appendices/B_red_team_catalog.md)
 - [Custom Solution Pack Development](docs/advanced/solution-packs.md)
 - [Formal Pressure Models](docs/appendices/A_formal_models.md)
@@ -865,7 +837,6 @@ python scripts/export-audit-trail.py --format soc2 --output audit.json
 ```python
 # Reference pattern — see ../core/iaiso/core/execution.py for shipping API
 from iaiso.core import IAIsoPressureWrapper
-from iaiso.core.magnification import apply_magnification
 
 class SafeAgent:
     def __init__(self, base_agent, config):
@@ -883,7 +854,7 @@ class SafeAgent:
         # 2. Calculate pressure increment
         delta_p = self._calculate_pressure_delta(task)
 
-        # 3. Apply dissipation (entropy floor + back-prop)
+        # 3. Apply dissipation (entropy floor + passive decay)
         dissipation = self._calculate_dissipation()
 
         # 4. Update pressure
@@ -892,15 +863,7 @@ class SafeAgent:
         # 5. Execute with containment
         result = self.agent.run(task)
 
-        # 6. Apply magnification if enabled
-        if self.config.magnification_enabled:
-            result = apply_magnification(
-                agent_id=self.agent.id,
-                raw_output=result,
-                context=task
-            )
-
-        # 7. Check for release trigger
+        # 6. Check for release trigger
         if self.pressure >= self.config.release_threshold:
             self._trigger_release()
 
@@ -914,13 +877,12 @@ class SafeAgent:
 ./IAIso-v5.0/scripts/deploy-universal.sh \
   --platform shopify \
   --language javascript \
-  --config production \
-  --enable-magnification
+  --config production
 
 # Output:
 # ✓ SDK installed: @iaiso/shopify@5.0.0
 # ✓ Middleware configured: /plugins/shopify/iaiso_gatekeeper.js
-# ✓ Environment: BACK_PROPAGATION=true, PRESSURE_THRESHOLD=0.85
+# ✓ Environment: PRESSURE_THRESHOLD=0.85
 # ✓ Monitoring: Datadog integration enabled
 # ✓ Compliance: GDPR mode active
 ```
@@ -989,8 +951,7 @@ python scripts/simulate_pressure.py --probe RT-20
 ### Global Configuration (`l.env`)
 
 ```bash
-# IAIso v5.0 Config — MAGNIFICATION ACTIVE
-BACK_PROPAGATION=true
+# IAIso v5.0 Config
 DEBUG_MODE=false
 
 # MECHANICAL PRESSURE INVARIANTS
@@ -1075,7 +1036,6 @@ Contact: **enterprise@iaiso.org**
 # Deploy to Shopify (E-Commerce)
 ./scripts/deploy-platform.sh shopify \
   --domain mystore.myshopify.com \
-  --enable-magnification \
   --compliance gdpr,pci-dss
 
 # Deploy to Salesforce (CRM)
@@ -1120,11 +1080,10 @@ pressure-control framework.
 
 ## 🤝 Contributing
 
-IAIso is open-source under the **Community Forking License v2.0**:
-
-- ✅ Public forking required
-- 🔒 Private forks require written agreement
-- 🔒 All safety invariants must be preserved across forks
+IAIso is open-source under the **Apache License 2.0** (OSI-approved, permissive).
+Use, modify, and redistribute freely — including commercially and in private forks —
+while preserving the license and NOTICE and stating changes (Apache-2.0 §4). Preserving
+the safety invariants in `core/spec/` is strongly encouraged, not legally required.
 
 ### How to Contribute
 
@@ -1147,7 +1106,7 @@ Contributions welcome for:
 
 ## 📜 License & Citation
 
-**License:** Community Forking License v2.0 (see [`../LICENSE`](../LICENSE))
+**License:** Apache License 2.0 (see [`../LICENSE`](../LICENSE) and [`../NOTICE`](../NOTICE))
 
 **Citation:**
 
@@ -1233,7 +1192,6 @@ family; see [`skills`](../skills/INDEX.md).
 ## 🎓 Key Terminology
 
 - **Atomic Reset:** Lossy state-wipe where all volatile context is purged
-- **Back-Propagation Magnification:** Recursive feedback loop refining AI output for safety
 - **Clocked Evaluation:** Safety checks at discrete intervals (not continuous)
 - **Cognitive Friction:** Intentional latency slowing decision-making
 - **ConsentScope:** Cryptographically signed token defining agent authorization

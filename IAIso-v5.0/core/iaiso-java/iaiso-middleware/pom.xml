@@ -7,7 +7,7 @@
         <version>0.1.0</version>
     </parent>
     <artifactId>iaiso-middleware</artifactId>
-    <n>IAIso :: Middleware</n>
+    <name>IAIso :: Middleware</name>
     <description>IAIso LLM provider middleware (Anthropic, OpenAI, Gemini, Bedrock, Mistral, Cohere, LiteLLM)</description>
 
     <dependencies>

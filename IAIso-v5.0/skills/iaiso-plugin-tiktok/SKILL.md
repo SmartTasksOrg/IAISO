@@ -35,7 +35,7 @@ or deciding.
    teams running customer-facing flows usually swap this for a
    graceful fallback. Document the choice in the plugin config.
 
-5. **Confirm audit emission.** Every blocked or magnified action
+5. **Confirm audit emission.** Every blocked action
    should produce an audit event with `kind` linking to the
    TikTok request ID — this is the trail an investigator
    walks when something goes wrong in production.

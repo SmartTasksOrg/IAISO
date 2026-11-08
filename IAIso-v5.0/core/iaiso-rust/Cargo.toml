@@ -22,7 +22,7 @@ edition = "2021"
 license = "Apache-2.0"
 repository = "https://github.com/SmartTasksOrg/IAISO"
 authors = ["IAIso Contributors"]
-rust-version = "1.75"
+rust-version = "1.88"  # time >= 0.3.47 (RUSTSEC-2026-0009) needs 1.88
 
 [workspace.dependencies]
 # Standard
@@ -36,7 +36,7 @@ parking_lot = "0.12"
 chrono = { version = "0.4", default-features = false, features = ["clock"] }
 
 # JWT
-jsonwebtoken = "8"
+jsonwebtoken = "9"
 base64 = "0.22"
 
 # HTTP — blocking client lets us keep Sink::emit sync

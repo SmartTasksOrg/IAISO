@@ -9,7 +9,7 @@
     </parent>
 
     <artifactId>iaiso-audit</artifactId>
-    <n>IAIso :: Audit</n>
+    <name>IAIso :: Audit</name>
     <description>IAIso audit event envelope and sink implementations</description>
 
     <dependencies>

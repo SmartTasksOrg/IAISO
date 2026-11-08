@@ -14,7 +14,7 @@ Token Velocity: The rate of information generation.
 
 Tool Complexity: The potential impact of requested external actions.
 
-Entropy Floor: Verifies if the output meets the minimum required reasoning quality (Magnification).
+Entropy Floor: Enforces a minimum output-complexity bound at Layer 1.
 
 2. $dp/dt$ Calculation
 
@@ -41,7 +41,6 @@ agent = EnterpriseAgent(model="gpt-4o")
 safe_agent = IAIsoPressureWrapper(
     agent=agent,
     pressure_threshold=0.85,
-    enable_magnification=True, # Back-Prop Magnification enabled by default
     consent_scope="gov.enterprise.finance.v1"
 )
 

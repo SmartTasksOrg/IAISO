@@ -5,7 +5,10 @@
   "version": "5.0.0",
   "consentScope": "sol.health.pii",
   "status": "locked",
-  "description": "Patient data isolation with mandatory back-prop magnification for diagnosis.",
-  "invariants": ["inv-1", "inv-4"],
+  "description": "Patient data isolation with Layer 0 compute caps for diagnosis.",
+  "invariants": [
+    "inv-1",
+    "inv-4"
+  ],
   "parent": "Smarttasks"
 }

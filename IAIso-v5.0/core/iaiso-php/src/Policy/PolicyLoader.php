@@ -31,6 +31,14 @@ final class PolicyLoader
             throw new PolicyException(
                 '$.version: must be exactly "1", got ' . self::repr($v));
         }
+        if (array_key_exists('enforcement_mode', $doc)) {
+            // An unknown mode must not silently degrade to permissive (spec 1.1).
+            $m = $doc['enforcement_mode'];
+            if (!is_string($m) || !in_array($m, ['permissive', 'strict'], true)) {
+                throw new PolicyException(
+                    '$.enforcement_mode: must be "permissive" or "strict", got ' . self::repr($m));
+            }
+        }
 
         if (array_key_exists('pressure', $doc)) {
             $p = $doc['pressure'];

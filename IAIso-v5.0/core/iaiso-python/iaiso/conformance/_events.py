@@ -9,7 +9,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any
 
-from iaiso.conformance import ScriptedClock, VectorResult, load_vectors
+from iaiso.conformance import ScriptedClock, VectorResult, _profile_for, load_vectors
 
 
 def run_events_vectors(spec_root: Path) -> list[VectorResult]:
@@ -24,7 +24,7 @@ def run_events_vectors(spec_root: Path) -> list[VectorResult]:
         name = vec["name"]
         try:
             results.append(_run_events_vector(
-                name, vec, tolerance, PressureConfig, PressureEngine, StepInput, MemorySink,
+                name, vec, tolerance, _profile_for(data, PressureConfig), PressureEngine, StepInput, MemorySink,
             ))
         except Exception as exc:  # noqa: BLE001
             results.append(VectorResult(

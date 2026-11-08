@@ -13,7 +13,7 @@ class ConformanceTest < Minitest::Test
         failures << "  [#{v.section}] #{v.name}: #{v.message}" unless v.passed
       end
     end
-    assert_equal 67, r.total, "expected 67 total vectors"
+    assert_equal 72, r.total, "expected 72 total vectors"
     assert_equal r.total, r.passed,
                  "conformance #{r.passed}/#{r.total} — failures:\n#{failures.join("\n")}"
   end
