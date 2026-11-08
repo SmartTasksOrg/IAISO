@@ -1,6 +1,6 @@
 {
   "_comment": "IAIso events test vectors v1.0. See spec/events/README.md. Each vector drives an engine and checks the emitted event stream. `timestamp` is not checked (environmental); `schema_version`, `execution_id`, `kind`, and listed data fields are. Additional implementation-specific fields are allowed.",
-  "version": "1.0",
+  "version": "1.1",
   "tolerance": 1e-9,
   "vectors": [
     {

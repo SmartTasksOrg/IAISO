@@ -16,7 +16,7 @@ normative interface specifications (pressure math, consent tokens,
 audit events, policy format).
 """
 
-__version__ = "0.3.0"
+__version__ = "2.0.0.dev1"
 
 from iaiso.audit import (
     AuditEvent,
@@ -37,6 +37,7 @@ from iaiso.consent import (
     InvalidToken,
     RevocationList,
     RevokedToken,
+    generate_ed25519_keypair,
     generate_hs256_secret,
 )
 from iaiso.coordination import (
@@ -53,10 +54,13 @@ from iaiso.core import (
     ENFORCEMENT_STRICT,
     BoundedExecution,
     ExecutionLocked,
+    IAIsoPressureWrapper,
     Lifecycle,
     PressureConfig,
     PressureEngine,
+    PressureEscalated,
     PressureSnapshot,
+    PressureWrapper,
     ScopeRequired,
     StepInput,
     StepOutcome,
@@ -69,10 +73,13 @@ __all__ = [
     "ENFORCEMENT_STRICT",
     "BoundedExecution",
     "ExecutionLocked",
+    "IAIsoPressureWrapper",
     "Lifecycle",
     "PressureConfig",
     "PressureEngine",
+    "PressureEscalated",
     "PressureSnapshot",
+    "PressureWrapper",
     "ScopeRequired",
     "StepInput",
     "StepOutcome",
@@ -87,6 +94,7 @@ __all__ = [
     "InvalidToken",
     "RevocationList",
     "RevokedToken",
+    "generate_ed25519_keypair",
     "generate_hs256_secret",
     # Audit
     "AuditEvent",

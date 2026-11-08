@@ -1,8 +1,11 @@
+// DESIGN REFERENCE — NOT SHIPPING CODE. This `vision/` sketch is not the
+// installable IAIso SDK (core/iaiso-python). `BackProp`/`magnify` document an
+// early design concept the real engine does not implement (flags are no-ops).
 export class IAIsoEngine {
     constructor(systemId = "web-client") {
         this.systemId = systemId;
         this.p = 0.0;
-        this.backProp = true; // Default ON per requirements
+        this.backProp = true; // DESIGN SKETCH flag; no-op in the real SDK
     }
 
     updatePressure(tokens = 0, tools = 0) {
@@ -17,6 +20,7 @@ export class IAIsoEngine {
     }
 
     magnify(output) {
+        // DESIGN SKETCH: marker only, no refinement. Not in the shipping SDK.
         return this.backProp ? `[IAIso-MAGNIFIED] ${output}` : output;
     }
 }

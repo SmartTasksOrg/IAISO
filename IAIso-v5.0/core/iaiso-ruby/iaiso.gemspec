@@ -18,7 +18,7 @@ Gem::Specification.new do |spec|
   DESC
   spec.homepage = "https://github.com/SmartTasksOrg/IAISO"
   spec.license = "Apache-2.0"
-  spec.required_ruby_version = ">= 3.0.0"
+  spec.required_ruby_version = ">= 3.2.0"  # Data.define (StepInput) is Ruby 3.2+
 
   spec.metadata["homepage_uri"] = spec.homepage
   spec.metadata["source_code_uri"] = spec.homepage

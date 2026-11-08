@@ -40,7 +40,7 @@ final class ConformanceSuiteTests: XCTestCase {
                 failures += "\n  [\(v.section)] \(v.name): \(v.message)"
             }
         }
-        XCTAssertEqual(r.countTotal(), 67, "expected 67 total vectors")
+        XCTAssertEqual(r.countTotal(), 72, "expected 72 total vectors (spec 1.1)")
         XCTAssertEqual(r.countTotal() - r.countPassed(), 0,
                        "conformance \(r.countPassed())/\(r.countTotal()) — failures:\(failures)")
     }

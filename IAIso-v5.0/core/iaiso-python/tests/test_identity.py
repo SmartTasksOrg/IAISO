@@ -295,7 +295,7 @@ def test_issue_from_oidc(rsa_keypair: dict[str, Any]) -> None:
         ),
         http_fetcher=fetch,
     )
-    iaiso_issuer = ConsentIssuer(
+    iaiso_issuer = ConsentIssuer.v1(
         signing_key=b"x" * 32, issuer="iaiso-local",
     )
     consent_token = issue_from_oidc(
@@ -304,7 +304,7 @@ def test_issue_from_oidc(rsa_keypair: dict[str, Any]) -> None:
     assert consent_token.token.count(".") == 2  # JWT format
     # The minted token should verify against a matching ConsentVerifier
     from iaiso import ConsentVerifier
-    cv = ConsentVerifier(verification_key=b"x" * 32, issuer="iaiso-local")
+    cv = ConsentVerifier.v1(verification_key=b"x" * 32, issuer="iaiso-local")
     verified = cv.verify(consent_token.token)
     assert verified.subject == "bob"
     assert "admin.all" in verified.scopes

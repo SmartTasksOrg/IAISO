@@ -1,3 +1,11 @@
+"""
+DESIGN REFERENCE — NOT SHIPPING CODE.
+
+This lives in the `vision/` zone and is a minimal illustrative engine, not the
+installable IAIso SDK (`core/iaiso-python`). `back_prop` / `magnify` document an
+early design concept that the real engine does not implement (the flags are
+no-ops there). Do not import this for production use.
+"""
 import os
 
 class IAIsoEngine:
@@ -16,5 +24,5 @@ class IAIsoEngine:
 
     def magnify(self, content):
         if self.back_prop:
-            return f"[MAGNIFIED] {content}" # Recursive Quality Check
+            return f"[MAGNIFIED] {content}"  # DESIGN SKETCH: marker only, no refinement
         return content

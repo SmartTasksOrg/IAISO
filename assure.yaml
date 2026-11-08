@@ -1,0 +1,12 @@
+project: IAIso
+# Attestation scan config for the IAIso v5.0 release.
+#
+# Scope: the installable, claim-backed code — the core/ SDKs (Python + 8 ports)
+# and the project root. The vision/ zone is design/reference material (reference
+# integrations, templates, system sketches), shipped as-is and excluded from the
+# security attestation. See ATTESTATION.md.
+#
+# Languages pinned to the control catalogs that apply to this codebase.
+languages: [python, js, go, rust, containers, web-api]
+exclude: [vision, node_modules, .git, dist, build, target, .venv, vendor, .tools, .assure]
+policy: default

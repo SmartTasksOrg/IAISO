@@ -34,6 +34,7 @@ from typing import Any
 
 from iaiso.audit import AuditEvent
 from iaiso.audit.webhook import WebhookConfig, WebhookSink
+from iaiso.audit._http import deliver
 
 
 @dataclass
@@ -122,10 +123,4 @@ class NewRelicSink(WebhookSink):
             ctx = ssl.create_default_context()
             ctx.check_hostname = False
             ctx.verify_mode = ssl.CERT_NONE
-        try:
-            with urllib.request.urlopen(
-                req, timeout=self._cfg.timeout_seconds, context=ctx
-            ):
-                pass
-        except (urllib.error.URLError, TimeoutError):
-            pass
+        deliver(self, req, self._cfg.timeout_seconds, ctx)

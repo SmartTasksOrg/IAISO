@@ -5,7 +5,10 @@
   "version": "5.0.0",
   "consentScope": "sol.finance.legal",
   "status": "locked",
-  "description": "Full ledger analysis with back-prop logic for anomaly detection.",
-  "invariants": ["inv-1", "inv-4"],
+  "description": "Full ledger analysis.",
+  "invariants": [
+    "inv-1",
+    "inv-4"
+  ],
   "parent": "Smarttasks"
 }
