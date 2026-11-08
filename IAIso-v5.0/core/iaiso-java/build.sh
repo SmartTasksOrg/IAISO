@@ -17,9 +17,9 @@ CLASSES="$BUILD/classes"
 TEST_CLASSES="$BUILD/test-classes"
 
 # JARs from apt (libgoogle-gson-java, junit4, libhamcrest-java)
-GSON_JAR="/usr/share/java/gson.jar"
-JUNIT_JAR="/usr/share/java/junit4.jar"
-HAMCREST_JAR="/usr/share/java/hamcrest.jar"
+GSON_JAR="${GSON_JAR:-/usr/share/java/gson.jar}"
+JUNIT_JAR="${JUNIT_JAR:-/usr/share/java/junit4.jar}"
+HAMCREST_JAR="${HAMCREST_JAR:-/usr/share/java/hamcrest.jar}"
 
 MODULES=(
     iaiso-audit

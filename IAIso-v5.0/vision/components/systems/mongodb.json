@@ -9,17 +9,22 @@
   "category": "database",
   "deployment": "nosql",
   "scale": "document",
-  "layers": [0, 1, 2, 3, 5],
+  "layers": [
+    0,
+    1,
+    2,
+    3,
+    5
+  ],
   "pressure_config": {
     "threshold": 0.85,
     "release": 0.95,
-    "monitoring_interval": "1m",
-    "back_propagation": true
+    "monitoring_interval": "1m"
   },
   "organizational_scales": {
     "small": {
       "employees": "1-50",
-      "pressure_threshold": 0.80,
+      "pressure_threshold": 0.8,
       "monitoring_frequency": "5m"
     },
     "medium": {
@@ -34,7 +39,7 @@
     },
     "enterprise": {
       "employees": "5000+",
-      "pressure_threshold": 0.90,
+      "pressure_threshold": 0.9,
       "monitoring_frequency": "10s"
     }
   },

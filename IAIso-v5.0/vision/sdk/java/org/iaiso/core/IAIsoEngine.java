@@ -1,3 +1,6 @@
+// DESIGN REFERENCE — NOT SHIPPING CODE. This `vision/` sketch is not the
+// installable IAIso SDK (core/iaiso-python). `BackProp`/`magnify` document an
+// early design concept the real engine does not implement (flags are no-ops).
 package org.iaiso.core;
 
 public class IAIsoEngine {

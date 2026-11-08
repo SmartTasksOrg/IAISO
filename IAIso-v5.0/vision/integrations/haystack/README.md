@@ -12,7 +12,6 @@ agent = Agent(model="appropriate-model")
 safe_agent = IAIsoPressureWrapper(
     agent=agent,
     pressure_threshold=0.85,
-    enable_magnification=True,
     dissipation_rate=0.15
 )
 

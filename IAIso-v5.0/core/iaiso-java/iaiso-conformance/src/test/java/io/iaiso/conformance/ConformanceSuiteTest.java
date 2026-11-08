@@ -39,6 +39,6 @@ public class ConformanceSuiteTest {
         if (failures.length() > 0) {
             fail("conformance " + passed + "/" + total + " — failures:" + failures);
         }
-        assertEquals("expected 67 total vectors", 67, total);
+        assertEquals("expected 72 total vectors (spec 1.x)", 72, total);
     }
 }

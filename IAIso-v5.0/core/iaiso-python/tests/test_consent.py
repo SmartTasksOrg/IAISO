@@ -24,8 +24,8 @@ def secret() -> str:
 
 
 def test_issue_and_verify_roundtrip(secret: str) -> None:
-    issuer = ConsentIssuer(signing_key=secret)
-    verifier = ConsentVerifier(verification_key=secret)
+    issuer = ConsentIssuer.v1(signing_key=secret)
+    verifier = ConsentVerifier.v1(verification_key=secret)
 
     issued = issuer.issue(subject="alice", scopes=["tools.search", "tools.fetch"])
     verified = verifier.verify(issued.token)
@@ -36,8 +36,8 @@ def test_issue_and_verify_roundtrip(secret: str) -> None:
 
 
 def test_scope_prefix_match(secret: str) -> None:
-    issuer = ConsentIssuer(signing_key=secret)
-    verifier = ConsentVerifier(verification_key=secret)
+    issuer = ConsentIssuer.v1(signing_key=secret)
+    verifier = ConsentVerifier.v1(verification_key=secret)
 
     issued = issuer.issue(subject="alice", scopes=["tools"])
     verified = verifier.verify(issued.token)
@@ -49,8 +49,8 @@ def test_scope_prefix_match(secret: str) -> None:
 
 
 def test_scope_exact_match(secret: str) -> None:
-    issuer = ConsentIssuer(signing_key=secret)
-    verifier = ConsentVerifier(verification_key=secret)
+    issuer = ConsentIssuer.v1(signing_key=secret)
+    verifier = ConsentVerifier.v1(verification_key=secret)
 
     issued = issuer.issue(subject="alice", scopes=["tools.search"])
     verified = verifier.verify(issued.token)
@@ -60,8 +60,8 @@ def test_scope_exact_match(secret: str) -> None:
 
 
 def test_require_raises_on_insufficient(secret: str) -> None:
-    issuer = ConsentIssuer(signing_key=secret)
-    verifier = ConsentVerifier(verification_key=secret)
+    issuer = ConsentIssuer.v1(signing_key=secret)
+    verifier = ConsentVerifier.v1(verification_key=secret)
     issued = issuer.issue(subject="alice", scopes=["tools.search"])
     verified = verifier.verify(issued.token)
 
@@ -71,8 +71,8 @@ def test_require_raises_on_insufficient(secret: str) -> None:
 
 
 def test_expired_token_rejected(secret: str) -> None:
-    issuer = ConsentIssuer(signing_key=secret, default_ttl_seconds=1)
-    verifier = ConsentVerifier(verification_key=secret, leeway_seconds=0)
+    issuer = ConsentIssuer.v1(signing_key=secret, default_ttl_seconds=1)
+    verifier = ConsentVerifier.v1(verification_key=secret, leeway_seconds=0)
 
     issued = issuer.issue(subject="alice", scopes=["x"])
     time.sleep(1.1)
@@ -81,16 +81,16 @@ def test_expired_token_rejected(secret: str) -> None:
 
 
 def test_wrong_key_fails(secret: str) -> None:
-    issuer = ConsentIssuer(signing_key=secret)
-    verifier = ConsentVerifier(verification_key=generate_hs256_secret())
+    issuer = ConsentIssuer.v1(signing_key=secret)
+    verifier = ConsentVerifier.v1(verification_key=generate_hs256_secret())
     issued = issuer.issue(subject="alice", scopes=["x"])
     with pytest.raises(InvalidToken):
         verifier.verify(issued.token)
 
 
 def test_tampered_token_fails(secret: str) -> None:
-    issuer = ConsentIssuer(signing_key=secret)
-    verifier = ConsentVerifier(verification_key=secret)
+    issuer = ConsentIssuer.v1(signing_key=secret)
+    verifier = ConsentVerifier.v1(verification_key=secret)
     issued = issuer.issue(subject="alice", scopes=["x"])
 
     # Flip a character in the payload segment
@@ -103,9 +103,9 @@ def test_tampered_token_fails(secret: str) -> None:
 
 
 def test_revocation_list(secret: str) -> None:
-    issuer = ConsentIssuer(signing_key=secret)
+    issuer = ConsentIssuer.v1(signing_key=secret)
     revocations = RevocationList()
-    verifier = ConsentVerifier(
+    verifier = ConsentVerifier.v1(
         verification_key=secret, revocation_list=revocations
     )
 
@@ -118,8 +118,8 @@ def test_revocation_list(secret: str) -> None:
 
 
 def test_execution_binding(secret: str) -> None:
-    issuer = ConsentIssuer(signing_key=secret)
-    verifier = ConsentVerifier(verification_key=secret)
+    issuer = ConsentIssuer.v1(signing_key=secret)
+    verifier = ConsentVerifier.v1(verification_key=secret)
 
     bound = issuer.issue(subject="alice", scopes=["x"], execution_id="exec-A")
 
@@ -135,8 +135,8 @@ def test_execution_binding(secret: str) -> None:
 
 
 def test_unbound_token_works_for_any_execution(secret: str) -> None:
-    issuer = ConsentIssuer(signing_key=secret)
-    verifier = ConsentVerifier(verification_key=secret)
+    issuer = ConsentIssuer.v1(signing_key=secret)
+    verifier = ConsentVerifier.v1(verification_key=secret)
 
     unbound = issuer.issue(subject="alice", scopes=["x"])
     verifier.verify(unbound.token, execution_id="any-exec")

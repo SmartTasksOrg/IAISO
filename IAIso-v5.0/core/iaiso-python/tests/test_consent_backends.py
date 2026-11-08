@@ -55,8 +55,8 @@ def test_key_prefix_isolation(redis_client: fakeredis.FakeRedis) -> None:
 def test_integration_with_verifier(redis_client: fakeredis.FakeRedis) -> None:
     secret = generate_hs256_secret()
     backend = RedisRevocationBackend(redis_client)
-    issuer = ConsentIssuer(signing_key=secret)
-    verifier = ConsentVerifier(verification_key=secret, revocation_list=backend)
+    issuer = ConsentIssuer.v1(signing_key=secret)
+    verifier = ConsentVerifier.v1(verification_key=secret, revocation_list=backend)
 
     token = issuer.issue(subject="alice", scopes=["x"])
     verifier.verify(token.token)  # ok

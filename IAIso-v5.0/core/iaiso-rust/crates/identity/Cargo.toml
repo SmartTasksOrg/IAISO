@@ -16,6 +16,3 @@ parking_lot = { workspace = true }
 thiserror = { workspace = true }
 jsonwebtoken = { workspace = true }
 base64 = { workspace = true }
-# MSRV-pinned transitive deps (see consent crate for context)
-simple_asn1 = "=0.6.2"
-time = "=0.3.36"

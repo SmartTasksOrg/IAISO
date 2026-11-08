@@ -26,8 +26,8 @@ and audit-logged.
    ```
 
    Copy the template into your agent's prompt path. The standard
-   six-step body (pressure check → delta calculation → scope
-   verify → halt-or-execute → magnification → audit log) does the
+   five-step body (pressure check → delta calculation → scope
+   verify → halt-or-execute → audit log) does the
    work; do not paraphrase it.
 
 2. **Pick the consent scope namespace.** For Redis the

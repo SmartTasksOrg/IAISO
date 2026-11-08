@@ -52,7 +52,7 @@ def run_consent_vectors(spec_root: Path) -> list[VectorResult]:
 
     # 3. Valid tokens — must verify cleanly with given key/now/execution
     for vec in data.get("valid_tokens", []):
-        verifier = ConsentVerifier(
+        verifier = ConsentVerifier.v1(
             verification_key=shared_key,
             algorithm=vec["algorithm"],
             issuer=vec["issuer"],
@@ -101,7 +101,7 @@ def run_consent_vectors(spec_root: Path) -> list[VectorResult]:
         "revoked": RevokedToken,
     }
     for vec in data.get("invalid_tokens", []):
-        verifier = ConsentVerifier(
+        verifier = ConsentVerifier.v1(
             verification_key=shared_key,
             algorithm=vec["algorithm"],
             issuer=vec["issuer"],
@@ -126,7 +126,7 @@ def run_consent_vectors(spec_root: Path) -> list[VectorResult]:
 
     # 5. Issue-and-verify roundtrip
     for vec in data.get("issue_and_verify_roundtrip", []):
-        issuer = ConsentIssuer(signing_key=shared_key, algorithm="HS256", issuer="iaiso")
+        issuer = ConsentIssuer.v1(signing_key=shared_key, algorithm="HS256", issuer="iaiso")
         issue_args = vec["issue"]
         try:
             scope = issuer.issue(
@@ -161,7 +161,7 @@ def run_consent_vectors(spec_root: Path) -> list[VectorResult]:
             continue
 
         # Verify
-        verifier = ConsentVerifier(
+        verifier = ConsentVerifier.v1(
             verification_key=shared_key, algorithm="HS256", issuer="iaiso", leeway_seconds=5,
         )
         try:

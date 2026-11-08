@@ -31,7 +31,6 @@ Total skills: **150**, organised by tier and category.
 - `iaiso-runtime-cost-governance` — spend caps and attribution
 - `iaiso-runtime-consent-scope-check` — scope check before action
 - `iaiso-runtime-atomic-reset` — Layer 5 release handling
-- `iaiso-runtime-back-prop-magnification` — quality refinement loop
 
 ### Authoring (foundation)
 

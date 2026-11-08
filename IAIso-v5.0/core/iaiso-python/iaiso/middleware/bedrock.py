@@ -14,9 +14,12 @@ Install:  pip install iaiso[bedrock]
 from __future__ import annotations
 
 import json
+import logging
 from typing import Any
 
 from iaiso.core import BoundedExecution, ExecutionLocked, StepOutcome
+
+logger = logging.getLogger("iaiso")
 
 
 class EscalationRaised(RuntimeError):
@@ -115,38 +118,43 @@ class BedrockBoundedClient:
 
     def _account_invoke(self, response: Any, model_id: str) -> None:
         tokens = 0
+        tag = f"bedrock.invoke_model:{model_id}"
+        data: Any = b""
         try:
             body = response.get("body") if isinstance(response, dict) else None
             if body is not None:
                 # body is a StreamingBody; read once. Caller will need the
-                # bytes, so we have to be careful. We read and restore.
+                # bytes, so we read and restore.
                 data = body.read() if hasattr(body, "read") else body
-                try:
-                    parsed = json.loads(data)
-                    # Anthropic on Bedrock: usage.input_tokens / output_tokens
-                    # Cohere: tokens
-                    # Titan/Amazon: inputTextTokenCount / results[].tokenCount
-                    if "usage" in parsed:
-                        u = parsed["usage"]
-                        tokens = int(u.get("input_tokens", 0)) + int(u.get("output_tokens", 0))
-                    elif "inputTextTokenCount" in parsed:
-                        tokens = int(parsed.get("inputTextTokenCount", 0))
-                        for r in parsed.get("results", []):
-                            tokens += int(r.get("tokenCount", 0))
-                except json.JSONDecodeError:
-                    pass
                 # Restore the body so caller can still read it. boto3's
                 # StreamingBody is single-use so we wrap the bytes.
                 import io
-                response["body"] = io.BytesIO(data)
+                response["body"] = io.BytesIO(data if isinstance(data, bytes) else str(data).encode())
+                tokens = _invoke_tokens(json.loads(data))
         except Exception:  # noqa: BLE001
-            pass
+            # Unreadable usage must not mean free work (that was fail-open):
+            # charge an estimate from the body size and say so.
+            size = len(data) if isinstance(data, (bytes, str)) else 0
+            tokens = max(1, size // 3)
+            tag += ".usage_unparsed"
+            logger.warning("iaiso.bedrock: could not read usage from invoke_model response for %s; "
+                           "charging an estimate of %d tokens", model_id, tokens, exc_info=True)
 
-        self._execution.record_step(
-            tokens=tokens,
-            tool_calls=0,
-            tag=f"bedrock.invoke_model:{model_id}",
-        )
+        self._execution.record_step(tokens=tokens, tool_calls=0, tag=tag)
+
+
+def _invoke_tokens(parsed: Any) -> int:
+    """Token count from an invoke_model body. Raises when there is none."""
+    def n(v: Any) -> int:
+        return v if isinstance(v, int) and not isinstance(v, bool) and v > 0 else 0
+
+    if isinstance(parsed, dict) and isinstance(parsed.get("usage"), dict):
+        u = parsed["usage"]  # Anthropic on Bedrock
+        return n(u.get("input_tokens")) + n(u.get("output_tokens"))
+    if isinstance(parsed, dict) and "inputTextTokenCount" in parsed:  # Titan / Amazon
+        return n(parsed.get("inputTextTokenCount")) + sum(
+            n(r.get("tokenCount")) for r in parsed.get("results") or [] if isinstance(r, dict))
+    raise ValueError("no usage block in invoke_model response")
 
 
 class _StreamingConverseWrapper:

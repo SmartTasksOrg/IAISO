@@ -7,7 +7,7 @@
         <version>0.1.0</version>
     </parent>
     <artifactId>iaiso-coordination</artifactId>
-    <n>IAIso :: Coordination</n>
+    <name>IAIso :: Coordination</name>
     <description>IAIso cross-execution pressure coordination (in-memory + Redis)</description>
 
     <dependencies>

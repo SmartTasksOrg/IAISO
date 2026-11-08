@@ -209,6 +209,18 @@ pub fn validate(doc: &Value) -> Result<(), PolicyError> {
             version
         )));
     }
+    if let Some(mode) = map.get("enforcement_mode") {
+        // An unknown mode must not silently degrade to permissive (spec 1.1).
+        match mode.as_str() {
+            Some("permissive") | Some("strict") => {}
+            _ => {
+                return Err(PolicyError::Validation(format!(
+                    "$.enforcement_mode: must be \"permissive\" or \"strict\", got {}",
+                    mode
+                )))
+            }
+        }
+    }
 
     if let Some(pressure) = map.get("pressure") {
         let p_obj = pressure.as_object().ok_or_else(|| {

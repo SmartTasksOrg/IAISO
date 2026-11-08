@@ -19,6 +19,7 @@ from dataclasses import dataclass
 from typing import Any
 
 from iaiso.audit import AuditEvent
+from iaiso.audit._http import deliver
 
 
 @dataclass
@@ -143,13 +144,4 @@ class WebhookSink:
             ctx = ssl.create_default_context()
             ctx.check_hostname = False
             ctx.verify_mode = ssl.CERT_NONE
-        try:
-            with urllib.request.urlopen(
-                req, timeout=self._cfg.timeout_seconds, context=ctx
-            ):
-                pass
-        except (urllib.error.URLError, TimeoutError):
-            # Silent failure is deliberate: we don't want audit problems to
-            # take down the caller. Real deployments should monitor
-            # `dropped_events` and webhook 5xx counts at the sink level.
-            pass
+        deliver(self, req, self._cfg.timeout_seconds, ctx)

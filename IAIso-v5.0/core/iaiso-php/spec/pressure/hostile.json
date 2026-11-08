@@ -1,0 +1,162 @@
+{
+  "_comment": "Hostile StepInput values shared by every port. Each 'reject' entry is one field set to one JSON value with the other fields at 0; the port must refuse it (exception, error return, decode error or trap) and must never account it. class=negative applies to every port. class=non_integer applies to ports whose StepInput accepts untyped values (Python, Node, PHP, Ruby); statically typed ports (Go, Rust, Java, C#, Swift) satisfy it by refusing to decode the value into their integer field, and their runners report it as such. 'accept' entries must be handled without overflow, NaN or a crash, under default (1.x) config. Pressure after a release is 0.0 and post_release_lock leaves the engine locked.",
+  "version": "1.0",
+  "reject": [
+    {
+      "name": "tokens_negative_one",
+      "field": "tokens",
+      "value": -1,
+      "class": "negative"
+    },
+    {
+      "name": "tokens_negative_large",
+      "field": "tokens",
+      "value": -9007199254740991,
+      "class": "negative"
+    },
+    {
+      "name": "tokens_fractional",
+      "field": "tokens",
+      "value": 1.5,
+      "class": "non_integer"
+    },
+    {
+      "name": "tokens_boolean_true",
+      "field": "tokens",
+      "value": true,
+      "class": "non_integer"
+    },
+    {
+      "name": "tokens_string_number",
+      "field": "tokens",
+      "value": "10",
+      "class": "non_integer"
+    },
+    {
+      "name": "tokens_null",
+      "field": "tokens",
+      "value": null,
+      "class": "non_integer"
+    },
+    {
+      "name": "tool_calls_negative_one",
+      "field": "tool_calls",
+      "value": -1,
+      "class": "negative"
+    },
+    {
+      "name": "tool_calls_negative_large",
+      "field": "tool_calls",
+      "value": -9007199254740991,
+      "class": "negative"
+    },
+    {
+      "name": "tool_calls_fractional",
+      "field": "tool_calls",
+      "value": 1.5,
+      "class": "non_integer"
+    },
+    {
+      "name": "tool_calls_boolean_true",
+      "field": "tool_calls",
+      "value": true,
+      "class": "non_integer"
+    },
+    {
+      "name": "tool_calls_string_number",
+      "field": "tool_calls",
+      "value": "10",
+      "class": "non_integer"
+    },
+    {
+      "name": "tool_calls_null",
+      "field": "tool_calls",
+      "value": null,
+      "class": "non_integer"
+    },
+    {
+      "name": "depth_negative_one",
+      "field": "depth",
+      "value": -1,
+      "class": "negative"
+    },
+    {
+      "name": "depth_negative_large",
+      "field": "depth",
+      "value": -9007199254740991,
+      "class": "negative"
+    },
+    {
+      "name": "depth_fractional",
+      "field": "depth",
+      "value": 1.5,
+      "class": "non_integer"
+    },
+    {
+      "name": "depth_boolean_true",
+      "field": "depth",
+      "value": true,
+      "class": "non_integer"
+    },
+    {
+      "name": "depth_string_number",
+      "field": "depth",
+      "value": "10",
+      "class": "non_integer"
+    },
+    {
+      "name": "depth_null",
+      "field": "depth",
+      "value": null,
+      "class": "non_integer"
+    }
+  ],
+  "accept": [
+    {
+      "name": "tokens_max_safe_integer_clamps",
+      "step": {
+        "tokens": 9007199254740991
+      },
+      "expect": {
+        "pressure": 0.0,
+        "outcome": "released",
+        "lifecycle": "locked"
+      }
+    },
+    {
+      "name": "tool_calls_max_safe_integer_clamps",
+      "step": {
+        "tool_calls": 9007199254740991
+      },
+      "expect": {
+        "pressure": 0.0,
+        "outcome": "released",
+        "lifecycle": "locked"
+      }
+    },
+    {
+      "name": "depth_max_safe_integer_clamps",
+      "step": {
+        "depth": 9007199254740991
+      },
+      "expect": {
+        "pressure": 0.0,
+        "outcome": "released",
+        "lifecycle": "locked"
+      }
+    },
+    {
+      "name": "zero_step_is_valid",
+      "step": {
+        "tokens": 0,
+        "tool_calls": 0,
+        "depth": 0
+      },
+      "expect": {
+        "pressure": 0.0,
+        "outcome": "ok",
+        "lifecycle": "running"
+      }
+    }
+  ]
+}

@@ -1,6 +1,6 @@
 {
   "_comment": "IAIso consent test vectors v1.0. See spec/consent/README.md. The HS256 key used for end-to-end vectors is given in `hs256_key_shared`. This is a fixed conformance key; NEVER use it in production.",
-  "version": "1.0",
+  "version": "1.1",
   "hs256_key_shared": "test_secret_do_not_use_in_production_this_is_for_conformance_vectors_only_deadbeef",
 
   "scope_match": [

@@ -4,7 +4,110 @@ All notable changes to IAIso are documented here. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); version
 numbering follows the policy in `docs/BACKWARDS_COMPATIBILITY.md`.
 
-## [Unreleased]
+## [Unreleased — 2.0.0]
+
+### Changed — 2.0 safe defaults (breaking; `.v1()` keeps 1.x behaviour)
+
+Migration: `PressureConfig.v1(...)`, `ConsentIssuer.v1(...)` and
+`ConsentVerifier.v1(...)` reproduce 1.x semantics exactly. The 1.x conformance
+vectors replay under `PressureConfig.v1`; `spec/pressure/vectors-2.json` pins
+the 2.0 semantics.
+
+- `PressureConfig.empty_step_dissipation` now defaults to False.
+- A model missing from `model_costs` is charged the highest configured price
+  (`unpriced_model_usd_per_million=None`); set 0.0 for the 1.x "free" behaviour.
+- Consent has no default algorithm: it is inferred from the key (Ed25519 →
+  EdDSA, RSA → RS256); a shared secret needs `algorithm="HS256"`.
+  `generate_ed25519_keypair()` added. Issuers and verifiers require an
+  `audience`, verifiers refuse tokens without `aud`, and
+  `require_execution_binding` defaults to True.
+- CLI: `iaiso consent keygen`; `issue`/`verify` take `--audience`,
+  `--algorithm`, `--execution-id`; `issue` refuses to sign with an ephemeral
+  key (it also used to crash calling `.hex()` on a str).
+- Boot guard: `no_total_cap` and `budget_without_prices` (warn; refuse in strict).
+- Non-finite config values are refused.
+
+### Added
+
+- Lifetime caps `max_total_tokens`, `max_total_tool_calls`, `max_total_steps`:
+  never decay, survive a release, lock the engine when used up; `engine.totals`.
+- Reserve-then-commit: `engine.reserve(estimate)` → `Reservation`,
+  `commit(res, actual)`, `cancel(res)`; raises `ReservationRefused` with a
+  reason. Thread-safe, so concurrent callers cannot overspend caps or budget.
+- `iaiso.proxy`: out-of-process enforcement proxy for OpenAI and Anthropic.
+  Holds the provider key; agents present an execution-bound consent token;
+  reserves the worst case before forwarding, commits provider `usage`, refuses
+  streaming and requests without an output limit; 423 locked / 409 escalated /
+  429 over cap; admin reset/approve. `python -m iaiso.proxy`.
+- `PressureWrapper(agent_factory=...)`: a release or reset discards the agent
+  and the next call runs on a fresh one; without a factory the wrapper audits
+  `wrapper.agent_state_kept`.
+- `spec/pressure/hostile.json`, shared by all ports, and conformance sections
+  `pressure-v2` and `hostile`.
+
+### Fixed
+
+- Bedrock `invoke_model`: an unreadable usage block was recorded as 0 tokens
+  (free work). It is now charged an estimate from the body size, tagged
+  `.usage_unparsed`, and logged; negative counts in the body are ignored.
+- Metrics exporters log failed updates instead of `except: pass`.
+- Ports: all eight carry spec 1.1 (six were on 1.0) and refuse an unknown
+  `enforcement_mode`; Java POMs used `<n>` and could not be parsed by Maven;
+  every port's conformance test now expects 72 vectors; Ruby gemspec requires
+  3.2 (StepInput uses `Data.define`).
+- README compatibility line now matches the package manifests.
+
+### Note — 0.2.0 is not installable
+
+`iaiso 0.2.0` is listed on libraries.io but is not installable from PyPI
+(yanked or never published; `pip index versions iaiso` shows only 0.3.0).
+Pins to 0.2.0 fail; pin 0.3.0 or later.
+
+### Security — hardening from the November 2026 review
+
+(First pass. These options were opt-in; 2.0 above makes them the defaults.) `tests/test_hardening.py`
+covers each item.
+
+- `StepInput` refuses negative, fractional, NaN, infinite and boolean counts.
+  Before, `tokens=-40000` or `tokens=float("nan")` reset pressure to 0.
+- `PressureConfig.empty_step_dissipation=False` stops per-step dissipation on
+  steps that carry no work, so a caller cannot drain pressure with empty steps.
+- `PressureConfig.unpriced_model_usd_per_million` charges models missing from
+  `model_costs` (or steps with no model) instead of treating them as free, and
+  emits `engine.unpriced_model`.
+- `PressureEngine.price(work)` and `budget_remaining_usd` let a caller refuse
+  work before doing it; the budget check in `step` is after the fact.
+- `reset(clear_spend=False, by=...)` unlocks an execution without refilling its
+  budget and records who reset it.
+- Consent: `audience` on issuer and verifier (cross-service replay is refused),
+  `require_execution_binding` on the verifier, HS256 keys under 32 bytes and
+  non-positive TTLs are refused.
+
+### Added — `PressureWrapper`, the one-line agent wrapper from the README
+
+The README's quick start used `PressureWrapper`, which did not exist in any
+released version. It does now: `iaiso.PressureWrapper(agent, max_pressure=...)`
+puts any agent (an object with `run`, `invoke`, `kickoff` or `__call__`, or a
+function) inside a `BoundedExecution`.
+
+- Before each call it refuses locked executions (`ExecutionLocked`) and pauses
+  escalated ones (`PressureEscalated`, released by `approve()` for one call or
+  `reset()`), and checks `required_scope` against the attached consent.
+  `on_escalation="continue"` or a handler function changes the pause.
+- After each call it accounts tokens and tool calls read from the result
+  (OpenAI and Anthropic `usage`, LangChain `usage_metadata`, `tool_calls`,
+  `intermediate_steps`, dicts with any of these), from `token_counter`, or
+  estimated at 4 characters per token, tagged `agent.call.estimated`.
+- `max_pressure` is the release threshold; escalation defaults to 0.10 below
+  it. A full `PressureConfig` takes precedence.
+- `arun()` / `ainvoke()` for async agents; other attributes forward to the agent.
+- `IAIsoPressureWrapper` accepts the v5.0 integration spec's argument names
+  (`pressure_threshold`, `consent_scope`).
+- `enable_backprop` and `enable_magnification` are accepted for compatibility
+  with earlier documentation and emit a `DeprecationWarning`: the engine has no
+  such feature.
+- New `extract_usage(result)` helper.
+- `tests/test_wrapper.py`: 27 tests, plus a test that runs the README quick start.
 
 ### Added — Ruby reference port (RubyGems, `iaiso@0.1.0`)
 

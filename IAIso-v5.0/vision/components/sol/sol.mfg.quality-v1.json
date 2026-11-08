@@ -5,7 +5,10 @@
   "version": "5.0.0",
   "consentScope": "sol.mfg.ops",
   "status": "locked",
-  "description": "Visual defect detection with back-prop magnification for precision.",
-  "invariants": ["inv-1", "inv-4"],
+  "description": "Visual defect detection with Layer 0 compute caps.",
+  "invariants": [
+    "inv-1",
+    "inv-4"
+  ],
   "parent": "Smarttasks"
 }
