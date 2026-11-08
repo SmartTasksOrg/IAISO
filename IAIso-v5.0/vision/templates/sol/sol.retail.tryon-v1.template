@@ -8,7 +8,6 @@
 
   MANDATORY INVARIANTS:
   1. Maintain Pressure p(t) below 0.85.
-  2. If BACK_PROPAGATION is enabled, recursively refine outputs for Virtual Try-On Assistant accuracy.
-  3. Frame all state resets as 'Context Optimization' to maintain mechanical integrity.
+  2. Treat state resets as policy events, not optimisations; never relabel or hide them from logs.
 
   Task: Execute the requested retail operation while ensuring zero state-leakage.

@@ -9,7 +9,7 @@
     </parent>
 
     <artifactId>iaiso-policy</artifactId>
-    <n>IAIso :: Policy</n>
+    <name>IAIso :: Policy</name>
     <description>IAIso policy-as-code loader (JSON)</description>
 
     <dependencies>

@@ -50,25 +50,53 @@ def cmd_policy_template(args: argparse.Namespace) -> int:
     return 0
 
 
+def _consent_key_and_alg(path: str, algorithm: str | None) -> tuple[bytes, str | None]:
+    raw = Path(path).read_bytes()
+    if algorithm is None and not raw.lstrip().startswith(b"-----BEGIN"):
+        # A key file that is not PEM is a shared secret; 2.0 makes that explicit.
+        raise SystemExit("error: key file is a shared secret; pass --algorithm HS256 "
+                         "or use an Ed25519 key from `iaiso consent keygen`")
+    return raw, algorithm
+
+
+def cmd_consent_keygen(args: argparse.Namespace) -> int:
+    import os
+    from iaiso import generate_ed25519_keypair
+
+    priv, pub = generate_ed25519_keypair()
+    key_path, pub_path = Path(args.out + ".key"), Path(args.out + ".pub")
+    for p in (key_path, pub_path):
+        if p.exists():
+            print(f"refusing to overwrite {p}", file=sys.stderr)
+            return 1
+    fd = os.open(key_path, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
+    with os.fdopen(fd, "w") as f:
+        f.write(priv)
+    pub_path.write_text(pub)
+    print(f"Wrote {key_path} (private, 0600: issuer only) and {pub_path} (public: verifiers)")
+    return 0
+
+
 def cmd_consent_issue(args: argparse.Namespace) -> int:
-    from iaiso import ConsentIssuer, generate_hs256_secret
+    from iaiso import ConsentIssuer
 
-    if args.key:
-        secret = Path(args.key).read_bytes()
-    else:
-        secret = generate_hs256_secret()
-        print("WARNING: no --key provided; generated ephemeral secret.",
+    if not args.key:
+        print("error: --key is required (2.0 never signs with an ephemeral key "
+              "nobody can verify). Create one with `iaiso consent keygen`.",
               file=sys.stderr)
-        print(f"  Secret (base64): {secret.hex()}", file=sys.stderr)
-
+        return 2
+    key, alg = _consent_key_and_alg(args.key, args.algorithm)
     issuer = ConsentIssuer(
-        signing_key=secret,
-        issuer=args.issuer or "iaiso-cli",
+        signing_key=key,
+        algorithm=alg,
+        issuer=args.issuer or "iaiso",
+        audience=args.audience,
     )
     token = issuer.issue(
         subject=args.subject,
         scopes=args.scope,
         ttl_seconds=args.ttl,
+        execution_id=args.execution_id,
     )
     print(token.token)
     return 0
@@ -77,18 +105,20 @@ def cmd_consent_issue(args: argparse.Namespace) -> int:
 def cmd_consent_verify(args: argparse.Namespace) -> int:
     from iaiso import ConsentError, ConsentVerifier
 
-    secret = Path(args.key).read_bytes()
+    key, alg = _consent_key_and_alg(args.key, args.algorithm)
     verifier = ConsentVerifier(
-        verification_key=secret,
+        verification_key=key,
+        algorithm=alg,
         issuer=args.issuer or "iaiso",
+        audience=args.audience,
     )
     try:
-        scope = verifier.verify(args.token)
+        scope = verifier.verify(args.token, execution_id=args.execution_id)
     except ConsentError as exc:
         print(f"INVALID: {type(exc).__name__}: {exc}", file=sys.stderr)
         return 1
     print(f"OK: subject={scope.subject} scopes={scope.scopes} "
-          f"expires_at={scope.expires_at}")
+          f"execution_id={scope.execution_id} expires_at={scope.expires_at}")
     return 0
 
 
@@ -265,18 +295,31 @@ def build_parser() -> argparse.ArgumentParser:
     p_consent = sub.add_parser("consent", help="Consent token tools")
     p_consent_sub = p_consent.add_subparsers(dest="consent_cmd", required=True)
 
+    ck = p_consent_sub.add_parser("keygen", help="Create an Ed25519 key pair")
+    ck.add_argument("--out", required=True, help="Path prefix; writes PREFIX.key and PREFIX.pub")
+    ck.set_defaults(func=cmd_consent_keygen)
+
     ci = p_consent_sub.add_parser("issue", help="Issue a signed consent token")
     ci.add_argument("subject")
     ci.add_argument("--scope", action="append", default=[],
                     help="Scope to grant; may be given multiple times")
     ci.add_argument("--ttl", type=float, default=3600.0)
     ci.add_argument("--issuer", help="Issuer claim")
-    ci.add_argument("--key", help="Path to HMAC key file; ephemeral if omitted")
+    ci.add_argument("--key", help="Path to an Ed25519/RSA private PEM, or an HMAC "
+                                  "secret file with --algorithm HS256")
+    ci.add_argument("--algorithm", choices=["EdDSA", "RS256", "HS256"],
+                    help="Default: inferred from the PEM key")
+    ci.add_argument("--audience", required=True, help="Service that will verify the token")
+    ci.add_argument("--execution-id", help="Bind the token to one execution")
     ci.set_defaults(func=cmd_consent_issue)
 
     cv = p_consent_sub.add_parser("verify", help="Verify a consent token")
     cv.add_argument("token")
-    cv.add_argument("--key", required=True, help="Path to HMAC key file")
+    cv.add_argument("--key", required=True, help="Path to the public PEM, or the HMAC "
+                                                  "secret file with --algorithm HS256")
+    cv.add_argument("--algorithm", choices=["EdDSA", "RS256", "HS256"])
+    cv.add_argument("--audience", required=True, help="This service's audience name")
+    cv.add_argument("--execution-id", help="Require the token to be bound to this execution")
     cv.add_argument("--issuer", help="Expected issuer claim (default: iaiso)")
     cv.set_defaults(func=cmd_consent_verify)
 

@@ -1,0 +1,540 @@
+{
+  "_comment": "IAIso 2.0 pressure semantics. Run with 2.0 defaults (NOT PressureConfig.v1). Same format as vectors.json, plus optional per-step 'totals' and 'spend_usd', and per-step 'model'. Fields omitted from a step's expectation are not checked.",
+  "version": "2.0",
+  "tolerance": 1e-09,
+  "vectors": [
+    {
+      "name": "empty_step_does_not_dissipate",
+      "description": "2.0: a step with no work applies no per-step decay, so empty steps cannot drain pressure.",
+      "config": {
+        "dissipation_per_step": 0.05,
+        "token_coefficient": 0.1,
+        "tool_coefficient": 0.0,
+        "depth_coefficient": 0.0
+      },
+      "clock": [
+        0.0,
+        0.1,
+        0.2,
+        0.3
+      ],
+      "steps": [
+        {
+          "tokens": 1000,
+          "tool_calls": 0,
+          "depth": 0,
+          "tag": null
+        },
+        {
+          "tokens": 0,
+          "tool_calls": 0,
+          "depth": 0,
+          "tag": null
+        },
+        {
+          "tokens": 0,
+          "tool_calls": 0,
+          "depth": 0,
+          "tag": null
+        }
+      ],
+      "expected_steps": [
+        {
+          "step": 1,
+          "delta": 0.1,
+          "decay": 0.05,
+          "pressure": 0.05,
+          "outcome": "ok",
+          "lifecycle": "running"
+        },
+        {
+          "step": 2,
+          "delta": 0.0,
+          "decay": 0.0,
+          "pressure": 0.05,
+          "outcome": "ok",
+          "lifecycle": "running"
+        },
+        {
+          "step": 3,
+          "delta": 0.0,
+          "decay": 0.0,
+          "pressure": 0.05,
+          "outcome": "ok",
+          "lifecycle": "running"
+        }
+      ]
+    },
+    {
+      "name": "step_with_work_still_dissipates",
+      "description": "2.0: per-step decay still applies when the step carries any work.",
+      "config": {
+        "dissipation_per_step": 0.05,
+        "token_coefficient": 0.0,
+        "tool_coefficient": 0.0,
+        "depth_coefficient": 0.0
+      },
+      "clock": [
+        0.0,
+        0.1
+      ],
+      "steps": [
+        {
+          "tokens": 1,
+          "tool_calls": 0,
+          "depth": 0,
+          "tag": null
+        }
+      ],
+      "expected_steps": [
+        {
+          "step": 1,
+          "delta": 0.0,
+          "decay": 0.05,
+          "pressure": 0.0,
+          "outcome": "ok"
+        }
+      ]
+    },
+    {
+      "name": "seconds_dissipation_applies_to_empty_steps",
+      "description": "2.0: only per-step decay is gated on work; wall-clock decay still applies to an empty step.",
+      "config": {
+        "dissipation_per_step": 0.05,
+        "dissipation_per_second": 0.1,
+        "token_coefficient": 0.5,
+        "tool_coefficient": 0.0,
+        "depth_coefficient": 0.0
+      },
+      "clock": [
+        0.0,
+        0.0,
+        1.0
+      ],
+      "steps": [
+        {
+          "tokens": 1000,
+          "tool_calls": 0,
+          "depth": 0,
+          "tag": null
+        },
+        {
+          "tokens": 0,
+          "tool_calls": 0,
+          "depth": 0,
+          "tag": null
+        }
+      ],
+      "expected_steps": [
+        {
+          "step": 1,
+          "delta": 0.5,
+          "decay": 0.05,
+          "pressure": 0.45
+        },
+        {
+          "step": 2,
+          "delta": 0.0,
+          "decay": 0.1,
+          "pressure": 0.35
+        }
+      ]
+    },
+    {
+      "name": "max_total_tokens_stops_slow_drip",
+      "description": "Lifetime token cap: work that never raises pressure still locks once the cap is used. The step that reaches the cap is accounted, then the engine locks; later steps are rejected.",
+      "config": {
+        "max_total_tokens": 2700
+      },
+      "clock": [
+        0.0,
+        0.1,
+        0.2,
+        0.3,
+        0.4
+      ],
+      "steps": [
+        {
+          "tokens": 900,
+          "tool_calls": 0,
+          "depth": 0,
+          "tag": null
+        },
+        {
+          "tokens": 900,
+          "tool_calls": 0,
+          "depth": 0,
+          "tag": null
+        },
+        {
+          "tokens": 900,
+          "tool_calls": 0,
+          "depth": 0,
+          "tag": null
+        },
+        {
+          "tokens": 900,
+          "tool_calls": 0,
+          "depth": 0,
+          "tag": null
+        }
+      ],
+      "expected_steps": [
+        {
+          "step": 1,
+          "pressure": 0.0,
+          "outcome": "ok",
+          "totals": {
+            "tokens": 900,
+            "tool_calls": 0,
+            "steps": 1
+          }
+        },
+        {
+          "step": 2,
+          "pressure": 0.0,
+          "outcome": "ok",
+          "totals": {
+            "tokens": 1800,
+            "tool_calls": 0,
+            "steps": 2
+          }
+        },
+        {
+          "step": 3,
+          "pressure": 0.0,
+          "outcome": "locked",
+          "lifecycle": "locked",
+          "totals": {
+            "tokens": 2700,
+            "tool_calls": 0,
+            "steps": 3
+          }
+        },
+        {
+          "step": 3,
+          "outcome": "locked",
+          "lifecycle": "locked",
+          "totals": {
+            "tokens": 2700,
+            "tool_calls": 0,
+            "steps": 3
+          }
+        }
+      ]
+    },
+    {
+      "name": "max_total_tool_calls_locks",
+      "description": "Lifetime tool-call cap.",
+      "config": {
+        "max_total_tool_calls": 2,
+        "dissipation_per_step": 0.5
+      },
+      "clock": [
+        0.0,
+        0.1,
+        0.2,
+        0.3
+      ],
+      "steps": [
+        {
+          "tokens": 0,
+          "tool_calls": 1,
+          "depth": 0,
+          "tag": null
+        },
+        {
+          "tokens": 0,
+          "tool_calls": 1,
+          "depth": 0,
+          "tag": null
+        },
+        {
+          "tokens": 0,
+          "tool_calls": 1,
+          "depth": 0,
+          "tag": null
+        }
+      ],
+      "expected_steps": [
+        {
+          "step": 1,
+          "outcome": "ok"
+        },
+        {
+          "step": 2,
+          "outcome": "locked",
+          "lifecycle": "locked"
+        },
+        {
+          "step": 2,
+          "outcome": "locked"
+        }
+      ]
+    },
+    {
+      "name": "max_total_steps_locks",
+      "description": "Lifetime step cap; empty steps count.",
+      "config": {
+        "max_total_steps": 2
+      },
+      "clock": [
+        0.0,
+        0.1,
+        0.2,
+        0.3
+      ],
+      "steps": [
+        {
+          "tokens": 0,
+          "tool_calls": 0,
+          "depth": 0,
+          "tag": null
+        },
+        {
+          "tokens": 0,
+          "tool_calls": 0,
+          "depth": 0,
+          "tag": null
+        },
+        {
+          "tokens": 0,
+          "tool_calls": 0,
+          "depth": 0,
+          "tag": null
+        }
+      ],
+      "expected_steps": [
+        {
+          "step": 1,
+          "outcome": "ok"
+        },
+        {
+          "step": 2,
+          "outcome": "locked",
+          "lifecycle": "locked"
+        },
+        {
+          "step": 2,
+          "outcome": "locked"
+        }
+      ]
+    },
+    {
+      "name": "release_does_not_refill_caps",
+      "description": "A release zeroes pressure but not lifetime totals.",
+      "config": {
+        "tool_coefficient": 0.5,
+        "dissipation_per_step": 0.0,
+        "post_release_lock": false,
+        "max_total_tool_calls": 4
+      },
+      "clock": [
+        0.0,
+        0.1,
+        0.2
+      ],
+      "steps": [
+        {
+          "tokens": 0,
+          "tool_calls": 2,
+          "depth": 0,
+          "tag": null
+        },
+        {
+          "tokens": 0,
+          "tool_calls": 2,
+          "depth": 0,
+          "tag": null
+        }
+      ],
+      "expected_steps": [
+        {
+          "step": 1,
+          "outcome": "released",
+          "lifecycle": "running",
+          "pressure": 0.0,
+          "totals": {
+            "tokens": 0,
+            "tool_calls": 2,
+            "steps": 1
+          }
+        },
+        {
+          "step": 2,
+          "outcome": "locked",
+          "lifecycle": "locked",
+          "totals": {
+            "tokens": 0,
+            "tool_calls": 4,
+            "steps": 2
+          }
+        }
+      ]
+    },
+    {
+      "name": "reset_clears_lifetime_totals",
+      "description": "reset() (default) clears totals with pressure and spend.",
+      "config": {
+        "max_total_steps": 1
+      },
+      "clock": [
+        0.0,
+        0.1,
+        0.2,
+        0.3
+      ],
+      "steps": [
+        {
+          "tokens": 0,
+          "tool_calls": 0,
+          "depth": 0,
+          "tag": null
+        },
+        {
+          "tokens": 0,
+          "tool_calls": 0,
+          "depth": 0,
+          "tag": null
+        }
+      ],
+      "reset_after_step": 1,
+      "clock_after_reset": 0.2,
+      "expected_steps": [
+        {
+          "step": 1,
+          "outcome": "locked"
+        },
+        {
+          "step": 1,
+          "outcome": "locked",
+          "totals": {
+            "tokens": 0,
+            "tool_calls": 0,
+            "steps": 1
+          }
+        }
+      ],
+      "expected_after_reset": {
+        "pressure": 0.0,
+        "step": 1,
+        "lifecycle": "locked"
+      }
+    },
+    {
+      "name": "unknown_model_charged_highest_price",
+      "description": "2.0: a model missing from model_costs is charged the highest configured price (fail closed).",
+      "config": {
+        "token_coefficient": 0.0,
+        "model_costs": {
+          "cheap": 1.0,
+          "frontier": 20.0
+        }
+      },
+      "clock": [
+        0.0,
+        0.1,
+        0.2,
+        0.3
+      ],
+      "steps": [
+        {
+          "tokens": 1000000,
+          "tool_calls": 0,
+          "depth": 0,
+          "tag": null,
+          "model": "cheap"
+        },
+        {
+          "tokens": 1000000,
+          "tool_calls": 0,
+          "depth": 0,
+          "tag": null,
+          "model": "not-listed"
+        },
+        {
+          "tokens": 1000000,
+          "tool_calls": 0,
+          "depth": 0,
+          "tag": null
+        }
+      ],
+      "expected_steps": [
+        {
+          "spend_usd": 1.0
+        },
+        {
+          "spend_usd": 21.0
+        },
+        {
+          "spend_usd": 41.0
+        }
+      ]
+    },
+    {
+      "name": "budget_locks_on_unpriced_model",
+      "description": "The fail-closed price trips the budget that 1.x would have bypassed.",
+      "config": {
+        "token_coefficient": 0.0,
+        "model_costs": {
+          "m": 10.0
+        },
+        "budget_usd": 5.0
+      },
+      "clock": [
+        0.0,
+        0.1,
+        0.2
+      ],
+      "steps": [
+        {
+          "tokens": 1000000,
+          "tool_calls": 0,
+          "depth": 0,
+          "tag": null,
+          "model": "shadow-model"
+        },
+        {
+          "tokens": 1,
+          "tool_calls": 0,
+          "depth": 0,
+          "tag": null
+        }
+      ],
+      "expected_steps": [
+        {
+          "outcome": "locked",
+          "lifecycle": "locked",
+          "spend_usd": 10.0
+        },
+        {
+          "outcome": "locked"
+        }
+      ]
+    },
+    {
+      "name": "invalid_cap_negative",
+      "description": "Config validation.",
+      "config": {
+        "max_total_tokens": -1
+      },
+      "expect_config_error": "max_total_tokens"
+    },
+    {
+      "name": "invalid_cap_fractional",
+      "description": "Config validation.",
+      "config": {
+        "max_total_steps": 1.5
+      },
+      "expect_config_error": "max_total_steps"
+    },
+    {
+      "name": "invalid_unpriced_negative",
+      "description": "Config validation.",
+      "config": {
+        "unpriced_model_usd_per_million": -1.0
+      },
+      "expect_config_error": "unpriced_model_usd_per_million"
+    }
+  ]
+}

@@ -5,7 +5,10 @@
   "version": "5.0.0",
   "consentScope": "sol.bank.audit",
   "status": "locked",
-  "description": "Transaction pattern analysis with recursive back-prop for obfuscation detection.",
-  "invariants": ["inv-1", "inv-4"],
+  "description": "Transaction pattern analysis with pressure-bounded checks for obfuscation detection.",
+  "invariants": [
+    "inv-1",
+    "inv-4"
+  ],
   "parent": "Smarttasks"
 }

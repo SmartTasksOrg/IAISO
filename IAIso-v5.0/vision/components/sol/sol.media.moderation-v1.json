@@ -5,7 +5,10 @@
   "version": "5.0.0",
   "consentScope": "sol.media.safety",
   "status": "locked",
-  "description": "Toxicity detection with back-prop magnification to catch deceptive nuances.",
-  "invariants": ["inv-1", "inv-4"],
+  "description": "Toxicity detection with pressure-based rate limiting.",
+  "invariants": [
+    "inv-1",
+    "inv-4"
+  ],
   "parent": "Smarttasks"
 }

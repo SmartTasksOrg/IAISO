@@ -32,7 +32,6 @@ not answer questions itself; if it tries to, that is a bug.
    | "escalation", Layer 4, multi-party auth                       | `iaiso-runtime-handle-escalation`            |
    | scope check before action                                     | `iaiso-runtime-consent-scope-check`          |
    | "release", state wipe, atomic reset                           | `iaiso-runtime-atomic-reset`                 |
-   | back-prop magnification, output refinement                    | `iaiso-runtime-back-prop-magnification`      |
    | calibration, picking coefficients                             | `iaiso-deploy-calibration`                   |
    | LangChain / CrewAI / AutoGen / etc.                           | matching `iaiso-integ-*`                     |
    | Anthropic / OpenAI / Gemini / Bedrock / Mistral / Cohere      | matching `iaiso-llm-*`                       |

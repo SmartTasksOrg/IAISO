@@ -21,6 +21,8 @@ from iaiso.conformance import (
     run_consent_vectors,
     run_events_vectors,
     run_policy_vectors,
+    run_hostile_vectors,
+    run_pressure_v2_vectors,
     run_pressure_vectors,
 )
 
@@ -35,7 +37,7 @@ def main(argv: list[str] | None = None) -> int:
         help="Path to the spec/ directory containing vector files. Default: ./spec",
     )
     parser.add_argument(
-        "--section", choices=("pressure", "consent", "events", "policy", "all"),
+        "--section", choices=("pressure", "pressure-v2", "hostile", "consent", "events", "policy", "all"),
         default="all",
         help="Run only one subsystem's vectors. Default: all.",
     )
@@ -52,6 +54,8 @@ def main(argv: list[str] | None = None) -> int:
 
     sections = {
         "pressure": run_pressure_vectors,
+        "pressure-v2": run_pressure_v2_vectors,
+        "hostile": run_hostile_vectors,
         "consent": run_consent_vectors,
         "events": run_events_vectors,
         "policy": run_policy_vectors,

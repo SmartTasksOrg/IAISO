@@ -28,7 +28,7 @@ public sealed class ConformanceSuiteTests
             foreach (var v in bucket)
                 if (!v.Passed) failures.Add($"[{v.Section}] {v.Name}: {v.Message}");
         }
-        Assert.Equal(67, r.CountTotal());
+        Assert.Equal(72, r.CountTotal());
         if (failures.Count > 0)
         {
             throw new AssertionException(

@@ -12,17 +12,13 @@ Where:
 
 $I(t)$ (Input Accumulation): The rate of intelligence growth, derived from compute intensity (FLOPs), token generation speed, and the density of active tool-calls.
 
-$D(p, t)$ (Dissipation/Friction): Natural decay and intentional cognitive friction. This is enhanced by Back-propagation Magnification, where $D$ increases proportionally to the complexity of the output.
+$D(p, t)$ (Dissipation/Friction): Natural per-step decay plus an entropy floor on output complexity.
 
 $R(p, t)$ (Release/Venting): A discrete function that triggers a state purge when $p(t) \ge P_{max}$.
 
-2. Magnification & Back-Prop Logic
+2. Magnification & Back-Prop Logic — design concept, *not implemented*
 
-To ensure the highest quality AGI magnification, the dissipation function incorporates a recursive feedback loop:
-
-$$D_{magnified} = D_{base} \cdot (1 + \beta \cdot \nabla Q)$$
-
-$\beta$: Magnification constant (configurable in l.env).
+An earlier design added a quality-gradient term, $D_{magnified} = D_{base} \cdot (1 + \beta \cdot \nabla Q)$, to the dissipation function. **This was never implemented in the reference engine.** Dissipation is passive per-step decay plus the entropy floor; there is no $\beta$ coefficient and no quality gradient $\nabla Q$.
 
 $\nabla Q$: The gradient of quality assessment. If an output fails the Entropy Floor check, $\nabla Q$ increases, creating friction that slows the system down for refinement.
 

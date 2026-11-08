@@ -8,6 +8,14 @@
     "rootDir": "./src",
     "removeComments": false
   },
-  "include": ["src/**/*.ts"],
-  "exclude": ["tests/**/*", "node_modules", "dist"]
+  "include": [
+    "src/**/*.ts"
+  ],
+  "exclude": [
+    "tests/**/*",
+    "node_modules",
+    "dist",
+    "**/*.test.ts",
+    "**/*.spec.ts"
+  ]
 }

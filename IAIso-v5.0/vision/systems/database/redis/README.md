@@ -31,7 +31,6 @@ layer_1:
   entropy_floor: 1.5
   gradient_clip: 1.0
   dual_objective_weight: 0.3
-  magnification_enabled: true  # Back-propagation active
 ```
 
 ### Layer 2: Memory & Planning
@@ -68,7 +67,6 @@ layer_5:
 # dp/dt = input_rate(t) - dissipation(p, t) - release(p, t)
 
 from iaiso.core.pressure import PressureMonitor
-from iaiso.core.magnification import apply_magnification
 
 class RedisPressureMonitor(PressureMonitor):
     def __init__(self):
@@ -93,7 +91,7 @@ class RedisPressureMonitor(PressureMonitor):
         # Input rate from action
         input_rate = self._assess_action_complexity(action_context)
 
-        # Dissipation via entropy floor and back-prop
+        # Dissipation via entropy floor and passive decay
         dissipation = self._calculate_dissipation(base_pressure)
 
         # Calculate new pressure
@@ -115,7 +113,6 @@ scale: small
 config:
   pressure_threshold: 0.80
   monitoring_frequency: 5m
-  back_propagation: true
   auto_scaling: false
   redundancy: 1x
   cost_budget_daily: $50
@@ -127,7 +124,6 @@ scale: medium
 config:
   pressure_threshold: 0.85
   monitoring_frequency: 1m
-  back_propagation: true
   auto_scaling: true
   redundancy: 2x
   cost_budget_daily: $500
@@ -139,7 +135,6 @@ scale: large
 config:
   pressure_threshold: 0.85
   monitoring_frequency: 30s
-  back_propagation: true
   auto_scaling: true
   redundancy: 3x
   geo_distribution: true
@@ -152,7 +147,6 @@ scale: enterprise
 config:
   pressure_threshold: 0.90
   monitoring_frequency: 10s
-  back_propagation: true
   auto_scaling: true
   redundancy: 5x
   geo_distribution: true
@@ -173,7 +167,6 @@ import os
 from datetime import datetime
 from dotenv import load_dotenv
 from iaiso.core.pressure import PressureMonitor
-from iaiso.core.magnification import apply_magnification, is_back_prop_enabled
 
 load_dotenv("l.env")
 
@@ -184,7 +177,6 @@ class RedisIAIsoWrapper:
             system_id="redis",
             pressure_threshold=pressure_threshold
         )
-        self.magnification_enabled = is_back_prop_enabled()
 
     def execute_with_containment(self, operation, **kwargs):
         """
@@ -209,9 +201,6 @@ class RedisIAIsoWrapper:
         try:
             result = self._execute_operation(operation, **kwargs)
 
-            # Apply magnification if enabled
-            if self.magnification_enabled:
-                result = apply_magnification("redis", result, action_context)
 
             return result
 

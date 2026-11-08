@@ -36,8 +36,8 @@ def test_scope_required_without_consent() -> None:
 
 def test_scope_granted_with_matching_consent() -> None:
     secret = generate_hs256_secret()
-    issuer = ConsentIssuer(signing_key=secret)
-    verifier = ConsentVerifier(verification_key=secret)
+    issuer = ConsentIssuer.v1(signing_key=secret)
+    verifier = ConsentVerifier.v1(verification_key=secret)
 
     token = issuer.issue(subject="alice", scopes=["tools"])
     verified = verifier.verify(token.token)
@@ -52,8 +52,8 @@ def test_scope_granted_with_matching_consent() -> None:
 
 def test_scope_denied_with_insufficient_consent() -> None:
     secret = generate_hs256_secret()
-    issuer = ConsentIssuer(signing_key=secret)
-    verifier = ConsentVerifier(verification_key=secret)
+    issuer = ConsentIssuer.v1(signing_key=secret)
+    verifier = ConsentVerifier.v1(verification_key=secret)
 
     token = issuer.issue(subject="alice", scopes=["read"])
     verified = verifier.verify(token.token)

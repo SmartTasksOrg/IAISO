@@ -43,6 +43,15 @@ public final class PolicyLoader {
                 || !"1".equals(v.getAsString())) {
             throw new PolicyException("$.version: must be exactly \"1\", got " + v);
         }
+        if (root.has("enforcement_mode")) {
+            // An unknown mode must not silently degrade to permissive.
+            JsonElement m = root.get("enforcement_mode");
+            if (!m.isJsonPrimitive() || !m.getAsJsonPrimitive().isString()
+                    || !("permissive".equals(m.getAsString()) || "strict".equals(m.getAsString()))) {
+                throw new PolicyException(
+                    "$.enforcement_mode: must be \"permissive\" or \"strict\", got " + m);
+            }
+        }
 
         if (root.has("pressure")) {
             JsonElement pressure = root.get("pressure");

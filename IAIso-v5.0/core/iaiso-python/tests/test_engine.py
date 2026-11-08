@@ -45,8 +45,10 @@ def test_dissipation_reduces_pressure() -> None:
     engine = PressureEngine(cfg, execution_id="t1")
     engine.step(StepInput(tokens=1000))  # +0.1, -0.05 = 0.05
     assert engine.pressure == pytest.approx(0.05)
-    engine.step(StepInput(tokens=0))  # +0, -0.05 = 0.0
-    assert engine.pressure == pytest.approx(0.0)
+    engine.step(StepInput(tokens=0))  # 2.0: an empty step does not dissipate
+    assert engine.pressure == pytest.approx(0.05)
+    engine.step(StepInput(tokens=1))  # carries work: +0.0001, -0.05
+    assert engine.pressure == pytest.approx(0.0001)
 
 
 def test_escalation_fires_at_threshold() -> None:

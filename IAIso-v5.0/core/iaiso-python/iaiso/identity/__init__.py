@@ -31,6 +31,7 @@ import json
 import threading
 import time
 import urllib.error
+import urllib.parse
 import urllib.request
 from dataclasses import dataclass, field
 from typing import Any, Callable
@@ -63,8 +64,9 @@ class OIDCProviderConfig:
         discovery_url: `https://<issuer>/.well-known/openid-configuration`
         jwks_url: Direct JWKS endpoint; overrides discovery.
         issuer: Expected `iss` claim. If None, trust discovery's issuer.
-        audience: Expected `aud` claim. If None, skip audience validation
-            (not recommended in production).
+        audience: Expected `aud` claim. If None, PyJWT refuses any token that
+            carries an `aud` claim and accepts only tokens without one; set it
+            in production so tokens issued to other clients are refused.
         allowed_algorithms: Signing algorithms to accept. Defaults to
             RS256 + ES256 — never accept "none" or HS256 on public-key
             material from an IdP.
@@ -182,8 +184,14 @@ class OIDCVerifier:
 
     @staticmethod
     def _default_fetcher(url: str) -> bytes:
+        # Discovery and JWKS must come over TLS (keys fetched over plain HTTP
+        # can be swapped in transit); http:// only for localhost test IdPs.
+        host = urllib.parse.urlsplit(url).hostname or ""
+        if not (url.startswith("https://") or
+                (url.startswith("http://") and host in ("localhost", "127.0.0.1", "::1"))):
+            raise OIDCNetworkError(f"refusing to fetch keys over a non-TLS URL: {url[:60]}")
         try:
-            with urllib.request.urlopen(url, timeout=5.0) as resp:
+            with urllib.request.urlopen(url, timeout=5.0) as resp:  # nosec B310  # nosemgrep: urlopen-non-literal
                 return resp.read()
         except (urllib.error.URLError, TimeoutError) as exc:
             raise OIDCNetworkError(f"Failed to fetch {url}: {exc}") from exc
@@ -267,7 +275,9 @@ class OIDCVerifier:
             decode_kwargs["issuer"] = self._resolved_issuer
 
         try:
-            claims = jwt.decode(token, key=key_obj, **decode_kwargs)
+            # audience is passed when configured; without it PyJWT rejects any
+            # token that has `aud` (fails closed). nosemgrep: jwt-decode-without-audience
+            claims = jwt.decode(token, key=key_obj, **decode_kwargs)  # nosemgrep: jwt-decode-without-audience
         except jwt.ExpiredSignatureError as exc:
             raise OIDCError("Token expired") from exc
         except jwt.InvalidAudienceError as exc:

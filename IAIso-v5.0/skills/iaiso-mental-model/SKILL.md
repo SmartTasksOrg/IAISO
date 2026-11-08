@@ -65,7 +65,7 @@ skill — this one is foundation, not implementation.
    | Layer | Name                  | Where it lives                                  |
    |-------|-----------------------|-------------------------------------------------|
    | 0     | Physical Boundaries   | hardware / hypervisor / OS, outside the SDK     |
-   | 1     | Optimization Bounds   | gradient clipping, entropy floor, back-prop     |
+   | 1     | Optimization Bounds   | gradient clipping, entropy floor                |
    | 2     | Memory & Planning     | depth gates, tool-expansion limits (in SDK)     |
    | 3     | Ecosystem Coupling    | coordinator, multi-agent (in SDK)               |
    | 3.5   | Regime Shift          | phase-transition monitoring                     |
