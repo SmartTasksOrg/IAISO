@@ -5,7 +5,10 @@
   "version": "5.0.0",
   "consentScope": "sol.creative.safety",
   "status": "locked",
-  "description": "Scanning video content for neural artifacts using back-prop checks.",
-  "invariants": ["inv-1", "inv-4"],
+  "description": "Scanning video content for neural artifacts using pressure-bounded checks.",
+  "invariants": [
+    "inv-1",
+    "inv-4"
+  ],
   "parent": "Smarttasks"
 }

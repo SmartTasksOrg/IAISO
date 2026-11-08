@@ -8,7 +8,7 @@ Inventory stock-out prevention with multi-agent supply chain syncing.
 - **Template**: `templates/sol/sol.ecom.inventory-v1.template`
 
 ## Governance
-This solution is governed by the **sol.ecom.ops** consent scope. All actions are subject to the IAIso v5.0 5 Core Invariants, including **Back-Propagation Magnification** to ensure CISSP-level safety.
+This solution is governed by the **sol.ecom.ops** consent scope. All actions are subject to the IAIso v5.0 5 Core Invariants.
 
 ---
 *Powered by Smarttasks — "Build with vision, count on precision."*

@@ -49,12 +49,12 @@ from iaiso import (
     BoundedExecution,
     ConsentIssuer,
     ConsentVerifier,
-    generate_hs256_secret,
+    generate_ed25519_keypair,
 )
 
 # Issuance side (e.g., in an auth service):
-secret = generate_hs256_secret()  # store in a secrets manager
-issuer = ConsentIssuer(signing_key=secret)
+private_pem, public_pem = generate_ed25519_keypair()  # keep private_pem in a secrets manager
+issuer = ConsentIssuer(signing_key=private_pem, audience="agent-runtime")  # EdDSA, inferred
 token = issuer.issue(
     subject="service-account-42",
     scopes=["tools.search", "tools.fetch"],
@@ -63,7 +63,7 @@ token = issuer.issue(
 )
 
 # Agent side:
-verifier = ConsentVerifier(verification_key=secret)
+verifier = ConsentVerifier(verification_key=public_pem, audience="agent-runtime")
 scope = verifier.verify(token.token, execution_id="exec-abc")
 
 with BoundedExecution.start(

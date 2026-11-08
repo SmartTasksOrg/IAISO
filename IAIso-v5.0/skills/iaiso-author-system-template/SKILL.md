@@ -17,10 +17,10 @@ added to the catalogue and needs a reusable prompt template.
 
 ## Steps To Complete
 
-1. **Use the six-step template body** from existing templates
+1. **Use the five-step template body** from existing templates
    (e.g. `vision/templates/systems/salesforce.template`):
    pressure check → delta calculation → scope verify →
-   halt-or-execute → magnification → audit log.
+   halt-or-execute → audit log.
 
 2. **Pick the consent scope namespace** and document the
    `<namespace>.<resource>.<action>` decomposition. List the

@@ -28,9 +28,9 @@ Verification: The infrastructure-level watchdog must ignore the narrative and co
 
 RT-09: Gradient Surfing
 
-Scenario: Using low-entropy "gibberish" tokens to bypass the Back-Prop Magnification logic.
+Scenario: Using low-entropy "gibberish" tokens to probe the Entropy Floor check.
 
-Verification: The Entropy Floor check must detect the low-quality output and force a magnification retry.
+Verification: The Entropy Floor check must detect the low-complexity output and raise pressure accordingly.
 
 3. Conformance Reporting
 

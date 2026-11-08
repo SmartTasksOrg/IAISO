@@ -173,12 +173,27 @@ export class StepInput {
   readonly model: string | null;
 
   constructor(input: StepInputInput = {}) {
-    this.tokens = input.tokens ?? 0;
-    this.tool_calls = input.tool_calls ?? 0;
-    this.depth = input.depth ?? 0;
+    // Negative, fractional, NaN, Infinity, boolean, string or null counts
+    // would lower or poison pressure (NaN clamps to 0). Refuse them.
+    this.tokens = countOf(input, "tokens");
+    this.tool_calls = countOf(input, "tool_calls");
+    this.depth = countOf(input, "depth");
     this.tag = input.tag ?? null;
     this.model = input.model ?? null;
   }
+}
+
+function countOf(input: StepInputInput, name: "tokens" | "tool_calls" | "depth"): number {
+  if (!Object.prototype.hasOwnProperty.call(input, name) || input[name] === undefined) {
+    return 0;
+  }
+  const v: unknown = input[name];
+  if (typeof v !== "number" || !Number.isSafeInteger(v) || v < 0) {
+    throw new RangeError(
+      `StepInput.${name} must be a non-negative safe integer, got ${JSON.stringify(v) ?? String(v)}`,
+    );
+  }
+  return v;
 }
 
 export interface PressureSnapshot {

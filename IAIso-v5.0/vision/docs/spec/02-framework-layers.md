@@ -9,7 +9,7 @@ IAIso v5.0 establishes a 7-layer hierarchy for containment. Each layer provides 
 +=======+==========================+=============================================================+
 | 0 | Physical Boundaries | Hardware kill-switches, compute caps, and timeouts.         |
 +-------+--------------------------+-------------------------------------------------------------+
-| 1 | Optimization Bounds | Gradient clipping, entropy floors, and back-prop friction.  |
+| 1 | Optimization Bounds | Gradient clipping and entropy floors.                       |
 +-------+--------------------------+-------------------------------------------------------------+
 | 2 | Memory & Planning | Planning depth gates and tool-expansion consent tokens.     |
 +-------+--------------------------+-------------------------------------------------------------+

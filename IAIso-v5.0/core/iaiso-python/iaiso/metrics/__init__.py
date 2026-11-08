@@ -29,11 +29,14 @@ Install:
 
 from __future__ import annotations
 
+import logging
 import threading
 import time
 from collections import defaultdict
 from dataclasses import dataclass, field
 from typing import Any
+
+logger = logging.getLogger("iaiso")
 
 from iaiso.audit import AuditEvent, AuditSink
 
@@ -271,9 +274,9 @@ class PrometheusMetricsSink:
                     with self._lock:
                         self._active_set.discard(exec_id)
                         self._active.set(len(self._active_set))
-                    try:
+                    try:  # nosemgrep: except-pass
                         self._pressure.remove(exec_id)
-                    except KeyError:
+                    except KeyError:  # gauge had no series for this id
                         pass
             elif kind.startswith("consent.") and "denied" in kind:
                 self._consent_denied.labels(
@@ -285,8 +288,8 @@ class PrometheusMetricsSink:
                 if isinstance(agg, (int, float)):
                     self._coord_pressure.set(float(agg))
         except Exception:  # noqa: BLE001
-            # A metric update must never break the audit path.
-            pass
+            # A metric update must never break the audit path, but say so.
+            logger.debug("iaiso.metrics: prometheus update failed", exc_info=True)
 
 
 class OTelMetricsSink:
@@ -398,4 +401,4 @@ class OTelMetricsSink:
                 if isinstance(agg, (int, float)):
                     self._coord_state["current"] = float(agg)
         except Exception:  # noqa: BLE001
-            pass
+            logger.debug("iaiso.metrics: opentelemetry update failed", exc_info=True)

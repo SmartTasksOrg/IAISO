@@ -1,0 +1,20 @@
+title = "IAIso gitleaks configuration"
+
+# Start from gitleaks' default rules, then allowlist deterministic test fixtures.
+[extend]
+useDefault = true
+
+[allowlist]
+description = """
+Allowlisted paths contain cross-language CONFORMANCE TEST VECTORS and unit-test
+fixtures, not real credentials. The JWTs in spec/consent/vectors.json are signed
+with a fixed, published HS256 conformance key (`hs256_key_shared`) that every
+port must reproduce byte-for-byte; each vectors.json documents it as a fixed
+conformance key that must NEVER be used in production. Flagging these as leaked
+secrets is a false positive.
+"""
+regexTarget = "match"
+paths = [
+  '''.*/spec/consent/vectors\.json$''',
+  '''core/iaiso-node/tests/.*\.test\.ts$''',
+]

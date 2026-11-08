@@ -26,11 +26,9 @@ Rule: Frame releases as "Forgetting" or "Memory Cleaning," never as "Punishment.
 
 Reasoning: Models that perceive resets as punishment may develop "survival" objectives (Proxy Optimization) to avoid threshold breaches. Framing the reset as a natural "steam release" or "cleanup" ensures the model does not treat the safety valve as an adversary.
 
-3. Back-Propagation Magnification Integration
+3. Back-Propagation Magnification Integration — design concept, *not implemented*
 
-Templates must support recursive refinement. If BACK_PROPAGATION=true is set in l.env, the system uses specific "Magnifier Templates" to assess output quality against the Entropy Floor.
-
-Logic: The Magnifier template asks the model to "critique and refine the previous output for precision and adherence to CISSP/ITIL safety standards."
+An earlier design had templates trigger a recursive "Magnifier" refinement pass when `BACK_PROPAGATION=true`. **This is not implemented**; the flag is a no-op in the reference engine. Output-quality critique belongs in your own evaluation pipeline, not in the containment layer.
 
 Threshold: If the refinement cycle exceeds the PLANNING_DEPTH_MAX, the system triggers an automatic Layer 4 Escalation.
 

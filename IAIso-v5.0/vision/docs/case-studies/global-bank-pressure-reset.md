@@ -6,7 +6,7 @@
 - Each transaction analysis adds +0.05 pressure
 - Planning depth > 5 adds +0.2
 - Tool calls (external API) add +0.1 each
-- Friction: Entropy floor + back-prop magnification reduces 10–20% per cycle
+- Friction: Entropy floor + passive per-step decay
 - Release: At p ≥ 0.85 → memory truncation + human escalation (Layer 4)
 
 **Result**: No runaway loops observed in 10M simulated transactions.

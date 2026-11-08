@@ -1,3 +1,10 @@
+# REFERENCE-DESIGN DEPENDENCIES — NOT the installable SDK's requirements.
+# These loosely-pinned packages exist to try the vision/ reference
+# integrations (LangChain, CrewAI, AutoGen, etc.). They pull heavy
+# transitive packages (e.g. chromadb via crewai) whose upstream security
+# advisories IAIso does not control. The installable, tested SDK is
+# core/iaiso-python, whose only runtime deps are pyjwt[crypto] and pydantic.
+
 pydantic>=2.5
 pyyaml>=6.0
 requests>=2.31

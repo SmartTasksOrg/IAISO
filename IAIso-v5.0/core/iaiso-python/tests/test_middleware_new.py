@@ -161,6 +161,24 @@ def test_bedrock_invoke_model_handles_unparseable_body() -> None:
     # Step should still have been recorded even though body didn't parse
     step_events = [e for e in sink.events if e.kind == "engine.step"]
     assert len(step_events) == 1
+    # ...and it is not free: unreadable usage is charged an estimate (I-16)
+    assert step_events[0].data["tokens"] >= 1
+    assert step_events[0].data["tag"].endswith(".usage_unparsed")
+
+
+def test_bedrock_invoke_model_negative_usage_is_not_a_refund() -> None:
+    from iaiso.middleware.bedrock import BedrockBoundedClient
+
+    class FakeBedrock:
+        def invoke_model(self, **kwargs: Any) -> dict:
+            body = json.dumps({"usage": {"input_tokens": -5000, "output_tokens": 10}}).encode()
+            return {"body": io.BytesIO(body)}
+
+    sink = MemorySink()
+    with BoundedExecution.start(audit_sink=sink) as exec_:
+        BedrockBoundedClient(FakeBedrock(), exec_).invoke_model(modelId="m", body="{}")
+    steps = [e for e in sink.events if e.kind == "engine.step"]
+    assert steps[0].data["tokens"] == 10
 
 
 # -- Mistral ----------------------------------------------------------------

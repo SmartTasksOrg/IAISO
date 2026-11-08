@@ -18,6 +18,13 @@ public enum PolicyLoader {
         guard let vs = v as? String, vs == "1" else {
             throw PolicyError("$.version: must be exactly \"1\", got \(repr(v))")
         }
+        // An unknown mode must not silently degrade to permissive (spec 1.1).
+        // NOTE: written without a Swift toolchain; not compiled in the review run.
+        if let m = map["enforcement_mode"] {
+            guard let ms = m as? String, ms == "permissive" || ms == "strict" else {
+                throw PolicyError("$.enforcement_mode: must be \"permissive\" or \"strict\", got \(repr(m))")
+            }
+        }
 
         if let p = map["pressure"] {
             guard let pmap = p as? [String: Any] else {

@@ -67,6 +67,8 @@ public sealed class PressureEngine
     /// <summary>Account for a unit of work; advance the engine.</summary>
     public StepOutcome Step(StepInput work)
     {
+        ArgumentNullException.ThrowIfNull(work);
+        work.Validate();
         lock (_lock)
         {
             if (_lifecycle == Lifecycle.Locked)

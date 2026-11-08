@@ -4,7 +4,7 @@ Version 5.0.0 (December 30, 2025)
 
 Core Pivot: Complete transition from "Alignment-based" safety to "Pressure-Control Governance."
 
-New Feature: Back-propagation Magnification integrated as the default reasoning/safety loop.
+Note: "Back-propagation Magnification" was described in early v5.0 drafts but was never implemented; the enable flags are no-ops.
 
 Infrastructure: Introduced machine-readable .template files as enforceable contracts.
 
