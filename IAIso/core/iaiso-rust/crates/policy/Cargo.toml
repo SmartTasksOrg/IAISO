@@ -15,4 +15,4 @@ serde_json = { workspace = true }
 serde_yaml = { workspace = true }
 thiserror = { workspace = true }
 # Pin transitive deps that bumped MSRV beyond Rust 1.75.
-indexmap = "=2.6.0"
+indexmap = "=2.14.2"
