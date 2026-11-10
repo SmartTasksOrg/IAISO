@@ -1,9 +1,9 @@
 # Security policy
 
 This policy covers this repository. The only package it publishes is the
-Python SDK, `iaiso` on PyPI (source: `IAIso-v5.0/core/iaiso-python`); it is
+Python SDK, `iaiso` on PyPI (source: `IAIso/core/iaiso-python`); it is
 beta software and has had no independent security review. The other language
-SDKs in `IAIso-v5.0/core/` are built from source and are not published on any
+SDKs in `IAIso/core/` are built from source and are not published on any
 registry.
 
 ## Supported versions
@@ -56,7 +56,7 @@ crates.io: help@crates.io).
 
 - An answer in the private report. No response time is promised; this is a
   small project without a security team on call.
-- A confirmed issue is fixed in a new release, announced in `IAIso-v5.0/core/iaiso-python/CHANGELOG.md`
+- A confirmed issue is fixed in a new release, announced in `IAIso/core/iaiso-python/CHANGELOG.md`
   and in a GitHub security advisory, with credit to the reporter unless they
   ask not to be named.
 - There is no bug bounty.

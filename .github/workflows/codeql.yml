@@ -48,7 +48,7 @@ jobs:
         if: matrix.language == 'go'
         uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e  # v7.0.0, read 2026-10-11
         with:
-          go-version-file: IAIso-v5.0/core/iaiso-go/go.mod
+          go-version-file: IAIso/core/iaiso-go/go.mod
 
       - uses: github/codeql-action/init@33d7b85da1a04171e211befe2c739303b9a4c066  # v4.39.3, read 2026-11-08
         with:
@@ -58,6 +58,6 @@ jobs:
       - name: Build Go module
         if: matrix.language == 'go'
         run: go build ./...
-        working-directory: IAIso-v5.0/core/iaiso-go
+        working-directory: IAIso/core/iaiso-go
 
       - uses: github/codeql-action/analyze@33d7b85da1a04171e211befe2c739303b9a4c066  # v4.39.3, read 2026-11-08

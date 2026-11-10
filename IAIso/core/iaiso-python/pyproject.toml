@@ -1,0 +1,121 @@
+[build-system]
+requires = ["setuptools>=77", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "iaiso"
+version = "0.4.0"
+description = "Reference Python SDK for the IAIso bounded-agent-execution framework"
+readme = "README.md"
+requires-python = ">=3.10"
+license = "Apache-2.0"
+license-files = ["LICENSE"]
+authors = [{ name = "IAIso Contributors" }]
+keywords = ["llm", "agent", "safety", "rate-limiting", "bounded-execution"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Software Development :: Libraries",
+]
+
+dependencies = [
+    "pyjwt[crypto]>=2.8.0",
+    "pydantic>=2.0",
+]
+
+[project.optional-dependencies]
+# LLM middleware
+anthropic = ["anthropic>=0.40.0"]
+openai = ["openai>=1.50.0"]
+langchain = ["langchain-core>=0.3.0"]
+litellm = ["litellm>=1.50.0"]
+gemini = ["google-generativeai>=0.8.0"]
+bedrock = ["boto3>=1.34.0"]
+mistral = ["mistralai>=1.0.0"]
+cohere = ["cohere>=5.0.0"]
+
+# Backends and operational integrations
+redis = ["redis>=5.0.0"]
+metrics = ["prometheus_client>=0.19"]
+otel = ["opentelemetry-api>=1.20", "opentelemetry-sdk>=1.20"]
+policy = ["PyYAML>=6.0"]
+oidc = ["pyjwt[crypto]>=2.8.0"]
+
+# SIEM sinks use only the standard library (urllib); no extras needed.
+
+eval = ["numpy>=1.24", "pandas>=2.0"]
+
+all = [
+    "anthropic>=0.40.0",
+    "openai>=1.50.0",
+    "langchain-core>=0.3.0",
+    "litellm>=1.50.0",
+    "google-generativeai>=0.8.0",
+    "boto3>=1.34.0",
+    "mistralai>=1.0.0",
+    "cohere>=5.0.0",
+    "redis>=5.0.0",
+    "prometheus_client>=0.19",
+    "opentelemetry-api>=1.20",
+    "opentelemetry-sdk>=1.20",
+    "PyYAML>=6.0",
+    "hypothesis>=6.100",     # tests/test_fuzz.py
+    "mutmut>=3.0",           # [tool.mutmut]; tools/mutation_smoke.py needs only pytest
+    "numpy>=1.24",
+    "pandas>=2.0",
+]
+dev = [
+    "pytest>=7.4",
+    "pytest-asyncio>=0.23",
+    "pytest-cov>=4.1",
+    "mypy>=1.8",
+    "ruff>=0.3",
+    "fakeredis>=2.20.0",
+    "lupa>=2.0",             # fakeredis Lua support (Redis coordinator tests)
+    "cryptography>=42.0",    # OIDC JWT verification tests
+    "prometheus_client>=0.19",
+    "opentelemetry-api>=1.20",
+    "opentelemetry-sdk>=1.20",
+    "PyYAML>=6.0",
+    "hypothesis>=6.100",     # tests/test_fuzz.py
+    "mutmut>=3.0",           # [tool.mutmut]; tools/mutation_smoke.py needs only pytest
+]
+
+[project.scripts]
+iaiso = "iaiso.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/SmartTasksOrg/IAISO"
+Repository = "https://github.com/SmartTasksOrg/IAISO"
+Documentation = "https://github.com/SmartTasksOrg/IAISO/tree/main/IAIso/core/iaiso-python/docs"
+Changelog = "https://github.com/SmartTasksOrg/IAISO/blob/main/IAIso/core/iaiso-python/CHANGELOG.md"
+Issues = "https://github.com/SmartTasksOrg/IAISO/issues"
+
+[tool.setuptools.packages.find]
+include = ["iaiso*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.mypy]
+python_version = "3.10"
+strict = true
+warn_return_any = true
+
+[tool.mutmut]
+# Full mutation run (slow: every mutant runs the selected tests).
+#   pip install mutmut && mutmut run && mutmut results
+# For a one-minute targeted run of the security-critical lines use
+#   python tools/mutation_smoke.py
+paths_to_mutate = ["iaiso/core/engine.py", "iaiso/consent/__init__.py", "iaiso/proxy/__init__.py", "iaiso/core/wrapper.py"]
+tests_dir = ["tests/test_v2_semantics.py", "tests/test_hardening.py", "tests/test_proxy.py", "tests/test_engine.py", "tests/test_consent.py", "tests/test_conformance.py"]
+also_copy = ["../spec"]
