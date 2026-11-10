@@ -3,8 +3,8 @@ Copyright 2025-2026 The IAIso Authors (SmartTasksOrg) and contributors
 
 This product is licensed under the Apache License, Version 2.0 (see LICENSE).
 
-Portions of this repository under `IAIso-v5.0/vision/` are design documents,
+Portions of this repository under `IAIso/vision/` are design documents,
 reference integration designs, and roadmap material describing how the
 framework could be applied. They are licensed under the same Apache-2.0 terms
-but are not claim-backed running code; see `IAIso-v5.0/NOTICE.md` for the
+but are not claim-backed running code; see `IAIso/NOTICE.md` for the
 two-zone split between `core/` (installable, tested) and `vision/` (design).

@@ -16,7 +16,7 @@ jobs:
     timeout-minutes: 15
     defaults:
       run:
-        working-directory: IAIso-v5.0/core/iaiso-python
+        working-directory: IAIso/core/iaiso-python
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1, read 2026-10-08
         with:
@@ -35,14 +35,14 @@ jobs:
     timeout-minutes: 10
     defaults:
       run:
-        working-directory: IAIso-v5.0/core/iaiso-go
+        working-directory: IAIso/core/iaiso-go
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1, read 2026-10-08
         with:
           persist-credentials: false
       - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e  # v7.0.0, read 2026-10-11
         with:
-          go-version-file: IAIso-v5.0/core/iaiso-go/go.mod
+          go-version-file: IAIso/core/iaiso-go/go.mod
           cache: false
       - name: The library sources are in git
         run: test -f iaiso/core/engine.go

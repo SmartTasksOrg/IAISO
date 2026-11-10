@@ -99,7 +99,7 @@
     },
     {
       "registry": "go",
-      "name": "github.com/SmartTasksOrg/IAISO/IAIso-v5.0/core/iaiso-go",
+      "name": "github.com/SmartTasksOrg/IAISO/IAIso/core/iaiso-go",
       "registered": false,
       "note": "the Go SDK module path (this repository); source only, no Go release tagged yet"
     }

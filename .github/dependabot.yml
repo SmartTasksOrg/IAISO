@@ -2,12 +2,12 @@
 version: 2
 updates:
   - {package-ecosystem: github-actions, directory: "/", schedule: {interval: weekly}}
-  - {package-ecosystem: pip, directory: "/IAIso-v5.0/core/iaiso-python", schedule: {interval: weekly}}
-  - {package-ecosystem: npm, directory: "/IAIso-v5.0/core/iaiso-node", schedule: {interval: weekly}}
-  - {package-ecosystem: gomod, directory: "/IAIso-v5.0/core/iaiso-go", schedule: {interval: weekly}}
-  - {package-ecosystem: cargo, directory: "/IAIso-v5.0/core/iaiso-rust", schedule: {interval: weekly}}
-  - {package-ecosystem: maven, directory: "/IAIso-v5.0/core/iaiso-java", schedule: {interval: weekly}}
-  - {package-ecosystem: composer, directory: "/IAIso-v5.0/core/iaiso-php", schedule: {interval: weekly}}
-  - {package-ecosystem: bundler, directory: "/IAIso-v5.0/core/iaiso-ruby", schedule: {interval: weekly}}
-  - {package-ecosystem: nuget, directory: "/IAIso-v5.0/core/iaiso-csharp", schedule: {interval: weekly}}
-  - {package-ecosystem: swift, directory: "/IAIso-v5.0/core/iaiso-swift", schedule: {interval: weekly}}
+  - {package-ecosystem: pip, directory: "/IAIso/core/iaiso-python", schedule: {interval: weekly}}
+  - {package-ecosystem: npm, directory: "/IAIso/core/iaiso-node", schedule: {interval: weekly}}
+  - {package-ecosystem: gomod, directory: "/IAIso/core/iaiso-go", schedule: {interval: weekly}}
+  - {package-ecosystem: cargo, directory: "/IAIso/core/iaiso-rust", schedule: {interval: weekly}}
+  - {package-ecosystem: maven, directory: "/IAIso/core/iaiso-java", schedule: {interval: weekly}}
+  - {package-ecosystem: composer, directory: "/IAIso/core/iaiso-php", schedule: {interval: weekly}}
+  - {package-ecosystem: bundler, directory: "/IAIso/core/iaiso-ruby", schedule: {interval: weekly}}
+  - {package-ecosystem: nuget, directory: "/IAIso/core/iaiso-csharp", schedule: {interval: weekly}}
+  - {package-ecosystem: swift, directory: "/IAIso/core/iaiso-swift", schedule: {interval: weekly}}

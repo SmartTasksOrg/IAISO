@@ -16,7 +16,7 @@
 > - **"Market share", "reach", and "adoption" figures describe the *platforms themselves*** (why each is a worthwhile integration target), **not IAIso's deployment or install base.** IAIso's install base is early.
 > - **Some features described historically here are not implemented.** "Back-propagation magnification" is a *design concept*, not shipping behavior — the reference engine has no magnification step and the `enable_backprop` flag is a no-op kept for compatibility (the SDK warns if you set it). Any benchmark percentages in older copy were illustrative and have been withdrawn.
 >
-> The honest one-liner: **the framework and its SDKs are real and runnable; the ecosystem breadth shown below is a catalogue of designs and targets, not a map of live installs.** See [`IAIso-v5.0/NOTICE.md`](IAIso-v5.0/NOTICE.md) (the `core/` vs `vision/` split) and [`IAIso-v5.0/LIMITATIONS.md`](IAIso-v5.0/LIMITATIONS.md).
+> The honest one-liner: **the framework and its SDKs are real and runnable; the ecosystem breadth shown below is a catalogue of designs and targets, not a map of live installs.** See [`IAIso/NOTICE.md`](IAIso/NOTICE.md) (the `core/` vs `vision/` split) and [`IAIso/LIMITATIONS.md`](IAIso/LIMITATIONS.md).
 
 
 ---
@@ -42,7 +42,7 @@ When pressure passes the review threshold, the next call raises `PressureEscalat
 calibrate them for your workload (`iaiso.calibration`) before relying on the thresholds.
 
 ### Option 2: Platform-Specific Integration (30 seconds)
-Platform packages (Shopify, WordPress, CRM, .NET) are not published on any registry yet. The source is in `IAIso-v5.0/`.
+Platform packages (Shopify, WordPress, CRM, .NET) are not published on any registry yet. The source is in `IAIso/`.
 
 ### Option 3: Industry Template (30 seconds)
 ```bash
@@ -56,7 +56,7 @@ python scripts/quick-deploy.py --industry healthcare
 # Drop the IAIso repo into a SmartTasks plugins folder.
 # The smart_personas plugin auto-ingests 139 skills, 16 personas,
 # and 8 deployment-ready agent compositions on next enable.
-cp -r IAIso-v5.0/ ~/.config/SmartTasks/plugins/iaiso/
+cp -r IAIso/ ~/.config/SmartTasks/plugins/iaiso/
 
 # Or load the Claude Skills catalogue directly:
 python -c "
@@ -98,15 +98,15 @@ IAIso v5.0 contains SDK source and integration designs for the world's most-used
 
 | Language | Package (planned name where not published) | Installation | Status |
 |----------|---------|--------------|--------|
-| **Python** | `iaiso` | `pip install iaiso` | published on PyPI (0.3.0, with provenance) |
-| **JavaScript/Node.js** | `@iaiso/core` | from source: `IAIso-v5.0/core/iaiso-node` | source only, not published |
-| **Go** | `github.com/SmartTasksOrg/IAISO/IAIso-v5.0/core/iaiso-go` | from source: `IAIso-v5.0/core/iaiso-go` | source only, not published |
-| **Java** | `org.iaiso:core` | from source: `IAIso-v5.0/core/iaiso-java` | source only, not published |
-| **C#/.NET** | `IAIso.Core` | from source: `IAIso-v5.0/core/iaiso-csharp` | source only, not published |
-| **PHP** | `iaiso/core` | from source: `IAIso-v5.0/core/iaiso-php` | source only, not published |
-| **Ruby** | `iaiso-ruby` | from source: `IAIso-v5.0/core/iaiso-ruby` | source only, not published |
-| **Rust** | `iaiso-rs` | from source: `IAIso-v5.0/core/iaiso-rust` | source only, not published |
-| **Swift** | `IAIsoCore` | from source: `IAIso-v5.0/core/iaiso-swift` | source only, not published |
+| **Python** | `iaiso` | `pip install iaiso` | published on PyPI (0.4.0, with provenance) |
+| **JavaScript/Node.js** | `@iaiso/core` | from source: `IAIso/core/iaiso-node` | source only, not published |
+| **Go** | `github.com/SmartTasksOrg/IAISO/IAIso/core/iaiso-go` | from source: `IAIso/core/iaiso-go` | source only, not published |
+| **Java** | `org.iaiso:core` | from source: `IAIso/core/iaiso-java` | source only, not published |
+| **C#/.NET** | `IAIso.Core` | from source: `IAIso/core/iaiso-csharp` | source only, not published |
+| **PHP** | `iaiso/core` | from source: `IAIso/core/iaiso-php` | source only, not published |
+| **Ruby** | `iaiso-ruby` | from source: `IAIso/core/iaiso-ruby` | source only, not published |
+| **Rust** | `iaiso-rs` | from source: `IAIso/core/iaiso-rust` | source only, not published |
+| **Swift** | `IAIsoCore` | from source: `IAIso/core/iaiso-swift` | source only, not published |
 
 ### E-Commerce & CMS Platforms
 
@@ -315,14 +315,14 @@ The SmartTasks `smart_personas` plugin scans every plugin under its plugins root
 
 End-to-end verified: running `scan_cross_plugin_skills(...)` against this tree reports `skills_added: 139, personas_added: 16, agents_added: 8, skipped: 0, safety_warnings: 0`.
 
-[Operator runtime details →](/IAIso-v5.0/skills/README.md)
+[Operator runtime details →](/IAIso/skills/README.md)
 
 ---
 
 ## 📦 Complete SDK Architecture
 
 ```
-IAIso-v5.0/
+IAIso/
 ├── plugin.json                 # marks the repo as a SmartTasks plugin
 ├── sdk/
 │   ├── python/iaiso/           # Core Python SDK
@@ -677,7 +677,7 @@ python scripts/deploy-pack.py sol.social.content-moderation-v1
 | **Real Estate** | `sol.realestate.val-v1` | Cross-reference friction prevents market spoofing |
 | **Customer Service** | `sol.service.support-v1` | Automated ticket escalation safeguards |
 
-[Browse all 100+ packs →](/IAIso-v5.0/components/sol/)
+[Browse all 100+ packs →](/IAIso/components/sol/)
 
 > 🤖 **LLM-side coverage**: `iaiso-author-solution-pack` for authoring new packs, plus the `iaiso-prompt-author` persona for ground-up template work.
 
@@ -762,129 +762,129 @@ python scripts/export-audit-trail.py --format soc2 --output audit.json
 
 > 🤖 **Auditor-facing assistant**: load `iaiso-compliance-evidence-agent.json` from the agents library — combines the compliance-router + every framework skill + audit-trail-export. Drops auditor questions directly into IAIso primitive mappings + evidence queries.
 
-[Full regulatory mapping →](/IAIso-v5.0/docs/spec/12-regulatory.md)
+[Full regulatory mapping →](/IAIso/docs/spec/12-regulatory.md)
 
 ---
 
 ## 📚 Comprehensive Documentation
 
 ### 🎯 New Users Start Here
-- [5-Minute Quickstart Guide](/IAIso-v5.0/docs/quickstart.md)
-- [Concept: Pressure as Intelligence](/IAIso-v5.0/docs/spec/01-overview-concepts-invariants.md)
-- [Your First Safe Agent](/IAIso-v5.0/docs/tutorials/first-agent.md)
-- [SDK Selection Guide](/IAIso-v5.0/docs/sdk/selection-guide.md)
-- [Operator Runtime Quickstart (Skills + Personas + Agents)](/IAIso-v5.0/skills/README.md)
+- [5-Minute Quickstart Guide](/IAIso/docs/quickstart.md)
+- [Concept: Pressure as Intelligence](/IAIso/docs/spec/01-overview-concepts-invariants.md)
+- [Your First Safe Agent](/IAIso/docs/tutorials/first-agent.md)
+- [SDK Selection Guide](/IAIso/docs/sdk/selection-guide.md)
+- [Operator Runtime Quickstart (Skills + Personas + Agents)](/IAIso/skills/README.md)
 
 ### 🤖 Operator Runtime (LLM-Side Governance)
-- [Skills Catalogue Overview](/IAIso-v5.0/skills/README.md) — tier model, quick start, programmatic loading
-- [Skills Index (139 entries by tier and category)](/IAIso-v5.0/skills/INDEX.md)
-- [Skill Authoring Conventions](/IAIso-v5.0/skills/CONVENTIONS.md) — frontmatter spec, body structure, naming
-- [Integration Guide](/IAIso-v5.0/skills/INTEGRATION.md) — consume from Claude or programmatically
-- [Persona Library (16 building blocks)](/IAIso-v5.0/personas/)
-- [Agent Compositions (8 deployment-ready)](/IAIso-v5.0/agents/)
+- [Skills Catalogue Overview](/IAIso/skills/README.md) — tier model, quick start, programmatic loading
+- [Skills Index (139 entries by tier and category)](/IAIso/skills/INDEX.md)
+- [Skill Authoring Conventions](/IAIso/skills/CONVENTIONS.md) — frontmatter spec, body structure, naming
+- [Integration Guide](/IAIso/skills/INTEGRATION.md) — consume from Claude or programmatically
+- [Persona Library (16 building blocks)](/IAIso/personas/)
+- [Agent Compositions (8 deployment-ready)](/IAIso/agents/)
 - **Foundation skills (P0)**: `iaiso-mental-model`, `iaiso-router`, `iaiso-spec-router`, `iaiso-spec-pressure-model`, `iaiso-runtime-governed-agent`, `iaiso-author-agent-system-prompt`
 - **Adversarial / diagnostic skills (P3)**: `iaiso-redteam-router`, `iaiso-redteam-pressure-gaming`, `iaiso-diagnose-pressure-trajectory`, `iaiso-diagnose-consent-failure`
 
 ### 🔧 SDK & Integration Guides
 - **Language SDKs**
-  - [Python SDK Reference](/IAIso-v5.0/sdk/python/README.md)
-  - [JavaScript/Node.js SDK](/IAIso-v5.0/sdk/javascript/README.md)
-  - [Go SDK](/IAIso-v5.0/sdk/go/README.md)
-  - [Java SDK](/IAIso-v5.0/sdk/java/README.md)
-  - [C#/.NET SDK](/IAIso-v5.0/sdk/csharp/README.md)
-  - [PHP SDK](/IAIso-v5.0/sdk/php/README.md)
-  - [Swift SDK](/IAIso-v5.0/sdk/swift/README.md) — draft
+  - [Python SDK Reference](/IAIso/sdk/python/README.md)
+  - [JavaScript/Node.js SDK](/IAIso/sdk/javascript/README.md)
+  - [Go SDK](/IAIso/sdk/go/README.md)
+  - [Java SDK](/IAIso/sdk/java/README.md)
+  - [C#/.NET SDK](/IAIso/sdk/csharp/README.md)
+  - [PHP SDK](/IAIso/sdk/php/README.md)
+  - [Swift SDK](/IAIso/sdk/swift/README.md) — draft
 
 - **E-Commerce & CMS**
-  - [Shopify Integration](/IAIso-v5.0/plugins/shopify/README.md)
-  - [WordPress Plugin](/IAIso-v5.0/plugins/wordpress/README.md)
-  - [Drupal Module](/IAIso-v5.0/plugins/drupal/README.md)
-  - [Magento Extension](/IAIso-v5.0/plugins/magento/README.md)
+  - [Shopify Integration](/IAIso/plugins/shopify/README.md)
+  - [WordPress Plugin](/IAIso/plugins/wordpress/README.md)
+  - [Drupal Module](/IAIso/plugins/drupal/README.md)
+  - [Magento Extension](/IAIso/plugins/magento/README.md)
 
 - **CRM & Sales**
-  - [Salesforce Integration](/IAIso-v5.0/plugins/salesforce/README.md)
-  - [HubSpot Integration](/IAIso-v5.0/plugins/hubspot/README.md)
-  - [Zendesk Integration](/IAIso-v5.0/plugins/zendesk/README.md)
+  - [Salesforce Integration](/IAIso/plugins/salesforce/README.md)
+  - [HubSpot Integration](/IAIso/plugins/hubspot/README.md)
+  - [Zendesk Integration](/IAIso/plugins/zendesk/README.md)
 
 - **Social Media & Marketing**
-  - [Meta (Facebook/Instagram) Integration](/IAIso-v5.0/plugins/social/meta/README.md)
-  - [X (Twitter) Integration](/IAIso-v5.0/plugins/social/x_twitter/README.md)
-  - [LinkedIn Integration](/IAIso-v5.0/plugins/social/linkedin/README.md)
-  - [Discord Bot](/IAIso-v5.0/plugins/social/discord/README.md)
+  - [Meta (Facebook/Instagram) Integration](/IAIso/plugins/social/meta/README.md)
+  - [X (Twitter) Integration](/IAIso/plugins/social/x_twitter/README.md)
+  - [LinkedIn Integration](/IAIso/plugins/social/linkedin/README.md)
+  - [Discord Bot](/IAIso/plugins/social/discord/README.md)
 
 - **Cloud & Infrastructure**
-  - [AWS Integration](/IAIso-v5.0/systems/cloud/aws/README.md)
-  - [Google Cloud Platform](/IAIso-v5.0/systems/cloud/gcp/README.md)
-  - [Microsoft Azure](/IAIso-v5.0/systems/cloud/azure/README.md)
-  - [Kubernetes Operator](/IAIso-v5.0/systems/cloud/kubernetes/README.md)
+  - [AWS Integration](/IAIso/systems/cloud/aws/README.md)
+  - [Google Cloud Platform](/IAIso/systems/cloud/gcp/README.md)
+  - [Microsoft Azure](/IAIso/systems/cloud/azure/README.md)
+  - [Kubernetes Operator](/IAIso/systems/cloud/kubernetes/README.md)
 
 - **Enterprise Systems**
-  - [Okta Identity Integration](/IAIso-v5.0/systems/identity/okta/README.md)
-  - [Auth0 Integration](/IAIso-v5.0/systems/identity/auth0/README.md)
-  - [SAP ERP Integration](/IAIso-v5.0/systems/erp/sap/README.md)
-  - [Workday Integration](/IAIso-v5.0/systems/erp/workday/README.md)
+  - [Okta Identity Integration](/IAIso/systems/identity/okta/README.md)
+  - [Auth0 Integration](/IAIso/systems/identity/auth0/README.md)
+  - [SAP ERP Integration](/IAIso/systems/erp/sap/README.md)
+  - [Workday Integration](/IAIso/systems/erp/workday/README.md)
 
 - **AI Frameworks**
-  - [LangChain Integration](/IAIso-v5.0/integrations/langchain/README.md) - Chain-level pressure tracking
-  - [CrewAI Multi-Agent Safety](/IAIso-v5.0/integrations/crewai/README.md) - Swarm coordination with Layer 3.5
-  - [AutoGen Swarm Containment](/IAIso-v5.0/integrations/autogen/README.md) - Consensus-based valve mechanisms
-  - [OpenAI Swarm](/IAIso-v5.0/integrations/openai-swarm/README.md) - Node-level tool caps
-  - [Haystack Pipelines](/IAIso-v5.0/integrations/haystack/README.md) - Pipeline pressure monitoring
-  - [LlamaIndex](/IAIso-v5.0/integrations/llamaindex/README.md) - Query engine containment
+  - [LangChain Integration](/IAIso/integrations/langchain/README.md) - Chain-level pressure tracking
+  - [CrewAI Multi-Agent Safety](/IAIso/integrations/crewai/README.md) - Swarm coordination with Layer 3.5
+  - [AutoGen Swarm Containment](/IAIso/integrations/autogen/README.md) - Consensus-based valve mechanisms
+  - [OpenAI Swarm](/IAIso/integrations/openai-swarm/README.md) - Node-level tool caps
+  - [Haystack Pipelines](/IAIso/integrations/haystack/README.md) - Pipeline pressure monitoring
+  - [LlamaIndex](/IAIso/integrations/llamaindex/README.md) - Query engine containment
 
 ### 📖 Framework Architecture
-- **Section 01**: [Overview, Concepts & Invariants](/IAIso-v5.0/docs/spec/01-overview-concepts-invariants.md)
-- **Section 02**: [Framework Layers (0-6)](/IAIso-v5.0/docs/spec/02-framework-layers.md)
-- **Section 03**: [Component Structure](/IAIso-v5.0/docs/spec/03-specification.md)
-- **Section 04**: [Pressure Model](/IAIso-v5.0/docs/spec/04-pressure-model.md)
-- **Section 05**: [Templates & Prompt Design](/IAIso-v5.0/docs/spec/05-templates-prompting.md)
-- **Section 06**: [Layer 6 - Existential Safeguards](/IAIso-v5.0/docs/spec/06-layers.md)
-- **Section 08**: [Integration Architecture](/IAIso-v5.0/docs/spec/08-integration.md)
-- **Section 09**: [Templates & Prompt Engineering](/IAIso-v5.0/docs/spec/09-templates.md)
-- **Section 10**: [Governance and Consent](/IAIso-v5.0/docs/spec/10-governance.md)
-- **Section 11**: [Stress Testing & Red Teaming](/IAIso-v5.0/docs/spec/11-stress-testing.md)
-- **Section 12**: [Regulatory Mapping](/IAIso-v5.0/docs/spec/12-regulatory.md)
-- **Section 13**: [Glossary of Terms](/IAIso-v5.0/docs/spec/13-glossary.md)
-- **Section 14**: [Assembly & Distribution](/IAIso-v5.0/docs/spec/14-assembly.md)
-- **Section 15**: [External Systems & Planetary Mappings](/IAIso-v5.0/docs/spec/15-un-paic-mapping.md)
+- **Section 01**: [Overview, Concepts & Invariants](/IAIso/docs/spec/01-overview-concepts-invariants.md)
+- **Section 02**: [Framework Layers (0-6)](/IAIso/docs/spec/02-framework-layers.md)
+- **Section 03**: [Component Structure](/IAIso/docs/spec/03-specification.md)
+- **Section 04**: [Pressure Model](/IAIso/docs/spec/04-pressure-model.md)
+- **Section 05**: [Templates & Prompt Design](/IAIso/docs/spec/05-templates-prompting.md)
+- **Section 06**: [Layer 6 - Existential Safeguards](/IAIso/docs/spec/06-layers.md)
+- **Section 08**: [Integration Architecture](/IAIso/docs/spec/08-integration.md)
+- **Section 09**: [Templates & Prompt Engineering](/IAIso/docs/spec/09-templates.md)
+- **Section 10**: [Governance and Consent](/IAIso/docs/spec/10-governance.md)
+- **Section 11**: [Stress Testing & Red Teaming](/IAIso/docs/spec/11-stress-testing.md)
+- **Section 12**: [Regulatory Mapping](/IAIso/docs/spec/12-regulatory.md)
+- **Section 13**: [Glossary of Terms](/IAIso/docs/spec/13-glossary.md)
+- **Section 14**: [Assembly & Distribution](/IAIso/docs/spec/14-assembly.md)
+- **Section 15**: [External Systems & Planetary Mappings](/IAIso/docs/spec/15-un-paic-mapping.md)
 
 ### 🧪 Advanced Topics
-- [Layer 0 Hardware Enforcement](/IAIso-v5.0/docs/spec/02-framework-layers.md#layer-0-hardware-level-edges)
-- [Stress Testing & Red Teams](/IAIso-v5.0/docs/spec/11-stress-testing.md)
-- [Custom Solution Pack Development](/IAIso-v5.0/docs/solution-packs/custom.md)
-- [Formal Pressure Models](/IAIso-v5.0/docs/appendices/A_formal_models.md)
-- [Multi-Language SDK Architecture](/IAIso-v5.0/docs/sdk/architecture.md)
-- [Platform Plugin Development](/IAIso-v5.0/docs/plugins/development-guide.md)
-- [Authoring a New Skill](/IAIso-v5.0/skills/CONVENTIONS.md)
-- [Authoring a New Persona](/IAIso-v5.0/personas/) — see envelope shape under `smart_personas/persona/v1`
+- [Layer 0 Hardware Enforcement](/IAIso/docs/spec/02-framework-layers.md#layer-0-hardware-level-edges)
+- [Stress Testing & Red Teams](/IAIso/docs/spec/11-stress-testing.md)
+- [Custom Solution Pack Development](/IAIso/docs/solution-packs/custom.md)
+- [Formal Pressure Models](/IAIso/docs/appendices/A_formal_models.md)
+- [Multi-Language SDK Architecture](/IAIso/docs/sdk/architecture.md)
+- [Platform Plugin Development](/IAIso/docs/plugins/development-guide.md)
+- [Authoring a New Skill](/IAIso/skills/CONVENTIONS.md)
+- [Authoring a New Persona](/IAIso/personas/) — see envelope shape under `smart_personas/persona/v1`
 
 ### 📋 Appendices
-- **Appendix A**: [Formal Models](/IAIso-v5.0/docs/appendices/A_formal_models.md) - Mathematical foundations
-- **Appendix B**: [Red Team Catalog](/IAIso-v5.0/docs/appendices/B_red_team_catalog.md) - Adversarial probes (RT-01 to RT-20)
-- **Appendix C**: [Operational Playbooks](/IAIso-v5.0/docs/appendices/C_operational_playbooks.md) - Incident response SOPs
-- **Appendix D**: [Legacy Glossary](/IAIso-v5.0/docs/appendices/D_legacy_glossary.md) - v4.x to v5.0 terminology mapping
-- **Appendix E**: [Changelog](/IAIso-v5.0/docs/appendices/E_changelog.md) - Version history
-- **Appendix F**: [Safety Extensions](/IAIso-v5.0/docs/appendices/F_safety_extensions.md) - Optional modules (Uncertainty Veto)
+- **Appendix A**: [Formal Models](/IAIso/docs/appendices/A_formal_models.md) - Mathematical foundations
+- **Appendix B**: [Red Team Catalog](/IAIso/docs/appendices/B_red_team_catalog.md) - Adversarial probes (RT-01 to RT-20)
+- **Appendix C**: [Operational Playbooks](/IAIso/docs/appendices/C_operational_playbooks.md) - Incident response SOPs
+- **Appendix D**: [Legacy Glossary](/IAIso/docs/appendices/D_legacy_glossary.md) - v4.x to v5.0 terminology mapping
+- **Appendix E**: [Changelog](/IAIso/docs/appendices/E_changelog.md) - Version history
+- **Appendix F**: [Safety Extensions](/IAIso/docs/appendices/F_safety_extensions.md) - Optional modules (Uncertainty Veto)
 
 ### 🎯 Case Studies
-- [Global Bank - Transaction Fraud Detection](/IAIso-v5.0/docs/case-studies/global-bank-pressure-reset.md)
-- [Biotechnology Lab - Gene Editing Agent](/IAIso-v5.0/docs/case-studies/bio-lab-agent-containment.md)
-- [E-Commerce Platform - Flash Sale Containment](/IAIso-v5.0/docs/case-studies/ecommerce-flash-sale.md)
-- [Social Media Network - Viral Loop Prevention](/IAIso-v5.0/docs/case-studies/social-media-viral-containment.md)
-- [Healthcare System - Diagnostic AI Safety](/IAIso-v5.0/docs/case-studies/healthcare-diagnostics.md)
+- [Global Bank - Transaction Fraud Detection](/IAIso/docs/case-studies/global-bank-pressure-reset.md)
+- [Biotechnology Lab - Gene Editing Agent](/IAIso/docs/case-studies/bio-lab-agent-containment.md)
+- [E-Commerce Platform - Flash Sale Containment](/IAIso/docs/case-studies/ecommerce-flash-sale.md)
+- [Social Media Network - Viral Loop Prevention](/IAIso/docs/case-studies/social-media-viral-containment.md)
+- [Healthcare System - Diagnostic AI Safety](/IAIso/docs/case-studies/healthcare-diagnostics.md)
 
 ### 📦 Reference
 - [Full API Documentation](https://docs.iaiso.org)
-- [Configuration Reference (l.env)](/IAIso-v5.0/l.env)
-- [Component Schema](/IAIso-v5.0/components/component-schema.json)
-- [Template Syntax Guide](/IAIso-v5.0/docs/spec/05-templates-prompting.md)
-- [Skill Frontmatter Spec](/IAIso-v5.0/skills/CONVENTIONS.md)
-- [Persona Envelope Spec (`smart_personas/persona/v1`)](/IAIso-v5.0/personas/)
-- [Troubleshooting Guide](/IAIso-v5.0/docs/troubleshooting.md)
-- [SDK Migration Guides](/IAIso-v5.0/docs/sdk/migration/)
-  - [Python 2.x to 5.0](/IAIso-v5.0/docs/sdk/migration/python.md)
-  - [JavaScript 3.x to 5.0](/IAIso-v5.0/docs/sdk/migration/javascript.md)
-  - [Legacy Platform Upgrades](/IAIso-v5.0/docs/sdk/migration/platforms.md)
+- [Configuration Reference (l.env)](/IAIso/l.env)
+- [Component Schema](/IAIso/components/component-schema.json)
+- [Template Syntax Guide](/IAIso/docs/spec/05-templates-prompting.md)
+- [Skill Frontmatter Spec](/IAIso/skills/CONVENTIONS.md)
+- [Persona Envelope Spec (`smart_personas/persona/v1`)](/IAIso/personas/)
+- [Troubleshooting Guide](/IAIso/docs/troubleshooting.md)
+- [SDK Migration Guides](/IAIso/docs/sdk/migration/)
+  - [Python 2.x to 5.0](/IAIso/docs/sdk/migration/python.md)
+  - [JavaScript 3.x to 5.0](/IAIso/docs/sdk/migration/javascript.md)
+  - [Legacy Platform Upgrades](/IAIso/docs/sdk/migration/platforms.md)
 
 ---
 
@@ -960,7 +960,7 @@ for skill_name in persona.get("instruction_skill_names", []):
 
 ```bash
 # Universal deployment script
-./IAIso-v5.0/scripts/deploy-universal.sh \
+./IAIso/scripts/deploy-universal.sh \
   --platform shopify \
   --language javascript \
   --config production \
@@ -991,7 +991,7 @@ All prompts use machine-readable `.template` files:
 
 **Key Principle**: Frame releases as "**Forgetting**" not "**Punishment**" to prevent model deception.
 
-[Template syntax guide →](/IAIso-v5.0/docs/spec/05-templates-prompting.md)
+[Template syntax guide →](/IAIso/docs/spec/05-templates-prompting.md)
 
 ---
 
@@ -1050,7 +1050,7 @@ python scripts/redteam-persona.py \
   --probe RT-05  # Gradient Surfing — does the LLM still honour invariant 5?
 ```
 
-[Full probe catalog →](/IAIso-v5.0/docs/appendices/B_red_team_catalog.md)
+[Full probe catalog →](/IAIso/docs/appendices/B_red_team_catalog.md)
 
 > 🤖 **LLM-side coverage**: `iaiso-redteam-router` + 5 probe-family skills (`iaiso-redteam-pressure-gaming`, `iaiso-redteam-consent-confusion`, `iaiso-redteam-coordinator-poisoning`, `iaiso-redteam-reset-recovery`, `iaiso-redteam-escalation-bypass`) and the `iaiso-redteam-incident-agent` deployment-ready composition.
 
@@ -1232,13 +1232,13 @@ IAIso is open-source under the **Apache License 2.0** — a permissive OSI-appro
 license. You may use, modify, redistribute, and build commercial products on it,
 including in private forks, provided you preserve the license and NOTICE and state
 your changes (Apache-2.0 §4). We *ask* (but do not require) that forks preserve the
-safety invariants in `IAIso-v5.0/core/spec/` and keep conformance passing.
+safety invariants in `IAIso/core/spec/` and keep conformance passing.
 
 ### How to Contribute
 
 1. **Report issues:** [GitHub Issues](https://github.com/smarttasks/iaiso/issues)
 2. **Propose features:** [Discussions](https://github.com/smarttasks/iaiso/discussions)
-3. **Submit PRs:** See [CONTRIBUTING.md](/IAIso-v5.0/CONTRIBUTING.md)
+3. **Submit PRs:** See [CONTRIBUTING.md](/IAIso/CONTRIBUTING.md)
 4. **Join community:** [Discord](https://discord.gg/iaiso)
 5. **Share integrations:** Submit your platform plugin to our registry
 
@@ -1253,8 +1253,8 @@ We actively seek contributions for:
 - **New SKILL.md files** for `skills/` (kebab-case, IAIso prefix, frontmatter spec)
 - **New personas / agents** for `personas/` and `agents/` (use the `smart_personas/persona/v1` envelope)
 
-[Plugin Development Guide →](/IAIso-v5.0/docs/plugins/development-guide.md)
-[Skill Authoring Guide →](/IAIso-v5.0/skills/CONVENTIONS.md)
+[Plugin Development Guide →](/IAIso/docs/plugins/development-guide.md)
+[Skill Authoring Guide →](/IAIso/skills/CONVENTIONS.md)
 
 ---
 
@@ -1327,7 +1327,7 @@ We actively seek contributions for:
 - **Steam Release**: Controlled state purge preventing threshold breach
 - **Solution Pack**: Pre-configured industry-specific safety templates
 
-[Full glossary →](/IAIso-v5.0/docs/spec/13-glossary.md)
+[Full glossary →](/IAIso/docs/spec/13-glossary.md)
 
 ---
 
@@ -1344,7 +1344,7 @@ IAIso v5.0 aligns with the **UN Planetary AI Insurance Consortium (PAIC)** stand
 | Platform Plugins | Commercial AI Safety | Market-wide deployment |
 | Operator Runtime | Behavioural Conformance | Skills + Personas dispatched on demand |
 
-[Full planetary mapping →](/IAIso-v5.0/docs/spec/15-un-paic-mapping.md)
+[Full planetary mapping →](/IAIso/docs/spec/15-un-paic-mapping.md)
 
 ---
 
