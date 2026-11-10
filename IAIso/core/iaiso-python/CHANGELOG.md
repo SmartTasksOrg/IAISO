@@ -4,6 +4,18 @@ All notable changes to IAIso are documented here. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); version
 numbering follows the policy in `docs/BACKWARDS_COMPATIBILITY.md`.
 
+## [0.4.1]
+
+### Fixed
+
+- `iaiso doctor` failed with `StrictModeError` ("no lifetime cap is set"): its sound example config
+  had no lifetime cap, which strict mode requires since the safe defaults of 0.4.0. It now sets
+  `max_total_steps`. A test runs `iaiso doctor`. 0.4.0 was tagged but never published to PyPI,
+  because the release workflow's wheel check runs `iaiso doctor` and stopped the release.
+- `tests/test_cli.py::test_consent_keygen_issue_verify_eddsa` checked POSIX permission bits of the
+  private key file, which Windows does not have, so it always failed there. The check now runs only on
+  POSIX systems.
+
 ## [0.4.0]
 
 ### Changed - one version for every SDK; the folder IAIso-v5.0 is now IAIso

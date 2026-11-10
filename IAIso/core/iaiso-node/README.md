@@ -601,7 +601,7 @@ Redis coordinator state is interoperable across both runtimes using the same
 
 ## Scope
 
-Shipping in `0.4.0`:
+Shipping in `0.4.1`:
 
 - **Pressure engine** with full lifecycle semantics
 - **Consent tokens** (HS256 / RS256)

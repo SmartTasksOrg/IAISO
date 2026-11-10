@@ -17,7 +17,7 @@ members = [
 ]
 
 [workspace.package]
-version = "0.4.0"
+version = "0.4.1"
 edition = "2021"
 license = "Apache-2.0"
 repository = "https://github.com/SmartTasksOrg/IAISO"
@@ -44,14 +44,14 @@ reqwest = { version = "0.12", default-features = false, features = ["rustls-tls"
 tokio = { version = "1", features = ["rt", "rt-multi-thread", "macros", "sync", "time"] }
 
 # Internal cross-crate references
-iaiso-core = { path = "crates/core", version = "0.4.0" }
-iaiso-consent = { path = "crates/consent", version = "0.4.0" }
-iaiso-audit = { path = "crates/audit", version = "0.4.0" }
-iaiso-policy = { path = "crates/policy", version = "0.4.0" }
-iaiso-coordination = { path = "crates/coordination", version = "0.4.0" }
-iaiso-middleware = { path = "crates/middleware", version = "0.4.0" }
-iaiso-identity = { path = "crates/identity", version = "0.4.0" }
-iaiso-metrics = { path = "crates/metrics", version = "0.4.0" }
-iaiso-observability = { path = "crates/observability", version = "0.4.0" }
-iaiso-conformance = { path = "crates/conformance", version = "0.4.0" }
-iaiso-cli = { path = "crates/cli", version = "0.4.0" }
+iaiso-core = { path = "crates/core", version = "0.4.1" }
+iaiso-consent = { path = "crates/consent", version = "0.4.1" }
+iaiso-audit = { path = "crates/audit", version = "0.4.1" }
+iaiso-policy = { path = "crates/policy", version = "0.4.1" }
+iaiso-coordination = { path = "crates/coordination", version = "0.4.1" }
+iaiso-middleware = { path = "crates/middleware", version = "0.4.1" }
+iaiso-identity = { path = "crates/identity", version = "0.4.1" }
+iaiso-metrics = { path = "crates/metrics", version = "0.4.1" }
+iaiso-observability = { path = "crates/observability", version = "0.4.1" }
+iaiso-conformance = { path = "crates/conformance", version = "0.4.1" }
+iaiso-cli = { path = "crates/cli", version = "0.4.1" }

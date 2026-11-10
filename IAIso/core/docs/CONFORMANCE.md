@@ -32,14 +32,14 @@ spec wins**. File a bug against the reference.
 | Language | Location | Package | Conformance | Spec version |
 |---|---|---|---|---|
 | Python | [`core/iaiso-python/`](../iaiso-python/) | `iaiso` | 67/67 | 1.0 |
-| TypeScript / Node.js | [`core/iaiso-node/`](../iaiso-node/) | `@iaiso/core@0.4.0` | 67/67 | 1.0 |
-| Go | [`core/iaiso-go/`](../iaiso-go/) | `github.com/SmartTasksOrg/IAISO/IAIso/core/iaiso-go` (v0.4.0, untagged) | 72/72 | 1.1 |
-| Rust | [`core/iaiso-rust/`](../iaiso-rust/) | Cargo workspace `iaiso-*@0.4.0` | 67/67 | 1.0 |
-| Java | [`core/iaiso-java/`](../iaiso-java/) | Maven `io.iaiso:iaiso-*@0.4.0` | 67/67 | 1.0 |
-| C# / .NET | [`core/iaiso-csharp/`](../iaiso-csharp/) | NuGet `Iaiso.*@0.4.0` | 67/67 | 1.0 |
-| PHP | [`core/iaiso-php/`](../iaiso-php/) | Composer `iaiso/iaiso@0.4.0` | 67/67 | 1.0 |
-| Swift | [`core/iaiso-swift/`](../iaiso-swift/) | SwiftPM `iaiso-swift@0.4.0-draft` | run `swift test` | 1.0 |
-| Ruby | [`core/iaiso-ruby/`](../iaiso-ruby/) | RubyGems `iaiso@0.4.0` | 67/67 | 1.0 |
+| TypeScript / Node.js | [`core/iaiso-node/`](../iaiso-node/) | `@iaiso/core@0.4.1` | 67/67 | 1.0 |
+| Go | [`core/iaiso-go/`](../iaiso-go/) | `github.com/SmartTasksOrg/IAISO/IAIso/core/iaiso-go` (v0.4.1, untagged) | 72/72 | 1.1 |
+| Rust | [`core/iaiso-rust/`](../iaiso-rust/) | Cargo workspace `iaiso-*@0.4.1` | 67/67 | 1.0 |
+| Java | [`core/iaiso-java/`](../iaiso-java/) | Maven `io.iaiso:iaiso-*@0.4.1` | 67/67 | 1.0 |
+| C# / .NET | [`core/iaiso-csharp/`](../iaiso-csharp/) | NuGet `Iaiso.*@0.4.1` | 67/67 | 1.0 |
+| PHP | [`core/iaiso-php/`](../iaiso-php/) | Composer `iaiso/iaiso@0.4.1` | 67/67 | 1.0 |
+| Swift | [`core/iaiso-swift/`](../iaiso-swift/) | SwiftPM `iaiso-swift@0.4.1-draft` | run `swift test` | 1.0 |
+| Ruby | [`core/iaiso-ruby/`](../iaiso-ruby/) | RubyGems `iaiso@0.4.1` | 67/67 | 1.0 |
 
 Eight of the nine ports are self-contained and were driven to 67/67 through
 compile-test-fix iteration. The Swift port was authored without an

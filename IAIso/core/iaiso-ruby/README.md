@@ -27,7 +27,7 @@ iaiso-ruby/
 ├── spec/                        # normative spec + 67 conformance vectors
 ├── lib/
 │   └── iaiso/
-│       ├── version.rb           # IAIso::VERSION = "0.4.0"
+│       ├── version.rb           # IAIso::VERSION = "0.4.1"
 │       ├── audit/               # event envelope + base sinks
 │       ├── core/                # pressure engine + BoundedExecution
 │       ├── consent/             # JWT issuer/verifier (HS256/RS256)

@@ -7,7 +7,7 @@ structured audit logging to LLM agent loops. This package is the Go
 implementation of the framework's runtime layer, conformant to **IAIso
 spec 1.1**.
 
-> **Framework 5.0 · SDK 0.4.0 · status: beta.**
+> **Framework 5.0 · SDK 0.4.1 · status: beta.**
 > Passes all **72 spec conformance vectors**, exercised by **59 test
 > functions** (the vector suite runs under `go test` too),
 > verified by `go test ./...` and `go run ./cmd/iaiso-conformance ./spec`.
