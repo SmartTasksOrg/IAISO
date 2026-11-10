@@ -6,13 +6,13 @@
   },
   "metadata": {
     "description": "Agent Skills for the IAIso bounded-agent-execution framework.",
-    "version": "0.4.0"
+    "version": "0.4.1"
   },
   "plugins": [
     {
       "name": "iaiso-skills",
       "description": "The IAIso skill corpus: pressure accounting, the enforcement_mode boot guard, consent scopes, cost governance, audit sinks, conformance, porting, and \u2014 first \u2014 what IAIso does not contain.",
-      "version": "0.4.0",
+      "version": "0.4.1",
       "author": {
         "name": "IAIso Contributors"
       },

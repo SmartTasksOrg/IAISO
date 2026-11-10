@@ -114,7 +114,7 @@ for the current shipping set.
 
 | Language | Package (planned name where not published) | Installation | Scope |
 |---|---|---|---|
-| Python | `iaiso` | `pip install iaiso` | Reference SDK (shipping today in `../core/`); published on PyPI (0.4.0, with provenance) |
+| Python | `iaiso` | `pip install iaiso` | Reference SDK (shipping today in `../core/`); published on PyPI (0.4.1, with provenance) |
 | JavaScript/Node.js | `@iaiso/core` | from source: `core/iaiso-node` | Reference design; conformance-driven port planned; source only, not published |
 | Go | `github.com/SmartTasksOrg/IAISO/IAIso/core/iaiso-go` | from source: `core/iaiso-go` | Reference design; conformance-driven port planned; source only, not published |
 | Java | `org.iaiso:core` | from source: `core/iaiso-java` | Reference design; conformance-driven port planned; source only, not published |

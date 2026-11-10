@@ -7,8 +7,8 @@ Bound what an agent spends and touches — and prove it afterward. IAIso
 measures compute accumulation in an agent loop and enforces an automatic
 safety release when a threshold is crossed.
 
-> **Framework 5.0 · Python SDK 0.4.0 · status: beta.** The framework
-> specification is at 5.0; the reference Python SDK is at 0.4.0, and the
+> **Framework 5.0 · Python SDK 0.4.1 · status: beta.** The framework
+> specification is at 5.0; the reference Python SDK is at 0.4.1, and the
 > SDKs that implement the framework are beta software. No named production deployment exists yet. The version
 > numbers differ on purpose — the design and the code version separately.
 >
@@ -560,11 +560,11 @@ capability without code changes.
 
 ## What's in each SDK release
 
-Version discipline across this repo: **framework v5.0, Python SDK v0.4.0, status
+Version discipline across this repo: **framework v5.0, Python SDK v0.4.1, status
 beta.** The framework specification and the SDKs version independently, and
 every README in the tree states the same pair.
 
-IAIso 0.4.0 (the current `core/iaiso-python` release) provides:
+IAIso 0.4.1 (the current `core/iaiso-python` release) provides:
 
 - **`enforcement_mode` boot guard** (new in 0.3.0): `strict` refuses to start
   a degraded execution (`StrictModeError`); `permissive` logs one warning per
@@ -590,7 +590,7 @@ IAIso 0.4.0 (the current `core/iaiso-python` release) provides:
 - **OIDC identity** integration for Okta, Auth0, and Azure AD.
 
 See [`core/README.md`](core/README.md) for the full list. The Node port
-at `@iaiso/core@0.4.0` implements the same capability set: 8 LLM
+at `@iaiso/core@0.4.1` implements the same capability set: 8 LLM
 providers, 8 audit sinks (including the 6 SIEM sinks above), in-memory
 and Redis coordinators, Prometheus metrics, OpenTelemetry tracing,
 OIDC identity, YAML policies, and an `iaiso` admin CLI. See
@@ -618,15 +618,15 @@ the original 67; that is not a failure, it is a port that has not adopted
 
 | Language | Location | Package | Impl LOC | Spec | Conformance | `enforcement_mode` | Status |
 |---|---|---|---|---|---|---|---|
-| Python | [`core/iaiso-python/`](core/iaiso-python/) | `iaiso` · `0.4.0` | 7,958 | 1.1 | **72/72 verified** | ✅ | Reference |
-| TypeScript / Node.js | [`core/iaiso-node/`](core/iaiso-node/) | `@iaiso/core@0.4.0` *(unpublished)* | 5,610 | 1.1 | **72/72 verified** | ✅ | Stable |
+| Python | [`core/iaiso-python/`](core/iaiso-python/) | `iaiso` · `0.4.1` | 7,958 | 1.1 | **72/72 verified** | ✅ | Reference |
+| TypeScript / Node.js | [`core/iaiso-node/`](core/iaiso-node/) | `@iaiso/core@0.4.1` *(unpublished)* | 5,610 | 1.1 | **72/72 verified** | ✅ | Stable |
 | Go | [`core/iaiso-go/`](core/iaiso-go/) | `github.com/SmartTasksOrg/IAISO/IAIso/core/iaiso-go` *(unpublished)* | 4,602 | 1.1 | **72/72 verified** | ✅ | Stable |
-| Rust | [`core/iaiso-rust/`](core/iaiso-rust/) | crates workspace `0.4.0` *(unpublished)* | 5,712 | 1.0 | not re-run in this build | ❌ | Stable — unverified |
+| Rust | [`core/iaiso-rust/`](core/iaiso-rust/) | crates workspace `0.4.1` *(unpublished)* | 5,712 | 1.0 | not re-run in this build | ❌ | Stable — unverified |
 | PHP | [`core/iaiso-php/`](core/iaiso-php/) | `iaiso/core` *(unpublished)* | 4,874 | 1.0 | not re-run in this build | ❌ | Stable — unverified |
 | Java | [`core/iaiso-java/`](core/iaiso-java/) | `org.iaiso:core` *(unpublished)* | 4,837 | 1.0 | not re-run in this build | ❌ | Stable — unverified |
 | C# / .NET | [`core/iaiso-csharp/`](core/iaiso-csharp/) | `IAIso.Core` *(unpublished)* | 4,467 | 1.0 | not re-run in this build | ❌ | Stable — unverified |
-| Swift | [`core/iaiso-swift/`](core/iaiso-swift/) | SwiftPM `0.4.0-draft` *(unpublished)* | 4,458 | 1.0 | never run | ❌ | Draft |
-| Ruby | [`core/iaiso-ruby/`](core/iaiso-ruby/) | gem `0.4.0` *(unpublished)* | — | 1.0 | not re-run in this build | ❌ | Unverified |
+| Swift | [`core/iaiso-swift/`](core/iaiso-swift/) | SwiftPM `0.4.1-draft` *(unpublished)* | 4,458 | 1.0 | never run | ❌ | Draft |
+| Ruby | [`core/iaiso-ruby/`](core/iaiso-ruby/) | gem `0.4.1` *(unpublished)* | — | 1.0 | not re-run in this build | ❌ | Unverified |
 
 **How to read this table.**
 
@@ -741,7 +741,7 @@ IAISO/
 │   │   ├── pyproject.toml
 │   │   ├── README.md
 │   │   └── CHANGELOG.md
-│   ├── iaiso-node/             ← Node.js / TypeScript SDK — `@iaiso/core@0.4.0` (195 tests, incl. 72 vectors)
+│   ├── iaiso-node/             ← Node.js / TypeScript SDK — `@iaiso/core@0.4.1` (195 tests, incl. 72 vectors)
 │       ├── src/
 │       ├── tests/
 │       ├── bin/                ← `iaiso` and `iaiso-conformance` CLIs

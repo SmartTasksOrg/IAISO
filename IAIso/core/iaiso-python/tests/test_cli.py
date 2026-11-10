@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import os
 import subprocess
 import sys
 from pathlib import Path
@@ -155,7 +156,8 @@ def test_consent_keygen_issue_verify_eddsa(
     prefix = str(tmp_path / "k")
     rc, _, _ = run_cli("consent", "keygen", "--out", prefix, capsys_pair=capsys)
     assert rc == 0
-    assert (tmp_path / "k.key").stat().st_mode & 0o077 == 0
+    if os.name == "posix":  # Windows has no group/other permission bits to check
+        assert (tmp_path / "k.key").stat().st_mode & 0o077 == 0
     rc, out, _ = run_cli("consent", "issue", "bob", "--scope", "tools",
                          "--key", prefix + ".key", "--audience", "proxy",
                          "--execution-id", "e1", capsys_pair=capsys)
@@ -167,6 +169,14 @@ def test_consent_keygen_issue_verify_eddsa(
     rc, _, err = run_cli("consent", "verify", token, "--key", prefix + ".pub",
                          "--audience", "other", capsys_pair=capsys)
     assert rc == 1 and "INVALID" in err
+
+
+def test_doctor_reports_usable(capsys: pytest.CaptureFixture[str]) -> None:
+    # the release workflow runs `iaiso doctor` on the built wheel; it must pass on a sound build
+    rc, out, _ = run_cli("doctor", capsys_pair=capsys)
+    assert rc == 0
+    assert "boot guard fires" in out
+    assert "a sound config still constructs under strict: ok" in out
 
 
 def test_consent_issue_refuses_without_key(capsys: pytest.CaptureFixture[str]) -> None:

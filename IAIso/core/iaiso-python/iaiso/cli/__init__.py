@@ -259,8 +259,9 @@ def cmd_doctor(args: argparse.Namespace) -> int:
         print("  Do not rely on this build.")
         return 1
 
+    # strict mode also requires a lifetime cap: a sound config sets one
     with BoundedExecution.start(
-        config=PressureConfig(token_coefficient=0.011),
+        config=PressureConfig(token_coefficient=0.011, max_total_steps=1_000),
         audit_sink=MemorySink(),
         enforcement_mode=ENFORCEMENT_STRICT,
     ):

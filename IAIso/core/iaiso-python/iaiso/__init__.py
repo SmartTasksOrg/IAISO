@@ -16,7 +16,7 @@ normative interface specifications (pressure math, consent tokens,
 audit events, policy format).
 """
 
-__version__ = "0.4.0"
+__version__ = "0.4.1"
 
 from iaiso.audit import (
     AuditEvent,

@@ -49,20 +49,20 @@ repository is not ours. Build them from a clone first
 <dependency>
     <groupId>io.iaiso</groupId>
     <artifactId>iaiso-core</artifactId>
-    <version>0.4.0</version>
+    <version>0.4.1</version>
 </dependency>
 <dependency>
     <groupId>io.iaiso</groupId>
     <artifactId>iaiso-consent</artifactId>
-    <version>0.4.0</version>
+    <version>0.4.1</version>
 </dependency>
 ```
 
 Or in Gradle:
 
 ```kotlin
-implementation("io.iaiso:iaiso-core:0.4.0")
-implementation("io.iaiso:iaiso-consent:0.4.0")
+implementation("io.iaiso:iaiso-core:0.4.1")
+implementation("io.iaiso:iaiso-consent:0.4.1")
 ```
 
 Requires **Java 17** or later.

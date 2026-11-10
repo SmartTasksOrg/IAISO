@@ -14,7 +14,7 @@ implementation, conformant to **IAIso spec 1.0**.
 > [PHP](../iaiso-php/) reference SDKs — same audit events, same JWTs,
 > same Redis Lua script.
 
-## ⚠️ Validation status — `0.4.0-draft`
+## ⚠️ Validation status — `0.4.1-draft`
 
 Every prior reference SDK was driven to **67/67 conformance vectors green**
 through compile-test-fix iteration in the build sandbox. The Swift port

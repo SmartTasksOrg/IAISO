@@ -6,7 +6,7 @@ authorization, and structured audit logging to LLM agent loops. It is
 the runtime layer of the broader IAIso framework; see
 [`../../vision/`](../../vision/) for the full framework specification.
 
-> **Framework 5.0 · SDK 0.4.0 · status: beta.** This release ships a
+> **Framework 5.0 · SDK 0.4.1 · status: beta.** This release ships a
 > normative specification with 72 machine-checkable conformance vectors
 > (verified 72/72 against spec 1.1), 1,323 passing tests, and
 > primitives for pressure
